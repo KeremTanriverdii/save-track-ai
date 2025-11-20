@@ -20,7 +20,7 @@ const items = [
     },
     {
         title: "Expenses",
-        url: "#",
+        url: "/dashboard/expenses",
         icon: Inbox,
     },
     {
