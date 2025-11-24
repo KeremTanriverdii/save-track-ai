@@ -25,7 +25,7 @@ const items = [
     },
     {
         title: "Analytics",
-        url: "#",
+        url: "/dashboard/analytics",
         icon: Calendar,
     },
     {

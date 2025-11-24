@@ -1,4 +1,4 @@
-import { addDoc, collection } from "firebase/firestore"
+import { addDoc, collection, serverTimestamp } from "firebase/firestore"
 import { db } from "../firebase"
 
 export const addExpense = async (data: any) => {
@@ -8,7 +8,8 @@ export const addExpense = async (data: any) => {
     const docRef = await addDoc(expensesCollectionRef, {
         amount: data.amount,
         category: data.category,
-        description: data.description
+        description: data.description,
+        createdAt: serverTimestamp(),
     })
 
 }

@@ -11,7 +11,7 @@ const TEST_USER_ID = "testUserId_42";
 export async function POST(request: Request) {
     try {
         const body = await request.json();
-        const { amount, category, description } = body;
+        const { amount, category, description, createdAt, paidAt } = body;
         if (!amount || !category) {
             return NextResponse.json(
                 { error: "Eksik veri: amount ve category gereklidir." },
@@ -41,10 +41,20 @@ export async function POST(request: Request) {
     }
 }
 
-export async function GET() {
+export async function GET(req: Request) {
     try {
-        const usersCollection = await getExpenses();
-        return NextResponse.json(usersCollection, { status: 200 })
+        const { searchParams } = new URL(req.url)
+        const month = searchParams.get('yearMonth')
+        let usersCollectionData
+
+        if (month) {
+            usersCollectionData = await getExpenses(month);
+            return NextResponse.json(usersCollectionData, { status: 200 })
+        } else {
+            usersCollectionData = await getExpenses();
+            return NextResponse.json(usersCollectionData, { status: 200 })
+        }
+
     } catch (err) {
         console.log(err)
         return NextResponse.json(
