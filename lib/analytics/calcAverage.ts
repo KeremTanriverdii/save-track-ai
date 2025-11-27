@@ -19,7 +19,6 @@ export const calcAverage = (dailySpendingData: { day: string, amount: number }[]
 
     const today = new Date();
     const currentYearMonth = `${today.getFullYear()}-${today.getMonth() + 1}`;
-    console.log('current year month: ', currentYearMonth);
 
     let divisorDays: number;
 
@@ -29,8 +28,6 @@ export const calcAverage = (dailySpendingData: { day: string, amount: number }[]
     } else {
         const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
         divisorDays = lastDayOfMonth.getDate();
-        console.log('last day of month ' + divisorDays)
-
     }
 
     const average = totalAmount / divisorDays;

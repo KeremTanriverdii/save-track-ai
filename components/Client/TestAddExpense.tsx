@@ -6,8 +6,8 @@ export default function TestAddExpense() {
     const router = useRouter()
     async function testAddExpenses() {
         const expenseData = {
-            amount: 1202,
-            category: 'food',
+            amount: 12020,
+            category: 'fun',
             description: 'Test yemek harcaması2',
         };
 
