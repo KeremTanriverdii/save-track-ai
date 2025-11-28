@@ -15,7 +15,7 @@ import {
 const items = [
     {
         title: "Overview",
-        url: "#",
+        url: "/dashboard",
         icon: Home,
     },
     {
@@ -29,8 +29,8 @@ const items = [
         icon: Calendar,
     },
     {
-        title: "Budget Settings",
-        url: "#",
+        title: "Budged Settings",
+        url: "/dashboard/budged",
         icon: Search,
     },
     {

@@ -7,7 +7,7 @@ import { Expense } from '@/lib/types/type';
 import React from 'react'
 
 export default async function page() {
-    const data = await getExpenses();
+    const data: any[] = await getExpenses();
     console.log(data)
     return (
         <div>

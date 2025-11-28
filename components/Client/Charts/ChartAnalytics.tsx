@@ -19,7 +19,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
-import BudgetState from "../Budget/BudgetState"
+import BudgetState from "../Budget/BudgetStateComponent"
 import { AnalyticsData, DailyChartData } from "@/lib/types/type"
 import { getMonthlyAnalytics } from "@/app/dashboard/analytics/action"
 import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -107,7 +107,7 @@ export function ChartAnalytics({ initialData, currentMonth }: { initialData: Ana
                 <BudgetState total={totalSpending} />
             </div>
             <Card className="py-4 sm:py-0 h-full col-span-4">
-                <CardHeader className="flex flex-col items-stretch border-b !p-0 sm:flex-row">
+                <CardHeader className="flex flex-col items-stretch border-b sm:flex-row">
                     <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-3 sm:pb-0">
                         <CardTitle>Analytics Overview</CardTitle>
                         <CardDescription>Daily spending breakdown</CardDescription>

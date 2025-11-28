@@ -1,15 +1,22 @@
-import { AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Avatar } from "@radix-ui/react-avatar";
-import Image from "next/image";
+import { calTotal } from "@/lib/analytics/calcTotal";
+import { calcRemaining } from "@/lib/budged/calcRemaining";
+import { getBudged } from "@/lib/budged/GetBudget";
+import { getExpenses } from "@/lib/expenses/getExpense";
+import { dateCustom } from "@/lib/nowDate";
+import { Budget, Expense } from "@/lib/types/type";
 
-export default function Dashboard() {
+export default async function Dashboard() {
+    const expenseData: any = await getExpenses(dateCustom())
+    const totalAmount = calTotal(expenseData)
+    // console.log(totalAmount)
+    const remaining: Budget = await calcRemaining(totalAmount)
+    console.log(remaining)
     return (
         <div className="w-[500px]">
-            <div>1</div>
-            <div>2</div>
-            <div>3</div>
+            <div>Total amount: {totalAmount}</div>
+            <div>Budget: {remaining.budget}</div>
+            <div>Remaining Diff: {remaining.diff}</div>
+            {remaining.diff < (remaining.budget * 0.2) && <div>Bu ay bütçenin %80’ini tükettin.!</div>}
 
         </div>
     );

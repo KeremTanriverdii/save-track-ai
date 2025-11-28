@@ -1,6 +1,6 @@
 import { ChartAnalytics } from '@/components/Client/Charts/ChartAnalytics'
 import { getMonthlyAnalytics } from './action';
-import BudgetState from '@/components/Client/Budget/BudgetState';
+import BudgetState from '@/components/Client/Budget/BudgetStateComponent';
 
 async function initialFetch() {
     const date = new Date().toISOString().substring(0, 7);

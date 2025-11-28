@@ -1,11 +1,9 @@
-"use client"
 import { Expense } from "@/lib/types/type";
-import { useState } from "react";
 import { DeleteExpenseButton } from "./DeleteExpenseButton";
 import { UpdateExpenseButton } from "./UpdateExpenseButton";
 
 export default function ListExpensesShow({ initialData }: { initialData: Expense[] }) {
-    const [expenseData, setExpensesData] = useState(initialData)
+    const expenseData = initialData
     return (
         <div>
             {expenseData.map((item) => (

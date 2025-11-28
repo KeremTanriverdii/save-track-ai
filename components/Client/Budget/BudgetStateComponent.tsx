@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { calcRemaining } from "@/lib/budget/calcRemaining";
+import { calcRemaining } from "@/lib/budged/calcRemaining";
 import { Budget } from "@/lib/types/type";
 import { Card, CardContent } from "@/components/ui/card";
 

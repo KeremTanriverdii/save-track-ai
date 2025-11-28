@@ -1,5 +1,5 @@
 export interface Expense {
-    id: string,
+    id: any,
     amount: number,
     category?: string,
     description?: string,
@@ -16,7 +16,7 @@ export interface uptadeeExpense {
     description: string
 }
 export interface Budget {
-    budged: number,
+    budget: number,
     diff: number
 }
 export interface DailyChartData {
@@ -29,4 +29,13 @@ export interface AnalyticsData {
     totalSpending: number;
     averageSpending: number;
     mostSpendingCategory: Record<string, number> | null;
+}
+
+export interface Budged {
+    budget: number,
+    id?: {
+        seconds: number,
+        type: string,
+        nanoseconds: number
+    }
 }
