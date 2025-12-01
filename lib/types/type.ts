@@ -1,7 +1,7 @@
 export interface Expense {
     id: any,
     amount: number,
-    category?: string,
+    category: string,
     description?: string,
     createdAt: {
         seconds: number,
@@ -22,6 +22,7 @@ export interface Budget {
 export interface DailyChartData {
     day: string;
     amount: number;
+    spike?: boolean;
 }
 
 export interface AnalyticsData {
@@ -29,6 +30,7 @@ export interface AnalyticsData {
     totalSpending: number;
     averageSpending: number;
     mostSpendingCategory: Record<string, number> | null;
+    rawData?: Expense[];
 }
 
 export interface Budged {

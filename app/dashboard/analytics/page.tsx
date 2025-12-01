@@ -1,6 +1,7 @@
 import { ChartAnalytics } from '@/components/Client/Charts/ChartAnalytics'
-import { getMonthlyAnalytics } from './action';
-import BudgetState from '@/components/Client/Budget/BudgetStateComponent';
+import { getMonthlyAnalytics, getMonthlyRawAnalyticsData } from './action';
+import AnalyticsClientWrapperComponent from '@/components/Client/AnalyticsPageWrapper';
+
 
 async function initialFetch() {
     const date = new Date().toISOString().substring(0, 7);
@@ -10,7 +11,7 @@ async function initialFetch() {
         const initialData = await getMonthlyAnalytics(currentMonth);
         return { initialData, currentMonth };
     } catch (error) {
-        console.error("İlk veri çekme hatası:", error);
+        console.error("First fetch error:", error);
         return {
             initialData: {
                 dailyData: [],
@@ -23,14 +24,24 @@ async function initialFetch() {
     }
 }
 
+async function initialInsightPanelDataFetch() {
+    const date = new Date().toISOString().substring(0, 7);
+    const currentMonthInsigth = date
+
+    try {
+        const initialDataInsight = await getMonthlyRawAnalyticsData(currentMonthInsigth)
+        return { initialDataInsight, currentMonthInsigth }
+    } catch (error) {
+        console.error("First fetch error:", error);
+        return {
+        }
+    }
+}
+
 export default async function page() {
     const { initialData, currentMonth } = await initialFetch();
 
     return (
-        <div >
-            {/* Server'da çekilen veriyi Client Component'e prop olarak geçiriyoruz */}
-            <ChartAnalytics initialData={initialData} currentMonth={currentMonth} />
-            <div>InsightPanel server</div>
-        </div>
+        <AnalyticsClientWrapperComponent initialData={initialData} currentMonth={currentMonth} />
     )
 }

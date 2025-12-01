@@ -32,7 +32,7 @@ export async function getMonthlyAnalytics(yearMonth: string): Promise<AnalyticsD
     });
 
     if (!res.ok) {
-        console.error(`API isteği başarısız oldu: ${res.status}`);
+        console.error(`API request failed with status: ${res.status}`);
         return {
             dailyData: [],
             totalSpending: 0,
@@ -49,9 +49,28 @@ export async function getMonthlyAnalytics(yearMonth: string): Promise<AnalyticsD
     const averageSpending = calcAverage(dailyData);
 
     return {
+        rawData,
         dailyData,
         totalSpending,
         averageSpending,
         mostSpendingCategory: topCategory,
     };
+}
+
+export async function getMonthlyRawAnalyticsData(yearMonth: string): Promise<Expense[]> {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+    const fullUrl = `${baseUrl}/api/expenses?yearMonth=${yearMonth}`;
+
+    const res = await fetch(fullUrl, {
+        cache: 'no-store'
+    });
+
+    if (!res.ok) {
+        console.error(`API request failed with status: ${res.status}`);
+        return [];
+    }
+
+    const rawData: Expense[] = await res.json();
+
+    return rawData;
 }
