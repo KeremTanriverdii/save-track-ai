@@ -1,15 +1,43 @@
-import { ChartAnalytics } from '@/components/Client/Charts/ChartAnalytics'
-import { getMonthlyAnalytics, getMonthlyRawAnalyticsData } from './action';
+import { transformToDailyChart } from './action';
 import AnalyticsClientWrapperComponent from '@/components/Client/AnalyticsPageWrapper';
+import { Expense } from '@/lib/types/type';
+import { calTotal } from '@/lib/analytics/calcTotal';
+import { calcTopCategorySpending } from '@/lib/analytics/calcTopCategory';
+import { calcAverage } from '@/lib/analytics/calcAverage';
 
 
 async function initialFetch() {
     const date = new Date().toISOString().substring(0, 7);
     const currentMonth = date
-
     try {
-        const initialData = await getMonthlyAnalytics(currentMonth);
-        return { initialData, currentMonth };
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+        const fullUrl = `${baseUrl}/api/expenses?yearMonth=${currentMonth}`;
+        const response = await fetch(fullUrl, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            cache: 'no-store',
+        })
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        const rawData: Expense[] = await response.json();
+
+        const dailyData = await transformToDailyChart(rawData);
+        const totalSpending = calTotal(dailyData);
+        const topCategory = calcTopCategorySpending(rawData);
+        const averageSpending = calcAverage(dailyData);
+        return {
+            initialData: {
+                rawData,
+                dailyData,
+                totalSpending,
+                averageSpending,
+                mostSpendingCategory: topCategory,
+            },
+            currentMonth
+        };
     } catch (error) {
         console.error("First fetch error:", error);
         return {
@@ -24,23 +52,8 @@ async function initialFetch() {
     }
 }
 
-async function initialInsightPanelDataFetch() {
-    const date = new Date().toISOString().substring(0, 7);
-    const currentMonthInsigth = date
-
-    try {
-        const initialDataInsight = await getMonthlyRawAnalyticsData(currentMonthInsigth)
-        return { initialDataInsight, currentMonthInsigth }
-    } catch (error) {
-        console.error("First fetch error:", error);
-        return {
-        }
-    }
-}
-
 export default async function page() {
     const { initialData, currentMonth } = await initialFetch();
-
     return (
         <AnalyticsClientWrapperComponent initialData={initialData} currentMonth={currentMonth} />
     )

@@ -26,7 +26,7 @@ export interface DailyChartData {
 }
 
 export interface AnalyticsData {
-    dailyData: DailyChartData[];
+    dailyData?: DailyChartData[];
     totalSpending: number;
     averageSpending: number;
     mostSpendingCategory: Record<string, number> | null;
@@ -64,4 +64,12 @@ export interface DetectAnomalies {
     day: string;
     amount: number;
     spike?: boolean | undefined;
+}
+
+export interface AllData {
+    analyticsData: AnalyticsData,
+    anomalies: DetectAnomalies[];
+    detectOverspendAreas: IsSpike[];
+    detectWeeklyTrend: ChangeRate[];
+    dailyData: DailyChartData[]
 }
