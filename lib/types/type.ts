@@ -41,3 +41,27 @@ export interface Budged {
         nanoseconds: number
     }
 }
+
+export interface ChangeRate {
+    week: string | number;
+    total: number;
+    isRising: boolean;
+    changeRate: number;
+}
+
+export interface IsSpike {
+    day: number;
+    amount: number;
+    spike: boolean;
+}
+
+export interface DetectAnomalies {
+    isAnomaly: boolean;
+    stats: {
+        mean: number;
+        threshold: number;
+    };
+    day: string;
+    amount: number;
+    spike?: boolean | undefined;
+}

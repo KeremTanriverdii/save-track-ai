@@ -1,5 +1,5 @@
 import { calculateMean, calculateStdDev } from "@/utils/calculateMean";
-import { DailyChartData, Expense } from "../types/type";
+import { DailyChartData, DetectAnomalies, Expense } from "../types/type";
 
 export function detectAnomalies(dailyExpenses: DailyChartData[]) {
     if (!dailyExpenses || dailyExpenses.length === 0) return [];
@@ -28,7 +28,7 @@ export function detectAnomalies(dailyExpenses: DailyChartData[]) {
                 threshold: Math.round(anomalyThreshold)
             }
         }
-    })
+    }) as DetectAnomalies[]
 
 
 }

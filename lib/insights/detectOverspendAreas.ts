@@ -1,5 +1,5 @@
 import { transformToDailyChart } from "@/app/dashboard/analytics/action";
-import { AnalyticsData, DailyChartData, Expense } from "../types/type";
+import { AnalyticsData, DailyChartData, Expense, IsSpike } from "../types/type";
 
 export function detectOverspendAreas(expenses: Expense[]) {
     if (!expenses || expenses.length === 0) return [];
@@ -22,6 +22,6 @@ export function detectOverspendAreas(expenses: Expense[]) {
     }
 
     const x = daily.map(findIsSpike)
-    return x
+    return x as IsSpike[]
 
 }

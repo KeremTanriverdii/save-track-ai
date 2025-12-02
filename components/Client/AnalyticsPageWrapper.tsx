@@ -28,7 +28,7 @@ export default function AnalyticsClientWrapperComponent({ initialData, currentMo
 
                 setChartDataAnalytics(newData)
                 setRawData(newData.rawData || [])
-                setDailyData(newData.dailyData || [])
+                setDailyData(newData.dailyData)
             } catch (err) {
                 console.error("Error with server action:", err);
             }
@@ -67,8 +67,12 @@ export default function AnalyticsClientWrapperComponent({ initialData, currentMo
             </div>
 
             <div>
-                {isPending && (
-                    <InsightPanelComponent initialData={rawData || []} dailyData={dailyData || []} />
+                {isPending ? (
+                    <div className="h-40 w-full rounded-lg bg-muted animate-pulse"> {/* Örnek Skeleton */}
+                        Loading datas...
+                    </div>
+                ) : (
+                    <InsightPanelComponent initialData={rawData} dailyData={dailyData} />
                 )}
             </div>
         </div>

@@ -1,4 +1,4 @@
-import { Expense } from "../types/type";
+import { ChangeRate, Expense } from "../types/type";
 
 export function detectWeeklyTrend(expenses: Expense[]) {
     if (!expenses || expenses.length === 0) return [];
@@ -34,11 +34,11 @@ export function detectWeeklyTrend(expenses: Expense[]) {
         const changeRate = ((currentTotal - previousTotal) / previousTotal)
 
         return {
-            week: 'Week' + Number(currentWeekData[0]),
+            week: 'Week ' + Number(currentWeekData[0]),
             total: currentTotal,
             isRising: changeRate > 0,
             changeRate: Number(changeRate.toFixed(2))
-        }
+        } as ChangeRate
     })
     return trendResults
 }
