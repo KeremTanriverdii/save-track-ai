@@ -13,6 +13,8 @@ import {
     SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./collapsible"
+import getDateResultsAndDate from "@/lib/ai-respons/getDateResultsAndDate"
+import Link from "next/link"
 
 // Menu items.
 const items = [
@@ -39,7 +41,9 @@ const items = [
 
 ]
 
-export function AppSidebar() {
+export async function AppSidebar() {
+    const menuItem = await getDateResultsAndDate();
+    console.log(menuItem);
     return (
         <Sidebar>
             <SidebarContent>
@@ -73,16 +77,15 @@ export function AppSidebar() {
 
                                     <CollapsibleContent>
                                         <SidebarMenuSub>
-                                            <SidebarMenuSubItem>
-                                                <a href="/ai-coach/2025-01">2025-01 Raporu</a>
-                                            </SidebarMenuSubItem>
-                                            <SidebarMenuSubItem>
-                                                <a href="/ai-coach/2025-02">2025-02 Raporu</a>
-                                            </SidebarMenuSubItem>
-                                            <SidebarMenuSubItem>
-                                                <a href="/ai-coach/2025-03">2025-03 Raporu</a>
-                                            </SidebarMenuSubItem>
-
+                                            {menuItem.map((item) => (
+                                                <SidebarMenuSubItem key={item.id}>
+                                                    <Link href={`/dashboard/ai-coach/details/${item.id}`}>
+                                                        {item.createdAt
+                                                            ? `${new Date(item.createdAt).toLocaleDateString()}- Report`
+                                                            : "Tarih Yok"}
+                                                    </Link>
+                                                </SidebarMenuSubItem>
+                                            ))}
                                             <SidebarMenuSubItem className="pl-0">
                                                 <Collapsible>
                                                     <CollapsibleTrigger asChild>
@@ -90,14 +93,7 @@ export function AppSidebar() {
                                                             <span>Diğer Analizler</span>
                                                         </div>
                                                     </CollapsibleTrigger>
-                                                    <CollapsibleContent>
-                                                        <SidebarMenuSubItem>
-                                                            <a href="/ai-coach/detay/124">Haftalık Analiz 124</a>
-                                                        </SidebarMenuSubItem>
-                                                        <SidebarMenuSubItem>
-                                                            <a href="/ai-coach/detay/125">Risk Değerlendirmesi</a>
-                                                        </SidebarMenuSubItem>
-                                                    </CollapsibleContent>
+
                                                 </Collapsible>
                                             </SidebarMenuSubItem>
 
