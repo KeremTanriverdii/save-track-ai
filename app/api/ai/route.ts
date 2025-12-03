@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { GoogleGenAI } from '@google/genai'
+import { collection, doc } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { write } from "fs";
+import { writeResults } from "@/lib/ai-respons/writeResults";
 
 
 
@@ -8,24 +12,97 @@ export async function POST(req: Request) {
 
     try {
         const body = await req.json();
-        const { analytics, insights } = body;
+        const { analytics } = body;
 
-        const GEMINI_API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+        const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
         const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
-        const prompt = 'Hello, this is a prompt. Write me 10 words about AI.'
-        async function AiWithInsight() {
-            const response = await ai.models.generateContent({
-                model: 'gemini-2.5-flash',
-                contents: prompt
-            })
-            console.log(response.text);
-            return response.text;
-        }
-        AiWithInsight();
-        return NextResponse.json({ AiWithInsight: AiWithInsight(), message: 'success', status: 200 })
+        const prompt = `
+        You are a personal finance coach.
 
+Your task is to analyze the user's monthly spending behavior using the JSON data provided. 
+This data includes totals, averages, category distributions, daily spending, anomalies, and spending trends.
+
+Your responsibilities:
+1. Evaluate the user’s overall budget performance for the month.
+2. Identify the riskiest spending category and explain why.
+3. Comment on daily spending patterns (consistency, spikes, unusual days).
+4. Interpret the trend data (is spending rising or falling? why might this be happening?).
+5. Provide exactly 3 actionable and realistic suggestions the user can apply immediately.
+6. Keep the tone calm, concise, and informative.
+7. Avoid generic advice; use the provided numbers meaningfully.
+8. Do not include any text outside the JSON structure.
+
+Input data will be provided as a JSON object here:
+{{analyticsInput}}
+
+You must respond **strictly in the following JSON format**:
+
+{
+  "summary": "A brief 2–3 sentence overview of the user’s financial performance.",
+  "risks": [
+    "A short sentence describing the most problematic category or pattern."
+  ],
+  "patterns": [
+    "A concise observation about daily spending or anomalies."
+  ],
+  "suggestions": [
+    "Actionable suggestion 1",
+    "Actionable suggestion 2",
+    "Actionable suggestion 3"
+  ]
+} ` .replace('{{analyticsInput}}', JSON.stringify(analytics));
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.0-flash',
+            contents: prompt,
+            config: {
+                responseMimeType: 'application/json',
+                responseSchema: {
+                    type: 'object',
+                    properties: {
+                        summary: { type: 'string' },
+                        risks: {
+                            type: 'array',
+                            items: { type: 'string' },
+                            description: 'The most problematic category or pattern'
+                        },
+                        patterns: {
+                            type: 'array',
+                            items: { type: 'string' },
+                            description: 'Observations about daily spending or anomalies'
+                        },
+                        suggestions: {
+                            type: 'array',
+                            items: { type: 'string' },
+                            description: 'Exactly 3 actionable suggestions'
+                        }
+                    },
+                    required: ['summary', 'risks', 'patterns', 'suggestions']
+                }
+            }
+        });
+        const geminiResponseText = response.text;
+        console.log(geminiResponseText);
+
+        let insightData;
+        try {
+            insightData = JSON.parse(geminiResponseText as string);
+        } catch (parseError) {
+            console.error('Error parsing Gemini response:', parseError);
+            return NextResponse.json({ message: 'Error parsing AI response', status: 500 });
+        }
+
+        if (insightData) {
+            // await saveTheFirestoreInsight(insightData);
+            await writeResults(insightData);
+        } else {
+            console.error('No insight data to save to Firestore.');
+        }
+        console.log('Saving insight data to Firestore:', insightData);
+        // Implement actual Firestore saving logic here
+        return NextResponse.json({ data: insightData, status: 200 });
     } catch (err) {
         return NextResponse.json({ message: 'error', status: 500 });
     }

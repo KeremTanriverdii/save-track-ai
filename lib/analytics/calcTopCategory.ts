@@ -14,6 +14,19 @@ export const calcTopCategorySpending = (data: Expense[]): Record<string, number>
     const topEntry = Object.entries(nameCategoryofMostSpend).reduce((max, current) => {
         return current[1] > max[1] ? current : max;
     })
-    // console.log(nameCategoryofMostSpend)
     return { [topEntry[0]]: topEntry[1] };
+}
+
+export const getCategoryAndTotalAmount = (data: Expense[]) => {
+    if (data.length === 0) return null;
+    const categoryTotals = data.reduce((acc: any, curr) => {
+        const category = curr.category;
+        if (category) {
+            acc[category as string] = (acc[category] || 0) + curr.amount;
+        }
+        return acc;
+    }, {
+    });
+    return categoryTotals;
+
 }

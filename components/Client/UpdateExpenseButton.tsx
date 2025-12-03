@@ -2,8 +2,6 @@
 
 import { useState } from "react"
 import { Button } from "../ui/button"
-import { Expense } from "@/lib/types/type"
-import { updateExpense } from "@/lib/expenses/uptadeExpense";
 import { useRouter } from "next/navigation";
 
 export const UpdateExpenseButton = ({ id, amount, category, description }: { id: string, amount: number, category: string, description: string }) => {

@@ -8,7 +8,7 @@ import InsightPanelComponent from '../InsightPanelComponent'
 import { calTotal } from '@/lib/analytics/calcTotal'
 import { calcTopCategorySpending } from '@/lib/analytics/calcTopCategory'
 import { calcAverage } from '@/lib/analytics/calcAverage'
-import { getBudged } from '@/lib/budged/GetBudget'
+import { getBudget } from '@/lib/budged/GetBudget'
 
 export default function AnalyticsClientWrapperComponent({ initialData, currentMonth }: {
     initialData: AnalyticsData,
@@ -42,7 +42,7 @@ export default function AnalyticsClientWrapperComponent({ initialData, currentMo
             const totalSpending = calTotal(dailyData);
             const topCategory = calcTopCategorySpending(rawData);
             const averageSpending = calcAverage(dailyData);
-            const budget = getBudged();
+            const budget = await getBudget(selectedMonth);
             return {
                 initialData: {
                     rawData,

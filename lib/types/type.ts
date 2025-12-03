@@ -1,5 +1,5 @@
 export interface Expense {
-    id: any,
+    id: string,
     amount: number,
     category: string,
     description?: string,
@@ -65,11 +65,15 @@ export interface DetectAnomalies {
     amount: number;
     spike?: boolean | undefined;
 }
-
+export interface categoryTotalsType {
+    [category: string]: number | null;
+}
 export interface AllData {
-    analyticsData: AnalyticsData,
+
+    summary: AnalyticsData,
+    categoryTotals: categoryTotalsType
     anomalies: DetectAnomalies[];
-    detectOverspendAreas: IsSpike[];
-    detectWeeklyTrend: ChangeRate[];
-    dailyData: DailyChartData[]
+    daily: DailyChartData[]
+    // detectOverspendAreas: IsSpike[];
+    trend: ChangeRate[];
 }

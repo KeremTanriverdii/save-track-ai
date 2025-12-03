@@ -1,9 +1,10 @@
 import { detectAnomalies } from '@/lib/insights/detectAnomalies'
 import { detectOverspendAreas } from '@/lib/insights/detectOverspendAreas'
 import { detectWeeklyTrend } from '@/lib/insights/detectWeeklyTrend'
-import { AllData, AnalyticsData, ChangeRate, DailyChartData, Expense } from '@/lib/types/type'
+import { AllData, AnalyticsData, DailyChartData, Expense } from '@/lib/types/type'
 import { Button } from './ui/button'
 import ButtonAiComponent from './Client/ButtonAiComponent'
+import { getCategoryAndTotalAmount } from '@/lib/analytics/calcTopCategory'
 
 export default function InsightPanelComponent({
     initialData,
@@ -17,8 +18,9 @@ export default function InsightPanelComponent({
     const { dailyData, rawData, ...chartsDataWithoutDailyData } = chartsData;
     const changeRate = detectWeeklyTrend(initialData);
     const detect = detectOverspendAreas(initialData)
+    const categoryTotals: any = getCategoryAndTotalAmount(initialData);
 
-    const x = initialData.map((x: Expense) => {
+    const dailyCharts = initialData.map((x: Expense) => {
         const date = new Date(x.createdAt.seconds * 1000);
         const day = date.getDate();
         return {
@@ -26,18 +28,16 @@ export default function InsightPanelComponent({
             amount: x.amount
         }
     }) as unknown as DailyChartData[]
-    const y = detectAnomalies(x as unknown as DailyChartData[])
-    // const filter = chartsData.
+    const y = detectAnomalies(dailyCharts as unknown as DailyChartData[])
 
-
-    // This variable going to change for prepare ai format
     const allDataOneVariable: AllData = {
-        analyticsData: chartsDataWithoutDailyData,
+        summary: chartsDataWithoutDailyData,
+        categoryTotals: categoryTotals,
+        daily: dailyCharts,
         anomalies: y.filter((item) => item.isAnomaly === true),
-        detectOverspendAreas: detect.filter((item) => item.spike === true),
-        detectWeeklyTrend: changeRate.filter((item) => item.isRising === true),
-        dailyData: x
+        trend: changeRate.filter((item) => item.isRising === true),
     }
+
     return (
         <div className='flex gap-5 mt-5 text-nowrap'>
             <ul >{changeRate.map((item, index: number) => (
