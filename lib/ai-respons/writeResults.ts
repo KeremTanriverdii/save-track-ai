@@ -1,4 +1,4 @@
-import { addDoc, collection, doc } from "firebase/firestore";
+import { addDoc, collection, doc, serverTimestamp } from "firebase/firestore";
 import { db } from "../firebase";
 
 export const writeResults = async (data: any) => {
@@ -6,7 +6,7 @@ export const writeResults = async (data: any) => {
         const aiCoachingRef = collection(db, 'users', 'testusers', 'aiResults');
         const addDocRef = await addDoc(aiCoachingRef, {
             insight: data,
-            createdAt: new Date()
+            createdAt: serverTimestamp()
         });
         return addDocRef;
     } catch (error) {
