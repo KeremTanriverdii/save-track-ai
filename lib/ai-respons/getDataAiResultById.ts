@@ -1,5 +1,5 @@
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../firebase/firebase";
 
 export const getDataAiResultById = async (id: string) => {
     // Get the firestore inside aiResults collection and inside with id document return the data

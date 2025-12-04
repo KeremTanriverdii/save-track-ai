@@ -1,5 +1,5 @@
 import { collection, doc, getDocs, query, Timestamp, where } from "firebase/firestore"
-import { db } from "../firebase"
+import { db } from "../firebase/firebase"
 
 export const getExpenses = async (yearMonth?: string) => {
     try {

@@ -1,5 +1,5 @@
 import { addDoc, collection, doc, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../firebase/firebase";
 
 export const writeResults = async (data: any) => {
     try {

@@ -1,5 +1,5 @@
 import { doc, updateDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../firebase/firebase";
 
 export const updateExpense = async (id: string, amount: number, category: string, description: string) => {
     console.log("Update Lib", id, amount, category, description);

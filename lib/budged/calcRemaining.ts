@@ -1,5 +1,5 @@
 import { doc, getDoc } from "firebase/firestore"
-import { db } from "../firebase"
+import { db } from "../firebase/firebase"
 import { Budget } from "../types/type";
 
 export const calcRemaining = async (totalAmount: number): Promise<string | Budget> => {

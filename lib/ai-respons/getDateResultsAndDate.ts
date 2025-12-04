@@ -1,5 +1,5 @@
 import { collection, getDocs, QueryDocumentSnapshot } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../firebase/firebase";
 import { Delete } from "lucide-react";
 
 /**

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { GoogleGenAI } from '@google/genai'
 import { collection, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { db } from "@/lib/firebase/firebase";
 import { write } from "fs";
 import { writeResults } from "@/lib/ai-respons/writeResults";
 import { deleteDataById } from "@/lib/ai-respons/deleteResults";

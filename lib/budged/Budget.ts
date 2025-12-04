@@ -1,5 +1,5 @@
 import { addDoc, collection, doc, serverTimestamp, setDoc, Timestamp } from "firebase/firestore";
-import { usersCollection } from "../firebase"
+import { usersCollection } from "../firebase/firebase"
 
 export const addbudget = async (bud: number) => {
     if (!bud) return
