@@ -4,6 +4,7 @@ import { collection, doc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { write } from "fs";
 import { writeResults } from "@/lib/ai-respons/writeResults";
+import { deleteDataById } from "@/lib/ai-respons/deleteResults";
 
 
 
@@ -84,7 +85,6 @@ You must respond **strictly in the following JSON format**:
             }
         });
         const geminiResponseText = response.text;
-        console.log(geminiResponseText);
 
         let insightData;
         try {
@@ -100,10 +100,29 @@ You must respond **strictly in the following JSON format**:
         } else {
             console.error('No insight data to save to Firestore.');
         }
-        console.log('Saving insight data to Firestore:', insightData);
+
         // Implement actual Firestore saving logic here
         return NextResponse.json({ data: insightData, status: 200 });
     } catch (err) {
         return NextResponse.json({ message: 'error', status: 500 });
     }
-} 
+}
+
+export async function DELETE(req: Request) {
+    if (!req) return 'No req data';
+
+    try {
+        const body = await req.json();
+        const { id } = body;
+
+        if (!id) {
+            return NextResponse.json({ message: 'error', status: 500 });
+        } else {
+            await deleteDataById(id);
+            return NextResponse.json({ message: 'success', status: 200 })
+        }
+    } catch (err) {
+        return NextResponse.json({ message: 'error', status: 500 });
+    }
+
+}

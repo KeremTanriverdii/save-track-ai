@@ -17,7 +17,8 @@ export interface uptadeeExpense {
 }
 export interface Budget {
     budget: number,
-    diff: number
+    diff: number,
+    error: string
 }
 export interface DailyChartData {
     day: string;
@@ -76,4 +77,15 @@ export interface AllData {
     daily: DailyChartData[]
     // detectOverspendAreas: IsSpike[];
     trend: ChangeRate[];
+}
+
+export interface AiResultType {
+    id: string,
+    createdAt: { seconds: number, nanoseconds: number },
+    insight: {
+        risks: [],
+        patterns: [],
+        suggestions: [],
+        summary: []
+    }
 }

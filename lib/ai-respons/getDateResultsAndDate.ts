@@ -1,5 +1,6 @@
 import { collection, getDocs, QueryDocumentSnapshot } from "firebase/firestore";
 import { db } from "../firebase";
+import { Delete } from "lucide-react";
 
 /**
  * Fetches documents from users/{userId}/aiResults and returns an array with
@@ -45,6 +46,7 @@ export async function getDateResultsAndDate(userId = "testusers") {
                 id: doc.id,
                 createdAt: createdAtIso,
                 data: raw,
+                icon: Delete as any
             };
         });
 

@@ -1,4 +1,4 @@
-import { Bot, Calendar, ChevronDown, Home, Inbox, Search, Settings } from "lucide-react"
+import { Bot, Calendar, ChevronDown, Delete, Home, Inbox, LucideIcon, Search, Settings } from "lucide-react"
 
 import {
     Sidebar,
@@ -15,6 +15,8 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./collapsible"
 import getDateResultsAndDate from "@/lib/ai-respons/getDateResultsAndDate"
 import Link from "next/link"
+import { Button } from "./button"
+import DeleteReportButtonComponent from "../Client/DeleteReportButtonComponent"
 
 // Menu items.
 const items = [
@@ -43,7 +45,6 @@ const items = [
 
 export async function AppSidebar() {
     const menuItem = await getDateResultsAndDate();
-    console.log(menuItem);
     return (
         <Sidebar>
             <SidebarContent>
@@ -78,12 +79,13 @@ export async function AppSidebar() {
                                     <CollapsibleContent>
                                         <SidebarMenuSub>
                                             {menuItem.map((item) => (
-                                                <SidebarMenuSubItem key={item.id}>
+                                                <SidebarMenuSubItem key={item.id} className="flex justify-between items-center">
                                                     <Link href={`/dashboard/ai-coach/details/${item.id}`}>
                                                         {item.createdAt
-                                                            ? `${new Date(item.createdAt).toLocaleDateString()}- Report`
+                                                            ? `${new Date(item.createdAt).toLocaleDateString()} Report`
                                                             : "Tarih Yok"}
                                                     </Link>
+                                                    <DeleteReportButtonComponent id={item.id} />
                                                 </SidebarMenuSubItem>
                                             ))}
                                             <SidebarMenuSubItem className="pl-0">

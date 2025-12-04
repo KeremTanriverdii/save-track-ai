@@ -1,4 +1,6 @@
+import PrintAsPDFComponent from '@/components/Client/PrintAsPDFComponent';
 import { getDataAiResultById } from '@/lib/ai-respons/getDataAiResultById';
+import { AiResultType } from '@/lib/types/type';
 import React from 'react'
 
 type PageProps = {
@@ -8,10 +10,10 @@ type PageProps = {
 export default async function page({ params }: PageProps) {
   const { id } = await params;
   const data = await getDataAiResultById(id);
-  console.log(data)
   return (
     <div>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
+      {/* <div>{JSON.stringify(data, null, 2)}</div> */}
+      <PrintAsPDFComponent result={data as AiResultType} />
     </div>
   )
 }

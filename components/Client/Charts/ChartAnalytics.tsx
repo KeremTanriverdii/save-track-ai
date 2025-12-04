@@ -10,15 +10,6 @@ import {
     CardTitle,
 } from "@/components/ui/card"
 
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
 import BudgetState from "../Budget/BudgetStateComponent"
 import { AnalyticsData, DailyChartData } from "@/lib/types/type"
 // import { getMonthlyAnalytics } from "@/app/dashboard/analytics/action"
@@ -32,7 +23,7 @@ export const description = "An interactive line chart"
 export function ChartAnalytics({ initialData }: { initialData: AnalyticsData }) {
     const [isPending] = React.useTransition();
 
-    const chartData = initialData.dailyData
+    const chartData: DailyChartData[] = initialData.dailyData || []
     const mostSpendingCategory = (initialData.mostSpendingCategory)
     const totalSpending = initialData.totalSpending
 
@@ -44,13 +35,9 @@ export function ChartAnalytics({ initialData }: { initialData: AnalyticsData }) 
         },
     } satisfies ChartConfig
 
-
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+        <div>
 
-            <div className="md:col-start-4">
-                <BudgetState total={totalSpending} />
-            </div>
             <Card className="py-4 sm:py-0 h-full col-span-4">
                 <CardHeader className="flex flex-col items-stretch border-b sm:flex-row">
                     <div className="flex flex-1 flex-col justify-center gap-1 px-6 pb-3 sm:pb-0">
@@ -59,8 +46,6 @@ export function ChartAnalytics({ initialData }: { initialData: AnalyticsData }) 
                     </div>
 
                     <div className="flex items-center gap-5 ">
-
-
 
                         <div className="text-sm">
                             <p>Most Spending Category: {mostSpendingCategory ? Object.keys(mostSpendingCategory)[0] : 'Not found'}</p>

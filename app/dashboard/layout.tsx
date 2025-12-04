@@ -29,9 +29,9 @@ export default function Dashboard({
     return (
 
         <div
-            className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased dark relative`}
+            className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased dark relative `}
         >
-            <header className="p-5 bg-gray-600/30 text-white  mx-auto rounded-md flex justify-between items-center sticky top-0 z-50">
+            <header className="p-5 bg-gray-600/30 text-white  mx-auto rounded-md flex justify-between items-center sticky top-0 z-50 no-print">
                 <div>
                     <a href="/">Ana Sayfa</a>
                 </div>
