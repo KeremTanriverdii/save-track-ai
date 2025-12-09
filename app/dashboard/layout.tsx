@@ -1,15 +1,16 @@
 import LogoutClientComponent from "@/components/Client/Auth/LogoutClientComponent";
+import { UserProviderCC } from "@/components/Client/Providers/UserProvider";
 import { AppSidebar } from "@/components/ui/AppSidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import admin from "@/lib/firebase/admin";
+import { getUserData } from "@/lib/auth/user";
+import { User } from "@/lib/types/type";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { cookies } from "next/headers";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { use } from "react";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -31,28 +32,12 @@ export default async function Dashboard({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const cookieStore = cookies();
-
-    const sessionCookie = (await cookieStore).get('sessionToken')?.value || ''
-
-    if (!sessionCookie) {
-        // redirect('//login')
-        // return null
-    }
-    let userData: { UserEmail: string, userUid: string, photo: string, displayName: string } | null = null;
+    let userData: User | undefined = undefined;
     try {
-        const decodedClaims = await admin.auth().verifySessionCookie(sessionCookie, true)
-        userData = {
-            UserEmail: decodedClaims.email || '',
-            userUid: decodedClaims.uid || '',
-            photo: decodedClaims.picture || '',
-            displayName: decodedClaims.name || '',
-        }
-
-    } catch (error) {
-        console.log(error)
+        userData = await getUserData();
+    } catch (err) {
+        console.log(err)
     }
-
     return (
 
         <div
@@ -65,8 +50,8 @@ export default async function Dashboard({
                 <div className="flex items-center gap-5">
 
                     <Avatar>
-                        {userData?.photo ? (
-                            <AvatarImage src={userData.photo} />
+                        {userData?.photoURL ? (
+                            <AvatarImage src={userData.photoURL} />
                         ) : (
                             <AvatarImage src={'https://github.com/shadcn.png'} />
                         )}
@@ -122,8 +107,8 @@ export default async function Dashboard({
                             <DropdownMenuItem>Support</DropdownMenuItem>
                             <DropdownMenuItem disabled>API</DropdownMenuItem>
                             <DropdownMenuSeparator />
+                            {/* Logout component */}
                             <LogoutClientComponent />
-
                         </DropdownMenuContent>
                     </DropdownMenu>
                 </div>
@@ -134,7 +119,9 @@ export default async function Dashboard({
                 <AppSidebar />
                 <SidebarTrigger />
                 <main className="w-full relative">
-                    {children}
+                    <UserProviderCC initialData={userData as User}>
+                        {children}
+                    </UserProviderCC>
                 </main>
             </SidebarProvider>
         </div>

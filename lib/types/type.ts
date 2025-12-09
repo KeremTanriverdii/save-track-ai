@@ -98,3 +98,8 @@ export interface User {
     createdAt: Date;
     lastLogin: Date;
 }
+
+export interface UserProviderProps {
+    children: React.ReactNode;
+    initialData: User;
+}

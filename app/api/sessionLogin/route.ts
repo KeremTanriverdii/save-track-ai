@@ -16,7 +16,7 @@ export async function POST(req: Request) {
         await admin.auth().verifyIdToken(idToken);
         const sessionCookie = await admin.auth().createSessionCookie(idToken, { expiresIn: EXPIRES_IN });
         const optionsCookie = {
-            name: 'sessionToken',
+            name: 'session',
             value: sessionCookie,
             maxAge: EXPIRES_IN,
             httpOnly: true,
@@ -28,8 +28,15 @@ export async function POST(req: Request) {
         response.cookies.set(optionsCookie);
         return response;
     } catch (err) {
-        console.error('Token authorization error', err)
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+        console.error('Token authorization error DETAIL:', err);
 
+        // Geliştirme aşamasında client tarafına da hata mesajını gönderin.
+        const errorMessage = (err instanceof Error) ? err.message : 'Unknown authorization error';
+
+        // 401 Unauthorized yanıtı döndürülüyor.
+        return NextResponse.json(
+            { error: 'Unauthorized', detail: errorMessage },
+            { status: 401 }
+        );
     }
 }

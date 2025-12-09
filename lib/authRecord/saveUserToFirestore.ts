@@ -6,7 +6,7 @@ export const saveUserToFirestore = async (user: User) => {
     const userDataToUpdate = {
         uid: user.uid,
         email: user.email,
-        displayName: user.displayName || 'Anonim Kullanıcı',
+        displayName: user.displayName || 'Anonymous User',
         photoURL: user.photoURL,
         lastLogin: serverTimestamp(),
     };
@@ -20,11 +20,11 @@ export const saveUserToFirestore = async (user: User) => {
             ...userDataToUpdate,
             createdAt: serverTimestamp(),
         });
-        console.log(`Yeni kullanıcı Firestore'a kaydedildi: ${user.email}`);
+        console.log(`New user created to firestore: ${user.email}`);
 
     } else {
         await setDoc(userRef, userDataToUpdate, { merge: true });
-        console.log(`Kullanıcı girişi güncellendi: ${user.email}`);
+        console.log(`User's data updated to firestore: ${user.email}`);
     }
 }
 

@@ -20,8 +20,8 @@ export default function LogoutClientComponent() {
         }
     }
     return (
-        <DropdownMenuItem>
-            <button onClick={handleLogout}>Logout</button>
+        <DropdownMenuItem onClick={handleLogout}>
+            Logout
             <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
     )
