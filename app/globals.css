@@ -127,3 +127,9 @@
     display: none !important;
   }
 }
+
+@layer utilities {
+  .styleCard {
+    @apply bg-[#1F2937] p-6 rounded-lg flex flex-col items-center text-center
+  }
+}

@@ -5,6 +5,7 @@ import { AllData, AnalyticsData, DailyChartData, Expense } from '@/lib/types/typ
 import { Button } from './ui/button'
 import ButtonAiComponent from './Client/ButtonAiComponent'
 import { getCategoryAndTotalAmount } from '@/lib/analytics/calcTopCategory'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 
 export default function InsightPanelComponent({
     initialData,
@@ -39,38 +40,68 @@ export default function InsightPanelComponent({
     }
 
     return (
-        <div className='flex gap-5 mt-5 text-nowrap'>
-            <ul >{changeRate.map((item, index: number) => (
-                <li key={index}>Change Rate Week: {item.week} - {item.changeRate}% - {item.isRising ? 'Rising' : 'Falling'} - total: {item.total}</li>
-            ))}</ul>
-
-            {detect.filter((item) => item.spike === true).map((item, index: number) => (
-                <div key={index}>You're Overspends Area <br />
+        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-2 '>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Your Trend</CardTitle>
+                </CardHeader>
+                <CardContent>
                     <ul>
-                        <li>Amount: {item.amount} - Day: {item.day}</li>
+                        {changeRate.map((item, index: number) => (
+                            <li key={index}>
+                                Week: {item.week} - {item.changeRate}% - {item.isRising ? 'Rising' : 'Falling'}
+                            </li>
+                        ))}
                     </ul>
-                </div>
+                </CardContent>
+            </Card>
+
+
+            {changeRate.map((item, index: number) => (
+                <Card key={index}>
+                    <CardContent>
+                        Your Trend With Spend<br />
+                        <ul>
+                            <li key={index}>Change Rate Week: {item.week} - {item.changeRate}% - {item.isRising ? 'Rising' : 'Falling'} - total: {item.total}</li>
+                        </ul>
+                    </CardContent>
+                </Card>
             ))}
 
-            {detect.filter((item) => item.spike === false) && (
-                <div>No Overspends Area</div>
-            )}
-
+            {detect.filter((item) => item.spike === true).map((item, index: number) => (
+                <Card key={index}>
+                    <CardContent>
+                        Your Overspends Area <br />
+                        <ul className='mt-2'>
+                            <li>Amount: {item.amount} - Day: {item.day}</li>
+                        </ul>
+                    </CardContent>
+                </Card>
+            ))}
 
             {y.filter((item) => item.isAnomaly === true).map((item, index: number) => (
-                <div key={index} className='flex flex-col gap-3 bg-amber-600'>
-                    <ul className=''>
-                        <li>Amount: {item.amount} - Day: {item.day}</li>
-                    </ul>
-                    You're mean: {item.stats.mean} and std: {item.stats.threshold} <br />
-                    Spend's day: {item.day} and amount: {item.amount}
-                </div>
+                <Card key={index} className='flex flex-col gap-3'>
+                    <CardContent>
+                        Your Anomalies <br />
+                        <ul className=''>
+                            <li>Amount: {item.amount} - Day: {item.day}</li>
+                        </ul>
+                        You're mean: {item.stats.mean} and std: {item.stats.threshold} <br />
+                        Spend's day: {item.day} and amount: {item.amount}
+                    </CardContent>
+                </Card>
             ))
             }
-
-            {y.filter((item) => item.isAnomaly === false) && (
-                <div>No Anomaly Spends</div>
-            )}
+            <Card>
+                <CardHeader>
+                    <CardTitle>Summary</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    You most spends Category: {chartsDataWithoutDailyData.mostSpendingCategory ? Object.keys(chartsDataWithoutDailyData.mostSpendingCategory)[0] : 'N/A'}
+                    <br />
+                    Total Category Spend: {chartsDataWithoutDailyData.mostSpendingCategory ? Object.values(chartsDataWithoutDailyData.mostSpendingCategory)[0] : 'N/A'}
+                </CardContent>
+            </Card>
 
             <div className='fixed bottom-5 right-3'>
                 <ButtonAiComponent requestData={allDataOneVariable} />

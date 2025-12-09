@@ -2,8 +2,8 @@ import { doc, getDoc } from "firebase/firestore"
 import { db } from "../firebase/firebase"
 import { Budget } from "../types/type";
 
-export const calcRemaining = async (totalAmount: number): Promise<string | Budget> => {
-    if (!totalAmount) return 'You have no expenses or budgets for this month';
+export const calcRemaining = async (totalAmount: number): Promise<Budget> => {
+    if (!totalAmount) return { budget: 0, diff: 0, error: 'Error: An error occurred while calculating the remaining budget.' };
     // Access budget collection
     const docRef = doc(db, 'users', 'testusers', 'budgets', '2025-11');
     // access doc 
