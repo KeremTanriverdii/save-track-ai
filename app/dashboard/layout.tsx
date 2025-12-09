@@ -43,7 +43,7 @@ export default async function Dashboard({
         <div
             className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased dark relative `}
         >
-            <header className="p-5 bg-gray-600/30 text-white  mx-auto rounded-md flex justify-between items-center sticky top-0 z-50 no-print">
+            {/* <header className="p-5 bg-gray-600/30 text-white  mx-auto rounded-md flex justify-between items-center sticky top-0 z-50 no-print">
                 <div>
                     <a href="/">Ana Sayfa</a>
                 </div>
@@ -108,21 +108,20 @@ export default async function Dashboard({
                             <DropdownMenuItem disabled>API</DropdownMenuItem>
                             <DropdownMenuSeparator />
                             {/* Logout component */}
-                            <LogoutClientComponent />
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-                {userData ? null : <Link href={'/auth/login'}>Login Page</Link>}
-            </header>
-            <SidebarProvider>
+            {/* <LogoutClientComponent /> */}
+            {/* </DropdownMenuContent>
+                    // </DropdownMenu> */}
 
-                <AppSidebar />
-                <SidebarTrigger />
-                <main className="w-full relative">
-                    <UserProviderCC initialData={userData as User}>
+            {/* {userData ? null : <Link href={'/auth/login'}>Login Page</Link>} */}
+            {/* </header> */}
+            <SidebarProvider>
+                <UserProviderCC initialData={userData as User}>
+                    <AppSidebar user={userData as User} />
+                    <SidebarTrigger />
+                    <main className="w-full relative">
                         {children}
-                    </UserProviderCC>
-                </main>
+                    </main>
+                </UserProviderCC>
             </SidebarProvider>
         </div>
     );

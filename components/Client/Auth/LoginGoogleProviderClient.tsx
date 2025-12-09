@@ -58,7 +58,7 @@ export default function LoginGoogleProviderClient() {
 
     return (
         <button onClick={handleGoogleSignIn}>
-            Google ile Giriş Yap
+            Log in with Google
         </button>
     );
 }

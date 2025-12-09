@@ -14,8 +14,8 @@ export default async function Dashboard() {
     const totalAmount = calTotal(expenseData)
     const remaining: Budget = await calcRemaining(totalAmount)
     return (
-        <div className="relative h-full me-3">
-            <section className="bg-gradient-to-r from-[#4A00E0] to-[#8E2DE2] rounded-lg p-5 mt-3  flex items-center justify-between mb-8" data-purpose="welcome-banner">
+        <div className="relative me-3">
+            <section className="bg-gradient-to-r from-[#4A00E0] to-[#8E2DE2] rounded-lg p-5 mt-3 flex items-center justify-between mb-8" data-purpose="welcome-banner">
 
                 <div className="text-white" data-purpose="banner-text">
                     <h2 className="text-4xl font-bold mb-2">Stay on Track!</h2>

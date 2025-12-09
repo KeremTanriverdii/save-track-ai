@@ -14,15 +14,14 @@ export default function LogoutClientComponent() {
                     'Content-Type': 'application/json',
                 },
             });
-            router.push('/dashboard')
+            router.refresh()
         } catch (error) {
             console.error("Logout error:", error);
         }
     }
     return (
-        <DropdownMenuItem onClick={handleLogout}>
+        <DropdownMenuItem onSelect={handleLogout} className="w-full" >
             Logout
-            <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
         </DropdownMenuItem>
     )
 }
