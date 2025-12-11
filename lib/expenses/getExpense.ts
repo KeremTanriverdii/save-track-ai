@@ -1,9 +1,12 @@
 import { collection, doc, getDocs, query, Timestamp, where } from "firebase/firestore"
 import { db } from "../firebase/firebase"
 
-export const getExpenses = async (yearMonth?: string) => {
+export const getExpenses = async (id: string | null, yearMonth?: string) => {
+    if (id === null) {
+        return []
+    }
     try {
-        const usersCollection = doc(db, 'users', 'testusers');
+        const usersCollection = doc(db, 'users', id as string);
         const expensesCollectionRef = collection(usersCollection, 'expenses')
         if (yearMonth) {
             const [yearStr, monthStr] = yearMonth.split('-');

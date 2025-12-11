@@ -5,11 +5,16 @@ import { db } from "@/lib/firebase/firebase";
 import { write } from "fs";
 import { writeResults } from "@/lib/ai-respons/writeResults";
 import { deleteDataById } from "@/lib/ai-respons/deleteResults";
+import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 
 
 
 export async function POST(req: Request) {
     // if (!req) return 'No req data';
+    const verifyUid = await getAuthenticatedUser();
+    if (!verifyUid) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
 
     try {
         const body = await req.json();
@@ -96,7 +101,7 @@ You must respond **strictly in the following JSON format**:
 
         if (insightData) {
             // await saveTheFirestoreInsight(insightData);
-            await writeResults(insightData);
+            await writeResults(verifyUid, insightData);
         } else {
             console.error('No insight data to save to Firestore.');
         }
@@ -109,7 +114,8 @@ You must respond **strictly in the following JSON format**:
 }
 
 export async function DELETE(req: Request) {
-    if (!req) return 'No req data';
+    const verifyUid = await getAuthenticatedUser();
+    if (!verifyUid) return NextResponse.json({ error: 'Unauthorized', status: 401 })
 
     try {
         const body = await req.json();
@@ -118,7 +124,7 @@ export async function DELETE(req: Request) {
         if (!id) {
             return NextResponse.json({ message: 'error', status: 500 });
         } else {
-            await deleteDataById(id);
+            await deleteDataById(verifyUid, id);
             return NextResponse.json({ message: 'success', status: 200 })
         }
     } catch (err) {

@@ -2,12 +2,12 @@ import { doc, getDoc } from "firebase/firestore";
 import { usersCollection } from "../firebase/firebase";
 import { Budget } from "../types/type";
 
-export const getBudget = async (yearMonth: string): Promise<number | string> => {
+export const getBudget = async (id: string | null, yearMonth: string): Promise<number | string> => {
     if (!yearMonth) {
         return 'Error: YearMonth is required.';
     }
-    const docRef = doc(usersCollection, 'testusers', 'budgets', yearMonth);
-
+    console.log(yearMonth)
+    const docRef = doc(usersCollection, id as string, 'budgets', yearMonth);
     const docSnap = await getDoc(docRef);
 
     // 4. Veri Check and Safety Return
@@ -23,9 +23,9 @@ export const getBudget = async (yearMonth: string): Promise<number | string> => 
     const budgetValue = (data?.budget) ?? 0;
 
     if (typeof budgetValue === 'number') {
-        return budgetValue;
+        return budgetValue as number;
     } else {
-        console.error(`Hata: ${yearMonth} bütçesi beklenen sayı (number) formatında değil.`);
+        console.error(`Error: ${yearMonth} format is not number.`);
         return 0;
     }
 };

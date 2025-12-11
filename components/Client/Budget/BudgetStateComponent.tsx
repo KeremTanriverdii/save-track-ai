@@ -13,17 +13,29 @@ export default function BudgetState({ total }: { total: number }) {
   useEffect(() => {
     setIsLoading(true);
     async function getRemaining() {
-      const remainingBudget = await calcRemaining(totalSpending);
-      setRemaining(remainingBudget as Budget);
+      const res = await fetch(`/api/budget?totalSpending=${totalSpending}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        cache: 'no-store',
+      })
+      if (!res.ok) {
+        throw new Error('Error budget fetch')
+      }
+
+      const remainingBudget = await res.json();
+      const remainingValue = remainingBudget.remaining
+      setRemaining(remainingValue as Budget);
     }
+
     getRemaining();
     setIsLoading(false);
   }, [totalSpending]);
-  console.log(remaining)
   return (
     <Card className="">
       <CardContent>
-        <h2 className="text-lg font-medium text-muted-foreground">Budged: {remaining?.budget ?? 'No data avaible'}</h2>
+        <h2 className="text-lg font-medium text-muted-foreground">Budget: {remaining?.budget ?? 'No data avaible'}</h2>
       </CardContent>
       {isLoading && (
         <p className="text-sm text-gray-500">Loading...</p>

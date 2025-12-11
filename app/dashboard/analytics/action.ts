@@ -1,12 +1,5 @@
 'use server';
-
-import { calTotal } from '@/lib/analytics/calcTotal';
-import { calcTopCategorySpending } from '@/lib/analytics/calcTopCategory';
-import { calcAverage } from '@/lib/analytics/calcAverage';
-import { AnalyticsData, DailyChartData, Expense } from '@/lib/types/type';
-
-
-
+import { DailyChartData, Expense } from '@/lib/types/type';
 
 export async function transformToDailyChart(data: Expense[]): Promise<DailyChartData[]> {
     return data.reduce((acc: DailyChartData[], curr: Expense) => {
@@ -22,55 +15,3 @@ export async function transformToDailyChart(data: Expense[]): Promise<DailyChart
         return acc
     }, [])
 }
-
-// export async function getMonthlyAnalytics(yearMonth: string): Promise<AnalyticsData> {
-//     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-//     const fullUrl = `${baseUrl}/api/expenses?yearMonth=${yearMonth}`;
-
-//     const res = await fetch(fullUrl, {
-//         cache: 'no-store'
-//     });
-
-//     if (!res.ok) {
-//         console.error(`API request failed with status: ${res.status}`);
-//         return {
-//             dailyData: [],
-//             totalSpending: 0,
-//             averageSpending: 0,
-//             mostSpendingCategory: null,
-//         }
-//     }
-
-//     const rawData: Expense[] = await res.json();
-
-//     const dailyData = await transformToDailyChart(rawData);
-//     const totalSpending = calTotal(dailyData);
-//     const topCategory = calcTopCategorySpending(rawData);
-//     const averageSpending = calcAverage(dailyData);
-
-//     return {
-//         rawData,
-//         dailyData,
-//         totalSpending,
-//         averageSpending,
-//         mostSpendingCategory: topCategory,
-//     };
-// }
-
-// export async function getMonthlyRawAnalyticsData(yearMonth: string): Promise<Expense[]> {
-//     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-//     const fullUrl = `${baseUrl}/api/expenses?yearMonth=${yearMonth}`;
-
-//     const res = await fetch(fullUrl, {
-//         cache: 'no-store'
-//     });
-
-//     if (!res.ok) {
-//         console.error(`API request failed with status: ${res.status}`);
-//         return [];
-//     }
-
-//     const rawData: Expense[] = await res.json();
-
-//     return rawData;
-// }

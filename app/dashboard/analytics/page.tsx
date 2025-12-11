@@ -4,11 +4,13 @@ import { Expense } from '@/lib/types/type';
 import { calTotal } from '@/lib/analytics/calcTotal';
 import { calcTopCategorySpending } from '@/lib/analytics/calcTopCategory';
 import { calcAverage } from '@/lib/analytics/calcAverage';
+import { cookies } from 'next/headers';
 
 
 async function initialFetch() {
     const date = new Date().toISOString().substring(0, 7);
     const currentMonth = date
+    const sessionCookie = (await cookies()).get('session')
     try {
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
         const fullUrl = `${baseUrl}/api/expenses?yearMonth=${currentMonth}`;
@@ -16,6 +18,7 @@ async function initialFetch() {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
+                ...(sessionCookie && { 'Cookie': `${sessionCookie.name}=${sessionCookie.value}` })
             },
             cache: 'no-store',
         })

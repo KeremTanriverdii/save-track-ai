@@ -44,14 +44,14 @@ const items = [
     },
     {
         title: "Budged Settings",
-        url: "/dashboard/budged",
+        url: "/dashboard/budget",
         icon: Search,
     },
 
 ]
 
 export async function AppSidebar({ user }: { user: User | undefined }) {
-    const menuItem = await getDateResultsAndDate();
+    const menuItem = await getDateResultsAndDate(user?.uid as string);
     return (
         <Sidebar>
             <SidebarContent>

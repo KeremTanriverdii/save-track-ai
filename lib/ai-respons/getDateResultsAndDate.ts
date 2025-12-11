@@ -10,7 +10,7 @@ import { Delete } from "lucide-react";
  * normalizes several possible shapes (Timestamp with toDate, seconds field,
  * numeric epoch, or ISO string) into an ISO string.
  */
-export async function getDateResultsAndDate(userId = "testusers") {
+export async function getDateResultsAndDate(userId: string) {
     const aiResultsRef = collection(db, "users", userId, "aiResults");
 
     try {

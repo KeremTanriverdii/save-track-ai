@@ -1,6 +1,7 @@
 import PrintAsPDFComponent from '@/components/Client/PrintAsPDFComponent';
 import { getDataAiResultById } from '@/lib/ai-respons/getDataAiResultById';
 import { AiResultType } from '@/lib/types/type';
+import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
 import React from 'react'
 
 type PageProps = {
@@ -9,11 +10,17 @@ type PageProps = {
 
 export default async function page({ params }: PageProps) {
   const { id } = await params;
-  const data = await getDataAiResultById(id);
+  const verifyUid = await getAuthenticatedUser();
+  if (!verifyUid) {
+    return new Response('Unauthorized', { status: 401 });
+  }
+  const data = (await getDataAiResultById(verifyUid, id)) as AiResultType;
+
+  const serializableData = JSON.parse(JSON.stringify(data))
   return (
     <div>
       {/* <div>{JSON.stringify(data, null, 2)}</div> */}
-      <PrintAsPDFComponent result={data as AiResultType} />
+      <PrintAsPDFComponent result={serializableData as AiResultType} />
     </div>
   )
 }

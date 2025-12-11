@@ -1,20 +1,18 @@
-import { addDoc, collection, doc, serverTimestamp, setDoc, Timestamp } from "firebase/firestore";
+import { collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
 import { usersCollection } from "../firebase/firebase"
 
-export const addbudget = async (bud: number) => {
-    if (!bud) return
-
-    const date = new Date();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const yearMonth = `${date.getFullYear()}-${month}`;
-
-    const budgedCollection = doc(collection(usersCollection, 'testusers', 'budgets'), yearMonth);
+export const addbudget = async (bud: number, id: string | null, yearMonth: string) => {
+    if (!id && !bud && !yearMonth) {
+        throw new Error('Missing required fields')
+    }
 
     try {
+        const budgedCollection = doc(collection(usersCollection, id as string, 'budgets'), yearMonth);
+
         await setDoc(budgedCollection, {
-            id: Timestamp.now(),
-            budget: bud
-        })
+            createdAt: serverTimestamp(),
+            budget: bud,
+        }, { merge: true })
     } catch (err) {
         throw new Error('Error budged')
     }

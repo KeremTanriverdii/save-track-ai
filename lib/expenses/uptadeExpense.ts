@@ -1,7 +1,7 @@
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 
-export const updateExpense = async (id: string, amount: number, category: string, description: string) => {
+export const updateExpense = async (verifyUid: string, id: string, amount: number, category: string, description: string) => {
     console.log("Update Lib", id, amount, category, description);
     if (!id && !amount && !category && !description) return
 
