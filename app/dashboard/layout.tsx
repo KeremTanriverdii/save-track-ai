@@ -43,80 +43,9 @@ export default async function Dashboard({
         <div
             className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased dark relative `}
         >
-            {/* <header className="p-5 bg-gray-600/30 text-white  mx-auto rounded-md flex justify-between items-center sticky top-0 z-50 no-print">
-                <div>
-                    <a href="/">Ana Sayfa</a>
-                </div>
-                <div className="flex items-center gap-5">
-
-                    <Avatar>
-                        {userData?.photoURL ? (
-                            <AvatarImage src={userData.photoURL} />
-                        ) : (
-                            <AvatarImage src={'https://github.com/shadcn.png'} />
-                        )}
-
-
-                        <AvatarFallback>CN</AvatarFallback>
-                    </Avatar>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline">Open</Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-56" align="start">
-                            <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                            <DropdownMenuGroup>
-                                <DropdownMenuItem>
-                                    Profile
-                                    <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    Billing
-                                    <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    Settings
-                                    <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                    Keyboard shortcuts
-                                    <DropdownMenuShortcut>⌘K</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuGroup>
-                                <DropdownMenuItem>Team</DropdownMenuItem>
-                                <DropdownMenuSub>
-                                    <DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
-                                    <DropdownMenuPortal>
-                                        <DropdownMenuSubContent>
-                                            <DropdownMenuItem>Email</DropdownMenuItem>
-                                            <DropdownMenuItem>Message</DropdownMenuItem>
-                                            <DropdownMenuSeparator />
-                                            <DropdownMenuItem>More...</DropdownMenuItem>
-                                        </DropdownMenuSubContent>
-                                    </DropdownMenuPortal>
-                                </DropdownMenuSub>
-                                <DropdownMenuItem>
-                                    New Team
-                                    <DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
-                                </DropdownMenuItem>
-                            </DropdownMenuGroup>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem>GitHub</DropdownMenuItem>
-                            <DropdownMenuItem>Support</DropdownMenuItem>
-                            <DropdownMenuItem disabled>API</DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            {/* Logout component */}
-            {/* <LogoutClientComponent /> */}
-            {/* </DropdownMenuContent>
-                    // </DropdownMenu> */}
-
-            {/* {userData ? null : <Link href={'/auth/login'}>Login Page</Link>} */}
-            {/* </header> */}
             <SidebarProvider>
                 <UserProviderCC initialData={userData as User}>
-                    <AppSidebar user={userData as User} />
+                    <AppSidebar />
                     <SidebarTrigger />
                     <main className="w-full relative">
                         {children}

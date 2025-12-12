@@ -1,40 +1,104 @@
 "use client"
-import { AnalyticsData, DailyChartData, Expense } from '@/lib/types/type'
-import React from 'react'
+import { AnalyticsData, Expense } from '@/lib/types/type'
+import React, { useReducer } from 'react'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '../ui/select'
 import { transformToDailyChart } from '@/app/dashboard/analytics/action'
-import { ChartAnalytics } from './Charts/ChartAnalytics'
-import InsightPanelComponent from '../InsightPanelComponent'
 import { calTotal } from '@/lib/analytics/calcTotal'
 import { calcTopCategorySpending } from '@/lib/analytics/calcTopCategory'
 import { calcAverage } from '@/lib/analytics/calcAverage'
-import { getBudget } from '@/lib/budged/GetBudget'
-import Image from 'next/image'
+import { ChartAnalytics } from './Charts/ChartAnalytics'
+import InsightPanelComponent from '../InsightPanelComponent'
 import BudgetState from './Budget/BudgetStateComponent'
+import Image from 'next/image'
+
+interface AnalyticsState {
+    chartsAnalitycsData: AnalyticsData;
+    rawData: Expense[];
+    isLoading: boolean;
+    error: string | null;
+    selectedMonth: string;
+}
+
+type AnalyticsAction =
+    | { type: 'FETCH_START'; payload: { newMonth: string } }
+    | { type: 'FETCH_SUCCESS'; payload: { data: AnalyticsData; rawData: Expense[] } }
+    | { type: 'FETCH_EMPTY' }
+    | { type: 'FETCH_ERROR'; payload: { error: string } };
+
+function analyticsReducer(state: AnalyticsState, action: AnalyticsAction): AnalyticsState {
+    switch (action.type) {
+        case 'FETCH_START':
+            // Loading start, 
+            return {
+                ...state,
+                isLoading: true,
+                error: null,
+                selectedMonth: action.payload.newMonth,
+            };
+        case 'FETCH_SUCCESS':
+            // Fetch is success, update the state
+            return {
+                ...state,
+                isLoading: false,
+                error: null,
+                chartsAnalitycsData: action.payload.data,
+                rawData: action.payload.rawData,
+            };
+        case 'FETCH_EMPTY':
+            // Data is empty state going to zero
+            return {
+                ...state,
+                isLoading: false,
+                error: null,
+                chartsAnalitycsData: {
+                    dailyData: [],
+                    totalSpending: 0,
+                    averageSpending: 0,
+                    mostSpendingCategory: null,
+                },
+                rawData: [],
+            };
+        case 'FETCH_ERROR':
+            // when error state error
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload.error,
+            };
+        default:
+            return state;
+    }
+}
+
+// --- Component and First State  ---
 
 export default function AnalyticsClientWrapperComponent({ initialData, currentMonth }: {
     initialData: AnalyticsData,
     currentMonth: string
 }
 ) {
-    const [isLoading, setIsLoading] = React.useState<boolean>(false)
-    const [error, setError] = React.useState<string | null>(null)
-    const currentYear = new Date().getFullYear()
-    const [selectedMonth, setSelectedMonth] = React.useState(currentMonth)
-    const [chartsAnalitycsData, setChartDataAnalytics] = React.useState<AnalyticsData>(initialData)
-    const [rawData, setRawData] = React.useState<Expense[]>(initialData.rawData || [])
+    const currentYear = new Date().getFullYear();
+
+    const initialReducerState: AnalyticsState = {
+        chartsAnalitycsData: initialData,
+        rawData: initialData.rawData || [],
+        isLoading: false,
+        error: null,
+        selectedMonth: currentMonth,
+    };
+
+    const [state, dispatch] = useReducer(analyticsReducer, initialReducerState);
+
+    const { chartsAnalitycsData, rawData, isLoading, error, selectedMonth } = state;
 
     const handleMonthChange = async (newMonth: string) => {
-        setSelectedMonth(newMonth);
-        setIsLoading(true);
-        setError(null);
+        // Start the fetch
+        dispatch({ type: 'FETCH_START', payload: { newMonth } });
 
         try {
             const res = await fetch(`/api/expenses?yearMonth=${newMonth}`, {
                 method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 cache: 'no-store',
             })
 
@@ -42,24 +106,17 @@ export default function AnalyticsClientWrapperComponent({ initialData, currentMo
                 throw new Error('Failed to fetch expenses');
             }
 
-            const rawData: Expense[] = await res.json();
+            const fetchedRawData: Expense[] = await res.json();
 
-            // Check if data is empty
-            if (!rawData || rawData.length === 0) {
-                setChartDataAnalytics({
-                    dailyData: [],
-                    totalSpending: 0,
-                    averageSpending: 0,
-                    mostSpendingCategory: null,
-                    // budget: await getBudget(newMonth) // Removed as budget is not part of AnalyticsData state
-                });
-                setRawData([]);
+            // No avaible data 
+            if (!fetchedRawData || fetchedRawData.length === 0) {
+                dispatch({ type: 'FETCH_EMPTY' });
                 return;
             }
 
-            const dailyData = await transformToDailyChart(rawData);
+            const dailyData = await transformToDailyChart(fetchedRawData);
             const totalSpending = calTotal(dailyData);
-            const topCategory = calcTopCategorySpending(rawData);
+            const topCategory = calcTopCategorySpending(fetchedRawData);
             const averageSpending = calcAverage(dailyData);
 
             const newData = {
@@ -67,17 +124,15 @@ export default function AnalyticsClientWrapperComponent({ initialData, currentMo
                 totalSpending,
                 averageSpending,
                 mostSpendingCategory: topCategory,
-                // budget // Removed as budget is not part of AnalyticsData state
             };
 
-            setChartDataAnalytics(newData);
-            setRawData(rawData);
+            // Success 
+            dispatch({ type: 'FETCH_SUCCESS', payload: { data: newData, rawData: fetchedRawData } });
 
         } catch (err) {
             console.error('Error fetching data:', err);
-            setError('Failed to load data. Please try again.');
-        } finally {
-            setIsLoading(false);
+            // Error
+            dispatch({ type: 'FETCH_ERROR', payload: { error: 'Failed to load data. Please try again.' } });
         }
     };
 
@@ -85,10 +140,10 @@ export default function AnalyticsClientWrapperComponent({ initialData, currentMo
 
     return (
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 md:p-5'>
-            {/* Select component from: ../ui/select */}
+            {/* ... Select Component ... */}
             <Select value={selectedMonth} onValueChange={handleMonthChange} disabled={isLoading}>
                 {isLoading ? (
-                    <div className="h-10 w-[180px] rounded-md bg-muted animate-pulse"></div>
+                    <div className="h-10 w-[180px] rounded-md bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg animate-pulse"></div>
                 ) : (
                     <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select month" />
@@ -102,9 +157,7 @@ export default function AnalyticsClientWrapperComponent({ initialData, currentMo
                             const dateValue = `${currentYear}-${month}`
                             return (
                                 <SelectItem key={month} value={dateValue}>
-                                    {new Date(`${currentYear}-${month}-01`).toLocaleDateString("en-US", {
-                                        month: "long",
-                                    })}
+                                    {new Date(`${currentYear}-${month}-01`).toLocaleDateString("en-US", { month: "long" })}
                                 </SelectItem>
                             )
                         })}
@@ -122,7 +175,9 @@ export default function AnalyticsClientWrapperComponent({ initialData, currentMo
                         {error}
                     </div>
                 ) : isLoading ? (
-                    <div className="h-64 w-full rounded-lg bg-muted animate-pulse"></div>
+                    <div className="h-64 w-full rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg animate-pulse p-4 flex items-center justify-center text-white/70">
+                        Analiz Verileri Yükleniyor...
+                    </div>
                 ) : !hasData ? (
                     <div className="p-8 text-center rounded-lg bg-muted/50">
                         <p className="text-lg font-medium text-muted-foreground">No data available</p>
@@ -131,15 +186,14 @@ export default function AnalyticsClientWrapperComponent({ initialData, currentMo
                         </p>
                     </div>
                 ) : (
-                    // ChartAnalytics from: ./Charts/ChartAnalytics
                     <ChartAnalytics initialData={chartsAnalitycsData} />
                 )}
             </div>
 
             <div className='col-span-2'>
                 {isLoading ? (
-                    <div className="h-40 w-full rounded-lg bg-muted animate-pulse">
-                        <p className="text-center pt-16 text-muted-foreground">Loading data...</p>
+                    <div className="h-40 w-full rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 shadow-lg animate-pulse">
+                        <p className="text-center pt-16 text-white/70">Insight's Loading...</p>
                     </div>
                 ) : !hasData ? (
                     <div className="p-6 text-center rounded-lg bg-muted/50">
@@ -149,7 +203,6 @@ export default function AnalyticsClientWrapperComponent({ initialData, currentMo
                         </div>
                     </div>
                 ) : (
-                    // InsightPanelComponent from: ../InsightPanelComponent
                     <InsightPanelComponent initialData={rawData} chartsData={chartsAnalitycsData} />
                 )}
             </div>

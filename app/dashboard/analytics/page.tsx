@@ -5,6 +5,7 @@ import { calTotal } from '@/lib/analytics/calcTotal';
 import { calcTopCategorySpending } from '@/lib/analytics/calcTopCategory';
 import { calcAverage } from '@/lib/analytics/calcAverage';
 import { cookies } from 'next/headers';
+import { Suspense } from 'react';
 
 
 async function initialFetch() {
@@ -58,6 +59,8 @@ async function initialFetch() {
 export default async function page() {
     const { initialData, currentMonth } = await initialFetch();
     return (
-        <AnalyticsClientWrapperComponent initialData={initialData} currentMonth={currentMonth} />
+        <Suspense fallback={<div>Loading...</div>}>
+            <AnalyticsClientWrapperComponent initialData={initialData} currentMonth={currentMonth} />
+        </Suspense>
     )
 }

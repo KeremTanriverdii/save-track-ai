@@ -95,7 +95,7 @@ export interface User {
     displayName: string;
     email: string;
     photoURL: string;
-    createdAt: Date;
+    createdAt?: Date;
     lastLogin: Date;
 }
 

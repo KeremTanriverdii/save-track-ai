@@ -8,7 +8,7 @@ export async function getUserData(): Promise<User | undefined> {
     const sessionCookie = ((await cookieStore).get)('session')?.value || undefined;
 
     if (!sessionCookie) {
-        // redirect('/auth/login');
+        redirect('/auth/login');
     }
 
     try {
@@ -23,15 +23,15 @@ export async function getUserData(): Promise<User | undefined> {
         }
         const firestoreData = userDoc.data();
 
-        return {
+        const user: User = {
             uid: userUid,
             email: decodedClaims.email || '',
             photoURL: decodedClaims.picture || firestoreData?.photoURL || 'https://placehold.co/150x150/000000/FFFFFF?text=KU',
             displayName: decodedClaims.name || firestoreData?.displayName || 'Username',
             lastLogin: firestoreData?.lastLogin?.toDate().toISOString() || new Date().toISOString(),
-        } as User
+        }
 
-
+        return user
     } catch (error) {
         return undefined;
     }

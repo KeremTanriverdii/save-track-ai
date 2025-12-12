@@ -8,11 +8,17 @@ import { AlertCircleIcon, Banknote, TrendingDown, Wallet } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
 import Image from "next/image";
+import { getUserData } from "@/lib/auth/user";
 
 export default async function Dashboard() {
-    const expenseData: any = await getExpenses(dateCustom())
-    const totalAmount = calTotal(expenseData)
-    const remaining: Budget = await calcRemaining(totalAmount)
+    const user = await getUserData();
+    if (!user) {
+        throw new Error('User not found')
+    }
+
+    const expenseData: any = await getExpenses(user.uid, dateCustom());
+    const totalAmount = calTotal(expenseData);
+    const remaining: Budget = await calcRemaining(user?.uid, totalAmount, dateCustom(),)
     return (
         <div className="relative me-3">
             <section className="bg-gradient-to-r from-[#4A00E0] to-[#8E2DE2] rounded-lg p-5 mt-3 flex items-center justify-between mb-8" data-purpose="welcome-banner">

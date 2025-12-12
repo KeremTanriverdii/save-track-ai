@@ -24,6 +24,7 @@ import { User } from "@/lib/types/type"
 import Image from "next/image"
 import LogoutClientComponent from "../Client/Auth/LogoutClientComponent"
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar"
+import { getUserData } from "@/lib/auth/user"
 
 // Menu items.
 const items = [
@@ -50,7 +51,8 @@ const items = [
 
 ]
 
-export async function AppSidebar({ user }: { user: User | undefined }) {
+export async function AppSidebar() {
+    const user = await getUserData();
     const menuItem = await getDateResultsAndDate(user?.uid as string);
     return (
         <Sidebar>
