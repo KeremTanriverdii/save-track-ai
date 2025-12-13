@@ -1,4 +1,6 @@
 "use client"
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { saveUserToFirestore } from '@/lib/authRecord/saveUserToFirestore'
 import { auth } from '@/lib/firebase/firebase'
 import { User } from '@/lib/types/type'
@@ -103,40 +105,14 @@ export default function RegisterClient() {
     }
     return (
         <div>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>
-                        Email:
-                        <input
-                            type="email"
-                            name="email"
-                            required className='border-2 rounded-sm'
-                            onChange={handleInputChange}
-                            value={state.email}
-                            disabled={state.loading}
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        Password:
-                        <input
-                            type="password"
-                            name="password"
-                            required
-                            className='border-2 rounded-md'
-                            onChange={handleInputChange}
-                            value={state.password}
-                            disabled={state.loading}
-                        />
-                    </label>
-                </div>
-                <div>
-                    <label>
-                        User Name:
-                        <input
+            <form onSubmit={handleSubmit} className='flex-cols h-full '>
+                <div className='w-full'>
+                    <label htmlFor='username'>
+                        <span className="mr-4">Username</span>
+                        <Input
                             type="text"
                             name="userName"
+                            id='username'
                             required
                             className='border-2 rounded-md'
                             onChange={handleInputChange}
@@ -145,8 +121,33 @@ export default function RegisterClient() {
                         />
                     </label>
                 </div>
+                <div className='w-full'>
+                    <label htmlFor='email'>E-mail</label>
+                    <Input
+                        type="email"
+                        name="email"
+                        id='email'
+                        required className='border-2 rounded-sm'
+                        onChange={handleInputChange}
+                        value={state.email}
+                        disabled={state.loading}
+                    />
+                </div>
+                <div className='w-full'>
+                    <label htmlFor='passsword'>Password</label>
+                    <Input
+                        type="password"
+                        name="password"
+                        id='password'
+                        required
+                        className='border-2 rounded-md'
+                        onChange={handleInputChange}
+                        value={state.password}
+                        disabled={state.loading}
+                    />
+                </div>
                 <br />
-                <button type="submit" disabled={state.loading}>Register</button>
+                <Button type="submit" className='mt-auto w-full' disabled={state.loading}>Register</Button>
             </form>
             {state.error && <p className="text-red-500">{state.error}</p>}
             {state.loading && <p>Loading...</p>}

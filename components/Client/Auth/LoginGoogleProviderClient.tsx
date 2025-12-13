@@ -6,6 +6,8 @@ import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth'
 import { User } from '@/lib/types/type';
 import { useRouter } from 'next/navigation';
 import { createSessionCookie } from '@/utils/createSessionCookie';
+import { Button } from '@/components/ui/button';
+import Image from 'next/image';
 const provider = new GoogleAuthProvider();
 
 
@@ -41,8 +43,8 @@ export default function LoginGoogleProviderClient() {
         }
     };
     return (
-        <button onClick={handleGoogleSignIn}>
-            Log in with Google
-        </button>
+        <Button className='w-full' onClick={handleGoogleSignIn}>
+            Login with Google <img src="/google-logo.jpg" width={20} height={20} alt='google-logo' className='bg-transparent' />
+        </Button>
     );
 }

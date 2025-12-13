@@ -1,5 +1,6 @@
 "use client"
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { auth } from '@/lib/firebase/firebase';
 import { createSessionCookie } from '@/utils/createSessionCookie';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -94,39 +95,38 @@ export default function LoginFormClient() {
         }
     }
     return (
-        <div >
-            <form onSubmit={handleSubmit}>
-                <div>
-
-                    <label>
-                        Email:
-                        <input
-                            type="email"
-                            name="email"
-                            required className='border-2 rounded-sm'
-                            onChange={handleInputChange}
-                            value={state.email}
-                            disabled={state.loading}
-                        />
+        <div>
+            <form onSubmit={handleSubmit} className='flex-cols h-full'>
+                <div className='w-full'>
+                    <label htmlFor='email'>
+                        Email
                     </label>
+                    <Input
+                        type="email"
+                        name="email"
+                        id='email'
+                        required
+                        onChange={handleInputChange}
+                        value={state.email}
+                        disabled={state.loading}
+                    />
                 </div>
-                <div>
 
-                    <br />
-                    <label>
-                        Password:
-                        <input
-                            type="password"
-                            name="password"
-                            required
-                            className='border-2 rounded-md'
-                            onChange={handleInputChange}
-                            value={state.password}
-                            disabled={state.loading}
-                        />
+                <div className='w-full'>
+                    <label htmlFor='password'>
+                        Password
                     </label>
+                    <Input
+                        type="password"
+                        name="password"
+                        id='password'
+                        required
+                        onChange={handleInputChange}
+                        value={state.password}
+                        disabled={state.loading}
+                    />
                 </div>
-                <Button type="submit" disabled={state.loading} >Login</Button>
+                <Button type="submit" disabled={state.loading} className='w-full mt-auto' >Login</Button>
             </form>
             {state.error && <p className="text-red-500">{state.error}</p>}
             {state.loading && <p>Loading...</p>}
