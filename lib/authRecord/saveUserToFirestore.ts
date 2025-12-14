@@ -1,4 +1,4 @@
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore"
+import { collection, doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore"
 import { usersCollection } from "../firebase/firebase"
 import { User } from "../types/type";
 
@@ -9,6 +9,7 @@ export const saveUserToFirestore = async (user: User) => {
         displayName: user.displayName || 'Anonymous User',
         photoURL: user.photoURL,
         lastLogin: serverTimestamp(),
+        currency: 'TRY'
     };
 
     const userRef = doc(usersCollection, user.uid);

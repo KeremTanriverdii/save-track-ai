@@ -29,6 +29,7 @@ export async function getUserData(): Promise<User | undefined> {
             photoURL: decodedClaims.picture || firestoreData?.photoURL || 'https://placehold.co/150x150/000000/FFFFFF?text=KU',
             displayName: decodedClaims.name || firestoreData?.displayName || 'Username',
             lastLogin: firestoreData?.lastLogin?.toDate().toISOString() || new Date().toISOString(),
+            currency: firestoreData?.currency || 'TRY'
         }
 
         return user

@@ -126,7 +126,7 @@ export default function LoginFormClient() {
                         disabled={state.loading}
                     />
                 </div>
-                <Button type="submit" disabled={state.loading} className='w-full mt-auto' >Login</Button>
+                <Button type="submit" disabled={state.loading} className='w-full mt-2' >Login</Button>
             </form>
             {state.error && <p className="text-red-500">{state.error}</p>}
             {state.loading && <p>Loading...</p>}

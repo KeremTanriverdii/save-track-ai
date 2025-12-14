@@ -176,7 +176,7 @@ export async function AppSidebar() {
                                         </div>
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
-                                        <span>Account</span>
+                                        <Link href="/dashboard/settings">Settings</Link>
                                     </DropdownMenuItem>
                                     <LogoutClientComponent />
                                 </DropdownMenuContent>

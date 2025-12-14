@@ -97,9 +97,17 @@ export interface User {
     photoURL: string;
     createdAt?: Date;
     lastLogin: Date;
+    currency: string;
 }
 
 export interface UserProviderProps {
     children: React.ReactNode;
     initialData: User;
+}
+
+export interface UserSettings {
+    displayName: string,
+    email: string,
+    photoURL: string,
+    currency: string
 }
