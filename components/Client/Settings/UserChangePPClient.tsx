@@ -20,91 +20,93 @@ export default function UserChangePPClient({ settings }: { settings: UserSetting
                         This information will be displayed publicly.
                     </CardDescription>
                 </CardHeader>
-                <hr />
                 <CardContent>
                     <div
-                        className="flex gap-5"
                     >
-                        <Avatar>
-                            <AvatarImage
-                                src={settings.photoURL}
-                                height={60}
-                                width={60}
-                            />
-                            <AvatarFallback>
-                                CN
-                            </AvatarFallback>
-                        </Avatar>
+                        <hr />
                         <div
-
+                            className="flex gap-5 mt-5"
                         >
-                            <h2
-                                className="me-auto"
+                            <Avatar>
+                                <AvatarImage
+                                    src={settings.photoURL}
+                                    height={60}
+                                    width={60}
+                                />
+                                <AvatarFallback>
+                                    CN
+                                </AvatarFallback>
+                            </Avatar>
+                            <div
                             >
-                                Profile Photo
-                            </h2>
-                            <CardAction
-                                className="flex gap-5"
-                            >
+                                <h2
+                                    className="me-auto"
+                                >
+                                    Profile Photo
+                                </h2>
+                                <CardAction
+                                    className="flex gap-5"
+                                >
+                                    <div>
+                                        <Button
+                                            className="rounded-sm cursor-pointer"
+                                        >
+                                            Change Photo
+                                        </Button>
+                                        <br />
+                                        <span
+                                            className="text-muted mt-2"
+                                        >
+                                            JPG, PNG. 1MB max.
+                                        </span>
+                                    </div>
+                                    <Button className="text-red-600 bg-transparent hover:bg-transparent cursor-pointer">Remove Photo <Delete /> </Button>
+                                </CardAction>
+                            </div>
+                            <br />
+                        </div>
+                        <CardAction className="me-auto w-full">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 ">
                                 <div>
-                                    <Button
-                                        className="rounded-sm cursor-pointer"
+                                    <label
+                                        htmlFor="fullName"
                                     >
-                                        Change Photo
-                                    </Button>
+                                        <span>
+                                            Full Name
+                                        </span>
+                                        <Input
+                                            id="fullName"
+                                            type="text"
+                                            value={settings.displayName}
+
+                                        />
+                                    </label>
+                                </div>
+                                <div>
+
+                                    <label
+                                        htmlFor="email"
+                                    >
+                                        <span>
+                                            Email
+                                        </span>
+                                        <Input
+                                            id="email"
+                                            type="email"
+                                            value={settings.email}
+                                            disabled
+                                        />
+                                    </label>
                                     <br />
                                     <span
                                         className="text-muted mt-2"
                                     >
-                                        JPG, PNG. 1MB max.
+                                        Contact support to change your email.
                                     </span>
                                 </div>
-                                <Button className="text-red-600 bg-transparent hover:bg-transparent cursor-pointer">Remove Photo <Delete /> </Button>
-                            </CardAction>
-                        </div>
-                        <br />
+                            </div>
+                        </CardAction>
                     </div>
-                    <CardAction className="me-auto w-full">
-                        <div className="grid grid-cols-2 gap-6 ">
-                            <div>
-                                <label
-                                    htmlFor="fullName"
-                                >
-                                    <span>
-                                        Full Name
-                                    </span>
-                                    <Input
-                                        id="fullName"
-                                        type="text"
-                                        value={settings.displayName}
-
-                                    />
-                                </label>
-                            </div>
-                            <div>
-
-                                <label
-                                    htmlFor="email"
-                                >
-                                    <span>
-                                        Email
-                                    </span>
-                                    <Input
-                                        id="email"
-                                        type="email"
-                                        value={settings.email}
-                                        disabled
-                                    />
-                                </label>
-                                <br />
-                                <span
-                                    className="text-muted mt-2"
-                                >
-                                    Contact support to change your email.
-                                </span>
-                            </div>
-                        </div>
-                    </CardAction>
                 </CardContent>
             </Card>
 
@@ -113,75 +115,107 @@ export default function UserChangePPClient({ settings }: { settings: UserSetting
                     <CardTitle>
                         Financal Preferences
                     </CardTitle>
+                    <CardDescription>
+                        Set your default currency and monthly spending limits.
+                    </CardDescription>
                 </CardHeader>
-                <CardDescription>
-                    Set your default currency and monthly spending limits.
-                </CardDescription>
-
-                <hr />
-
-                <CardContent
-                    className="grid grid-cols-2 gap-6"
-                >
-                    <div>
-                        <label
-                            htmlFor="currency"
-                        >
-                            <span>
-                                Preferred Currency
-                            </span>
-                            <Select >
-                                <SelectTrigger className="w-full" >
-                                    <SelectValue
-                                        placeholder={settings.currency}
-                                    />
-                                </SelectTrigger>
-                                <SelectContent>
-
-                                    <SelectItem
-                                        value="USD"
-                                    >
-                                        USD
-                                    </SelectItem>
-
-                                    <SelectItem
-                                        value="EUR"
-                                    >
-                                        EUR
-                                    </SelectItem>
-
-                                </SelectContent>
 
 
-                            </Select>
-                        </label>
+                <CardContent>
+                    <hr />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-5">
+                        <div>
+                            <label
+                                htmlFor="currency"
+                            >
+                                <span>
+                                    Preferred Currency
+                                </span>
+                                <Select >
+                                    <SelectTrigger className="w-full" >
+                                        <SelectValue
+                                            placeholder={settings.currency}
+                                        />
+                                    </SelectTrigger>
+                                    <SelectContent>
+
+                                        <SelectItem
+                                            value="USD"
+                                        >
+                                            USD
+                                        </SelectItem>
+
+                                        <SelectItem
+                                            value="EUR"
+                                        >
+                                            EUR
+                                        </SelectItem>
+
+                                    </SelectContent>
+
+
+                                </Select>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label htmlFor="budget">
+                                <span>
+                                    Monthly Budget Goal
+                                </span>
+                                <Input
+                                    id="budget"
+                                    type="number"
+                                // value={settings.budget}
+                                />
+                            </label>
+                        </div>
                     </div>
-
-                    <div>
-                        <label htmlFor="budget">
-                            <span>
-                                Monthly Budget Goal
-                            </span>
-                            <Input
-                                id="budget"
-                                type="number"
-                            // value={settings.budget}
-                            />
-                        </label>
-                    </div>
-
                 </CardContent>
                 <CardFooter className="flex justify-end gap-3">
-                    <Button>
+                    <Button
+                    // onReset={reset}
+                    >
                         Cancel
                     </Button>
 
-                    <Button className="bg-violet-600 text-white hover:bg-violet-600 hover:scale-110">
+                    <Button
+                        className="bg-violet-600 text-white hover:bg-violet-600 hover:scale-110"
+                    // onClick={saveChange}
+                    >
                         Save Changes
                     </Button>
 
 
                 </CardFooter>
+            </Card>
+
+            <Card
+                className="border-red-500">
+                <CardHeader>
+                    <CardTitle
+                        className="text-red-500">
+                        Delete Account
+                    </CardTitle>
+                    <CardDescription>
+                        Once you delete your account, you will lose all of your data. This action cannot be undone.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+
+                    <CardAction
+                        className="me-auto"
+                    >
+                        <Button
+                            className="bg-red-600 text-white hover:bg-red-600 hover:scale-110"
+                        // onClick={deleteAccount}
+                        >
+                            Delete Account
+                        </Button>
+                    </CardAction>
+
+                </CardContent>
+
             </Card>
         </div>
     )
