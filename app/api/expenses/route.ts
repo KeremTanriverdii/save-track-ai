@@ -4,12 +4,8 @@ import { addExpense } from "@/lib/expenses/addExpense";
 import { revalidatePath } from "next/cache";
 import { deleteExpense } from "@/lib/expenses/deleteExpense";
 import { updateExpense } from "@/lib/expenses/uptadeExpense";
-import { cookies } from 'next/headers';
-import admin from '@/lib/firebase/admin';
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
-// 🎯 Test için Sabit Kullanıcı Kimliği
 
-const TEST_USER_ID = "testUserId_42";
 
 export async function POST(request: Request) {
     const verifyUid = await getAuthenticatedUser();

@@ -1,7 +1,8 @@
 import { collection, doc, getDocs, query, Timestamp, where } from "firebase/firestore"
 import { db } from "../firebase/firebase"
+import { Expense } from "../types/type";
 
-export const getExpenses = async (id: string, yearMonth?: string) => {
+export const getExpenses = async (id: string, yearMonth?: string): Promise<Expense[]> => {
     if (id === null) {
         return []
     }
@@ -29,16 +30,14 @@ export const getExpenses = async (id: string, yearMonth?: string) => {
             )
             const querySnapshot = await getDocs(q)
             const data = querySnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+                ...(doc.data() as Expense),
+            })) as Expense[];
             return data
         } else {
             const querySnapshot = await getDocs(expensesCollectionRef)
             const data = querySnapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data()
-            }));
+                ...(doc.data() as Expense),
+            })) as Expense[];
             return data
         }
     } catch (err) {

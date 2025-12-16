@@ -1,9 +1,11 @@
-import { Expense } from "@/lib/types/type";
+import { Expense, Expenses } from "@/lib/types/type";
 import { DeleteExpenseButton } from "./DeleteExpenseButton";
 import { UpdateExpenseButton } from "./UpdateExpenseButton";
-
+import { ColumnDef } from '@tanstack/react-table'
 export default function ListExpensesShow({ initialData }: { initialData: Expense[] }) {
     const expenseData = initialData
+
+
     return (
         <div>
             {expenseData.map((item) => (

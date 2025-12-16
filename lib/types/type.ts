@@ -111,3 +111,11 @@ export interface UserSettings {
     photoURL: string,
     currency: string
 }
+
+export type Expenses = {
+    id: string
+    amount: number
+    category: string
+    description?: string
+    date: string
+}
