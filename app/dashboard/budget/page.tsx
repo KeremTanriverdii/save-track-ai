@@ -22,10 +22,21 @@ export default async function page() {
     const response = await res.json();
     const budgetData = response.budget;
     return (
-        <div>
-            Limit of your's budget:
-            <BudgetDeclareComponent />
-            <BudgetShowComponent budget={budgetData} />
+        <div
+            className='grid gap-2 max-w-6xl mx-auto sm:mt-25 mt-7 me-2'
+        >
+            <div>
+                <h2>Budget Settings</h2>
+                <p>Manage your monthly expenses here for limits.</p>
+            </div>
+
+            <BudgetShowComponent
+                budget={budgetData}
+            />
+            <BudgetDeclareComponent
+                budgt={budgetData}
+            />
+
         </div>
     )
 }

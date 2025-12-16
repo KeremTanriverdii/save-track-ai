@@ -16,9 +16,10 @@ export default async function Dashboard() {
         throw new Error('User not found')
     }
 
-    const expenseData: any = await getExpenses(user.uid, dateCustom());
-    const totalAmount = calTotal(expenseData);
-    const remaining: Budget = await calcRemaining(user?.uid, totalAmount, dateCustom(),)
+    const expenseData: any = await getExpenses(user.uid, dateCustom())
+    const totalAmount = calTotal(expenseData)
+    const remaining: Budget = await calcRemaining(user.uid, totalAmount, dateCustom())
+
     return (
         <div className="relative me-3">
             <section className="bg-gradient-to-r from-[#4A00E0] to-[#8E2DE2] rounded-lg p-5 mt-3 flex items-center justify-between mb-8" data-purpose="welcome-banner">
