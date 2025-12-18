@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     try {
 
         const body = await request.json();
-        const { amount, category, description, createdAt, paidAt } = body;
+        const { amount, category } = body;
 
         if (!amount || !category) {
             return NextResponse.json(
@@ -38,7 +38,7 @@ export async function POST(request: Request) {
 
     } catch (err) {
         console.error("Error: add expense during request", err);
-        // Hata yanıtı döndürün
+        // Return error 
         return NextResponse.json(
             { error: "Server Error: add expense during request" },
             { status: 500 }

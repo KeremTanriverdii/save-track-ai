@@ -3,6 +3,7 @@ export interface Expense {
     amount: number,
     category: string,
     description?: string,
+    title?: string,
     createdAt: {
         seconds: number,
         nanoseconds: number
@@ -116,6 +117,7 @@ export type Expenses = {
     id: string
     amount: number
     category: string
+    title?: string
     description?: string
     date: string
 }

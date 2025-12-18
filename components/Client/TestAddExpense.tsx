@@ -1,13 +1,82 @@
 "use client"
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button"
+import { Divide, Loader2, Plus } from "lucide-react";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Input } from "../ui/input";
+import { useReducer } from "react";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
+import { category as categoryOptions } from "./OpenDialogClientComponent";
+
+type DialogState = {
+    amount: number;
+    category: string[];
+    description: string;
+    title: string;
+    isLoading: boolean;
+    error: string | null;
+};
+
+type DialogAction =
+    | { type: 'POST_START'; payload: { amount: number; category: string; description: string } }
+    | { type: 'POST_SUCCESS'; }
+    | { type: 'POST_ERROR'; payload: { error: string } }
+    | { type: 'SET_FIELD'; field: keyof Omit<DialogState, 'isLoading' | 'error'>; value: any };
+
+function dialogFormReducer(state: DialogState, action: DialogAction): DialogState {
+    switch (action.type) {
+        case 'POST_START':
+            return {
+                ...state,
+                isLoading: true,
+                error: null, // Reset error on new attempt
+                amount: action.payload.amount,
+                category: [action.payload.category], // Ensure category is an array
+                description: action.payload.description,
+            }
+        case 'POST_SUCCESS':
+            return {
+                ...state,
+                isLoading: false,
+                error: null,
+            }
+        case 'POST_ERROR':
+            return {
+                ...state,
+                isLoading: false,
+                error: action.payload.error,
+            }
+        case 'SET_FIELD':
+            return {
+                ...state,
+                [action.field]: action.value,
+            };
+        default:
+            return state;
+    }
+}
+
+const initialNewExpenseForm = {
+    amount: 0,
+    category: categoryOptions,
+    title: '',
+    description: '',
+    isLoading: false,
+    error: null,
+}
+
 export default function TestAddExpense() {
-    const router = useRouter()
-    async function testAddExpenses() {
+    const [state, dispatch] = useReducer(dialogFormReducer, initialNewExpenseForm);
+    const { category } = state;
+
+    const router = useRouter();
+
+    const testAddExpenses = async () => {
         const expenseData = {
-            amount: 12020,
-            category: 'fun',
-            description: 'Test yemek harcaması2',
+            amount: state.amount,
+            category: state.category,
+            title: state.title,
+            description: state.description,
         };
 
         const response = await fetch("/api/expenses", {
@@ -20,15 +89,91 @@ export default function TestAddExpense() {
 
         if (response.ok) {
             const data = await response.json();
-            console.log("Gider başarıyla eklendi:", data.expenseId);
+            alert(`Expense added successfully!`);
             router.refresh()
-            alert(`Gider eklendi! ID: ${data.expenseId}`);
         } else {
             const error = await response.json();
-            console.error("Gider eklenirken hata oluştu:", error.error);
-            alert(`Hata: ${error.error}`);
+            console.error("Error adding expense:", error.error);
+            alert(`Error: ${error.error}`);
         }
     }
 
-    return <Button onClick={testAddExpenses}>Add Expense</Button>
+
+    return (
+        <Dialog>
+            <DialogTrigger asChild>
+                <Button className="bg-blue-500 text-white">
+                    <Plus /> New Expense
+                </Button>
+            </DialogTrigger>
+            <DialogClose />
+            <DialogContent>
+                <DialogHeader >
+                    <DialogTitle>New Expense</DialogTitle>
+                </DialogHeader>
+                <DialogDescription>
+                    You can add new expenses here.
+                </DialogDescription>
+                <form onSubmit={testAddExpenses} className="flex flex-col gap-4">
+                    <label htmlFor="amount" className="w-full">
+                        <span>Amount *</span>
+                        <Input
+                            type="number"
+                            name="amount"
+                            value={state.amount}
+                            onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'amount', value: Number(e.target.value) })}
+                        />
+                    </label>
+
+                    <label htmlFor="category" className="w-full">
+                        <span>Category *</span>
+                        <Select
+                            disabled={state.isLoading}
+                            value={category[0]}
+                            onValueChange={(value) => dispatch({ type: 'SET_FIELD', field: 'category', value: [value] })}
+                        >
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Select category" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectGroup>
+                                    <SelectLabel>Categories</SelectLabel>
+                                    {categoryOptions.map((item) => (
+                                        <SelectItem key={item} value={item}> {item}
+                                        </SelectItem>))}
+                                </SelectGroup>
+                            </SelectContent>
+                        </Select>
+                    </label>
+
+                    <label htmlFor="title">
+                        <span>Title (optional)</span>
+                        <Input
+                            type="text"
+                            name="title"
+                            value={state.title}
+                            onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'title', value: e.target.value })}
+                        />
+                    </label>
+
+                    <label htmlFor="description" className="w-full">
+                        <span>Description (optional)</span>
+                        <Input
+                            type="text"
+                            name="description"
+                            value={state.description}
+                            onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'description', value: e.target.value })}
+                        />
+                    </label>
+
+                    <Button className="w-full mt-3" disabled={state.isLoading} type="submit">
+                        {state.isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+                        {state.isLoading ? "Adding..." : "Add Expense"}
+                    </Button>
+
+                    {state.error && <p className="text-red-500">{state.error}</p>}
+                </form>
+            </DialogContent>
+        </Dialog>
+    )
 }

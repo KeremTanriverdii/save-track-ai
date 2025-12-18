@@ -31,12 +31,14 @@ export const getExpenses = async (id: string, yearMonth?: string): Promise<Expen
             const querySnapshot = await getDocs(q)
             const data = querySnapshot.docs.map((doc) => ({
                 ...(doc.data() as Expense),
+                id: doc.id,// Ensure 'id' is correctly assigned from doc.id
             })) as Expense[];
             return data
         } else {
             const querySnapshot = await getDocs(expensesCollectionRef)
             const data = querySnapshot.docs.map((doc) => ({
                 ...(doc.data() as Expense),
+                id: doc.id,
             })) as Expense[];
             return data
         }

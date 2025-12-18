@@ -7,6 +7,19 @@ import { Button } from '../ui/button'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '../ui/select'
 import { Input } from '../ui/input'
 
+export const category = [
+    'Food & Dining',
+    'Transportation',
+    'Housing',
+    'Utilities',
+    'Entertainment',
+    'Shopping',
+    'Healt',
+    'Education',
+    'Travel',
+    'Other'
+]
+
 export default function OpenDialogClientComponent(
     { data, open, setOpen }: {
         data: Expenses,
@@ -21,18 +34,6 @@ export default function OpenDialogClientComponent(
     const [newCategory, setNewCategory] = React.useState<string>(data.category)
     const [newDescription, setNewDescription] = React.useState<string>(data.description)
     const [error, setError] = React.useState<string>('')
-    const category = [
-        'Food & Dining',
-        'Transportation',
-        'Housing',
-        'Utilities',
-        'Entertainment',
-        'Shopping',
-        'Healt',
-        'Education',
-        'Travel',
-        'Other'
-    ]
 
     const uptadeFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
