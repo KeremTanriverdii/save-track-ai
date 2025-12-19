@@ -117,15 +117,14 @@ export async function PUT(request: Request) {
             );
         }
         const { id, expenseData } = body;
-        const { amount, category, description } = expenseData;
+        const { amount, category, description, title } = expenseData;
 
-        // console.log('Put ', `Category : ${category}`)
-        await updateExpense(verifyUid, id, amount, category, description)
+
+        await updateExpense(verifyUid, id, amount, category, description, title)
         revalidatePath('/dashboard/expenses')
         return NextResponse.json(
             {
                 message: "Expense updated successfully.",
-                // expenseId: docRef.id,
             },
             { status: 201 }
         )

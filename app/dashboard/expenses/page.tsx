@@ -21,22 +21,5 @@ export default async function page() {
         date: (expense.createdAt as any)?.toDate?.().toISOString() || null,
         createdAt: null,
     }));
-    return (
-        <div className='grid grid-cols-1 gap-5 me-2 mt-5'>
-            {/* <ListExpensesShow initialData={data} /> */}
-            <div className="flex justify-between items-center">
-                <div className='flex flex-col gap-2'>
-                    <h2 className='font-bold sm:text-4xl'>Expenses</h2>
-                    <p className='text-sm'>Filter, sort, and examine your expenses in detail.</p>
-                </div>
-
-                <div className='flex flex-col gap-2 sm:flex-row'>
-                    <Button> <Download /> Export</Button>
-                    <TestAddExpense />
-                </div>
-            </div>
-            <DataTableClientComponent data={data} />
-
-        </div>
-    )
+    return <DataTableClientComponent data={data} />
 }

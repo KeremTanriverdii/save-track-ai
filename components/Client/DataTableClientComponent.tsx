@@ -5,6 +5,7 @@ import {
     ColumnDef,
     flexRender,
     getCoreRowModel,
+    getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table";
@@ -13,6 +14,7 @@ import {
     Table,
     TableBody,
     TableCell,
+    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
@@ -21,9 +23,12 @@ import {
 import { Expenses } from "@/lib/types/type";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { ArrowDown, ArrowUp, ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Download, HelpCircle, MoreHorizontal, Store } from "lucide-react";
 import OpenDialogClientComponent from "./OpenDialogClientComponent";
 import { useRouter } from "next/navigation";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { CATEGORY_MAP } from "@/lib/types/constants";
+import TestAddExpense from "./TestAddExpense";
 
 type Props = {
     data: Expenses[];
@@ -38,24 +43,33 @@ export default function DataTableClientComponent({ data }: Props) {
             {
                 accessorKey: "description", header: "Description",
                 cell: ({ row }) => {
-                    const expense = row.original;
-                    const description = row.getValue("description") as string | null | undefined;
+                    const { title, description, category } = row.original;
+                    const catName = Array.isArray(category) ? category[0] : category;
+                    const config = CATEGORY_MAP[catName as string] || { icon: HelpCircle, color: "text-gray-400" }
+                    const Icon = config.icon
                     if (!description) return "N/A";
                     return (
-                        <div className="flex flex-col gap-1">
-                            <span className="font-semibold leading-none">
-                                {expense.title || "Untitled"}
-                            </span>
-                            <span className="text-xs text-muted-foreground line-clamp-1 max-w-[200px]">
-                                {expense.description || "No description provided"}
-                            </span>
+                        <div className={`flex items-center gap-3`}>
+                            <div className={`p-2 rounded-full border-white/10  backdrop-blur-md`}
+                                style={{ backgroundColor: config.background || 'rgba(255,255,255,0.1', color: config.color }}
+                            >
+                                <Icon size={18} />
+                            </div>
+                            <div className="flex flex-col">
+                                <span className="font-semibold text-sm">{title || "Untitled"}</span>
+                                <span className="text-xs text-muted-foreground line-clamp-1">{description}</span>
+                            </div>
                         </div>
                     )
                 },
-            }, { header: "Category", accessorKey: "category" },
-            {
+            }
+            , {
+                header: "Category", accessorKey: "category"
+            }
+            , {
                 accessorKey: "date",
                 header: ({ column }) => {
+                    const isSorted = column.getIsSorted();
                     return (
                         <Button
                             variant="ghost"
@@ -63,8 +77,13 @@ export default function DataTableClientComponent({ data }: Props) {
                             className="hover:bg-transparent p-0 font-bold"
                         >
                             Date
-                            {/* Sıralama durumuna göre ikon değişimi (Opsiyonel ama şık durur) */}
-                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                            {isSorted === "asc" ? (
+                                <ArrowUp className="ml-2 h-4 w-4" />
+                            ) : isSorted === "desc" ? (
+                                <ArrowDown className="ml-2 h-4 w-4" />
+                            ) : (
+                                <ArrowUpDown className="ml-2 h-4 w-4 text-muted-foreground" />
+                            )}
                         </Button>
                     );
                 },
@@ -76,7 +95,7 @@ export default function DataTableClientComponent({ data }: Props) {
                     const d = new Date(dateString);
                     if (Number.isNaN(d.getTime())) return "N/A";
 
-                    return d.toLocaleDateString("tr-TR", {
+                    return d.toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
@@ -91,7 +110,7 @@ export default function DataTableClientComponent({ data }: Props) {
                         <Button
                             variant="ghost"
                             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="hover:bg-transparent p-0 font-bold"
+                            className="hover:bg-transparent p-0 font-extrabold"
                         >
                             Amount
                             {isSorted === "asc" ? (
@@ -106,7 +125,7 @@ export default function DataTableClientComponent({ data }: Props) {
                 },
                 cell: ({ row }) => {
                     const amount = parseFloat(row.getValue("amount"));
-                    return <div className="text-left font-medium">{amount}</div>;
+                    return <div className="text-left font-extrabold ">{amount.toFixed(2)}</div>;
                 },
             },
             {
@@ -179,52 +198,163 @@ export default function DataTableClientComponent({ data }: Props) {
         columns,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        initialState: {
+            pagination: {
+                pageIndex: 0,
+                pageSize: 10,
+            },
+            sorting: [
+                {
+                    id: "date",
+                    desc: true,
+                }
+            ]
+        }
     });
 
-    return (
-        <div className="overflow-hidden rounded-md border w-full">
-            <Table>
-                <TableHeader className="bg-muted">
-                    {table.getHeaderGroups().map((headerGroup) => (
-                        <TableRow key={headerGroup.id}>
-                            {headerGroup.headers.map((header) => (
-                                <TableHead key={header.id}>
-                                    {header.isPlaceholder
-                                        ? null
-                                        : flexRender(
-                                            header.column.columnDef.header,
-                                            header.getContext()
-                                        )}
-                                </TableHead>
-                            ))}
-                        </TableRow>
-                    ))}
-                </TableHeader>
 
-                <TableBody>
-                    {table.getRowModel().rows.length ? (
-                        table.getRowModel().rows.map((row) => (
-                            <TableRow key={row.id}>
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell key={cell.id}>
-                                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </TableCell>
+
+    const handleExportCSV = (table: any) => {
+        const rows = table.getFilteredRowModel().rows;
+
+        const csvHeaders = ["Title", "Category", "Amount", "Date"].join(",");
+
+        const csvRows = rows.map((row: any) => {
+            const d = row.original;
+            return [
+                `"${d.title}"`,
+                `"${d.category[0]}"`,
+                d.amount,
+                `"${new Date(d.date).toLocaleDateString("en-US")}"`
+            ].join(",");
+        });
+
+        const csvString = [csvHeaders, ...csvRows].join("\n");
+
+        const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `amount_${new Date().toLocaleDateString()}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    return (
+        <div className="grid grid-cols-1 gap-5 me-2 mt-5">
+            <div className="flex justify-between items-center">
+                <div className='flex flex-col gap-2'>
+                    <h2 className='font-bold sm:text-4xl'>Expenses</h2>
+                    <p className='text-sm'>Filter, sort, and examine your expenses in detail.</p>
+                </div>
+                <div className='flex flex-col gap-2 sm:flex-row'>
+                    <Button
+                        variant="outline"
+                        onClick={() => handleExportCSV(table)}
+                        className="bg-green-500/10 hover:bg-green-500/20 text-green-600 border-green-500/20"
+                    >
+                        <Download className="mr-2 h-4 w-4" />
+                        Export (.CSV)
+                    </Button>
+                    <TestAddExpense />
+                </div>
+            </div>
+            <div className="overflow-hidden rounded-md border w-full">
+                <Table>
+                    <TableHeader className="bg-muted">
+                        {table.getHeaderGroups().map((headerGroup) => (
+                            <TableRow key={headerGroup.id}>
+                                {headerGroup.headers.map((header) => (
+                                    <TableHead key={header.id}>
+                                        {header.isPlaceholder
+                                            ? null
+                                            : flexRender(
+                                                header.column.columnDef.header,
+                                                header.getContext()
+                                            )}
+                                    </TableHead>
                                 ))}
                             </TableRow>
-                        ))
-                    ) : (
-                        <TableRow>
-                            <TableCell colSpan={columns.length} className="h-24 text-center">
-                                No results.
-                            </TableCell>
-                        </TableRow>
-                    )}
-                </TableBody>
-            </Table>
+                        ))}
+                    </TableHeader>
 
-            {selected && (
-                <OpenDialogClientComponent data={selected} open={open} setOpen={setOpen} />
-            )}
+                    <TableBody>
+                        {table.getRowModel().rows.length ? (
+                            table.getRowModel().rows.map((row) => (
+                                <TableRow key={row.id}>
+                                    {row.getVisibleCells().map((cell) => (
+                                        <TableCell key={cell.id} className="py-4">
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                            ))
+                        ) : (
+                            <TableRow>
+                                <TableCell colSpan={columns.length} className="h-24 text-center">
+                                    No results.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                    </TableBody>
+                </Table>
+
+                <div className="flex items-center justify-between p-2 py-4 border-t">
+                    <div className="flex gap-2 items-center">
+                        <Select
+                            value={`${table.getState().pagination.pageSize}`}
+                            onValueChange={(value) => {
+                                table.setPageSize(Number(value))
+                            }}
+                        >
+                            <SelectTrigger className="h-8 w-[70px]">
+                                <SelectValue placeholder={table.getState().pagination.pageSize} />
+                            </SelectTrigger>
+                            <SelectContent side="top">
+                                {[10, 25, 50, 100].map((pageSize) => (
+                                    <SelectItem key={pageSize} value={`${pageSize}`}>
+                                        {pageSize}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                        <span className="text-sm ">
+                            Showing expenses {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{" "}
+                            {Math.min(
+                                (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+                                table.getFilteredRowModel().rows.length
+                            )}{" "}
+                            of {table.getFilteredRowModel().rows.length}
+                        </span>
+                    </div>
+                    <div className="space-x-2 space-y-2 sm:">
+                        <Button
+                            className="w-full sm:w-fit"
+                            variant='outline'
+                            size='sm'
+                            onClick={() => table.previousPage()}
+                            disabled={!table.getCanPreviousPage()}
+                        >
+                            Previous
+                        </Button>
+                        <Button
+                            className="w-full sm:w-fit"
+                            variant='outline'
+                            size='sm'
+                            onClick={() => table.nextPage()}
+                            disabled={!table.getCanNextPage()}
+                        >
+                            Next
+                        </Button>
+                    </div>
+                </div>
+
+                {selected && (
+                    <OpenDialogClientComponent data={selected} open={open} setOpen={setOpen} />
+                )}
+            </div>
         </div>
     );
 }

@@ -6,7 +6,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, Di
 import { Input } from "../ui/input";
 import { useReducer } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
-import { category as categoryOptions } from "./OpenDialogClientComponent";
+import { CATEGORY_MAP } from "@/lib/types/constants";
 
 type DialogState = {
     amount: number;
@@ -58,7 +58,7 @@ function dialogFormReducer(state: DialogState, action: DialogAction): DialogStat
 
 const initialNewExpenseForm = {
     amount: 0,
-    category: categoryOptions,
+    category: [Object.keys(CATEGORY_MAP)[0]],
     title: '',
     description: '',
     isLoading: false,
@@ -138,9 +138,15 @@ export default function TestAddExpense() {
                             <SelectContent>
                                 <SelectGroup>
                                     <SelectLabel>Categories</SelectLabel>
-                                    {categoryOptions.map((item) => (
-                                        <SelectItem key={item} value={item}> {item}
-                                        </SelectItem>))}
+                                    {Object.entries(CATEGORY_MAP).map(([name]) => {
+                                        return (
+                                            <SelectItem key={name} value={name}>
+                                                <div className="flex items-center gap-2">
+                                                    {name}
+                                                </div>
+                                            </SelectItem>
+                                        );
+                                    })}
                                 </SelectGroup>
                             </SelectContent>
                         </Select>

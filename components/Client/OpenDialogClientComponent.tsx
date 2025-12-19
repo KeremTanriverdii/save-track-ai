@@ -1,24 +1,14 @@
 "use client"
 
 import { Expenses } from '@/lib/types/type'
-import React from 'react'
+import React, { JSX } from 'react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '../ui/select'
 import { Input } from '../ui/input'
+import { CATEGORY_MAP } from '@/lib/types/constants'
+import { useRouter } from 'next/navigation'
 
-export const category = [
-    'Food & Dining',
-    'Transportation',
-    'Housing',
-    'Utilities',
-    'Entertainment',
-    'Shopping',
-    'Healt',
-    'Education',
-    'Travel',
-    'Other'
-]
 
 export default function OpenDialogClientComponent(
     { data, open, setOpen }: {
@@ -29,36 +19,40 @@ export default function OpenDialogClientComponent(
     if (!data.description) {
         throw new Error('No description')
     }
+    let initialTitle = data.title;
+    if (!initialTitle) initialTitle = "";
 
     const [newAmount, setNewAmount] = React.useState<number>(data.amount)
     const [newCategory, setNewCategory] = React.useState<string>(data.category)
     const [newDescription, setNewDescription] = React.useState<string>(data.description)
+    const [newTitle, setNewTitle] = React.useState<string>(initialTitle);
     const [error, setError] = React.useState<string>('')
-
+    const router = useRouter();
     const uptadeFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const newExpensesData = {
             amount: newAmount,
             category: newCategory,
             description: newDescription,
+            title: newTitle,
         }
         const fetchRequest = await fetch(`/api/expenses`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ expenseData: newExpensesData }),
+            body: JSON.stringify({ id: data.id, expenseData: newExpensesData, }),
         });
         if (!fetchRequest.ok) {
             setError('Something went wrong! Please try again.')
         }
+        router.refresh()
         setOpen(false)
     }
-    console.log(newCategory, newAmount, newDescription)
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <form onSubmit={uptadeFormSubmit}>
-                <DialogContent className='sm:max-w-[500px]'>
+            <DialogContent className='sm:max-w-[500px]'>
+                <form onSubmit={uptadeFormSubmit}>
 
                     <DialogHeader>
                         <DialogTitle>Update your expense</DialogTitle>
@@ -70,16 +64,18 @@ export default function OpenDialogClientComponent(
                     <div className='grid gap-4'>
                         <div className='grid gap-3'>
                             <label htmlFor="category">Category</label>
-                            <Select value={newCategory} onValueChange={(value) => setNewCategory(value)}>
+                            <Select
+                                value={Array.isArray(newCategory) ? newCategory[0] : newCategory}
+                                onValueChange={(value) => setNewCategory(value)}>
                                 <SelectTrigger className='w-full'>
-                                    <SelectValue placeholder={data.category} />
+                                    <SelectValue placeholder={Array.isArray(data.category) ? data.category[0] : data.category} />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectGroup>
                                         <SelectLabel>Categories</SelectLabel>
-                                        {category.map((item) => (
-                                            <SelectItem key={item} value={item}>
-                                                {item}
+                                        {Object.entries(CATEGORY_MAP).map(([name, item]) => (
+                                            <SelectItem key={name} value={name}>
+                                                {name}
                                             </SelectItem>
                                         ))}
                                     </SelectGroup>
@@ -99,6 +95,18 @@ export default function OpenDialogClientComponent(
                         </div>
 
                         <div>
+                            <label htmlFor="title">Title</label>
+                            <Input
+                                type='text'
+                                id='title'
+                                name='title'
+                                value={newTitle}
+                                placeholder={initialTitle}
+                                onChange={(e) => setNewTitle(e.target.value)}
+                            />
+                        </div>
+
+                        <div>
                             <label htmlFor="description">Description</label>
                             <Input
                                 type='text'
@@ -108,6 +116,7 @@ export default function OpenDialogClientComponent(
                                 onChange={(e) => setNewDescription(e.target.value)}
                             />
                         </div>
+
 
                         <div className='flex justify-end gap-5'>
                             <Button
@@ -120,8 +129,8 @@ export default function OpenDialogClientComponent(
                         </div>
                     </div>
                     {error && (<div>{error}</div>)}
-                </DialogContent>
-            </form>
+                </form>
+            </DialogContent>
         </Dialog>
     )
 }

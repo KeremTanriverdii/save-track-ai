@@ -4,13 +4,14 @@ import { useState } from "react"
 import { Button } from "../ui/button"
 import { useRouter } from "next/navigation";
 
-export const UpdateExpenseButton = ({ id, amount, category, description }: { id: string, amount: number, category: string, description: string }) => {
+export const UpdateExpenseButton = ({ id, amount, category, description, title }: { id: string, amount: number, category: string, description: string, title: string }) => {
     const [editState, setEditState] = useState<boolean>(false)
     const router = useRouter()
     const [expensesData, setExpensesData] = useState({
         amount: amount,
         category: category,
         description: description,
+        title: title,
     })
 
     const handleUpdate = async (id: string) => {
@@ -18,6 +19,7 @@ export const UpdateExpenseButton = ({ id, amount, category, description }: { id:
             amount: expensesData.amount,
             category: expensesData.category, // Assuming category is already a string
             description: expensesData.description,
+            title: expensesData.title,
         };
         const fetchRequest = await fetch(`/api/expenses`, {
             method: 'PUT',
@@ -62,6 +64,12 @@ export const UpdateExpenseButton = ({ id, amount, category, description }: { id:
                         onChange={(e) => setExpensesData({
                             ...expensesData,
                             description: e.target.value
+                        })}
+                    />
+                    <input type="text" name="title" id="" value={expensesData.title}
+                        onChange={(e) => setExpensesData({
+                            ...expensesData,
+                            title: e.target.value
                         })}
                     />
                     <Button onClick={() => { handleUpdate(id); setEditState(false) }}>Update</Button>
