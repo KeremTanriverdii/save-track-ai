@@ -70,52 +70,54 @@ export function ChartAnalytics({ initialData }: { initialData: AnalyticsData }) 
                         <div className="h-[250px] w-full animate-pulse rounded-md bg-muted"></div>
                     ) : (<>
                         <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
-                            {isPending && (
-                                // Veri güncellenirken grafiğin üzerine bir loading katmanı ekle
-                                <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
-                                    <span className="text-xl font-semibold">Updating...</span>
-                                </div>
-                            )}
-                            <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
-                                <CartesianGrid vertical={false} />
+                            <>
+                                {isPending && (
+                                    // Veri güncellenirken grafiğin üzerine bir loading katmanı ekle
+                                    <div className="absolute inset-0 bg-white/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-lg">
+                                        <span className="text-xl font-semibold">Updating...</span>
+                                    </div>
+                                )}
+                                <LineChart data={chartData} margin={{ left: 12, right: 12 }}>
+                                    <CartesianGrid vertical={false} />
 
-                                <XAxis
-                                    dataKey="day"
-                                    tickLine={false}
-                                    axisLine={false}
-                                    tickMargin={15}
-                                    minTickGap={32}
-                                    tickFormatter={(value) =>
-                                        new Date(value).toLocaleDateString("en-US", {
-                                            month: "short",
-                                            day: "numeric",
-                                        })
-                                    }
-                                />
+                                    <XAxis
+                                        dataKey="day"
+                                        tickLine={false}
+                                        axisLine={false}
+                                        tickMargin={15}
+                                        minTickGap={32}
+                                        tickFormatter={(value) =>
+                                            new Date(value).toLocaleDateString("en-US", {
+                                                month: "short",
+                                                day: "numeric",
+                                            })
+                                        }
+                                    />
 
-                                <ChartTooltip
-                                    content={
-                                        <ChartTooltipContent
-                                            className="w-[150px]"
-                                            nameKey="views"
-                                            labelFormatter={(value) =>
-                                                "Day " +
-                                                new Date(value).toLocaleDateString("en-US", {
-                                                    day: "numeric",
-                                                })
-                                            }
-                                        />
-                                    }
-                                />
+                                    <ChartTooltip
+                                        content={
+                                            <ChartTooltipContent
+                                                className="w-[150px]"
+                                                nameKey="views"
+                                                labelFormatter={(value) =>
+                                                    "Day " +
+                                                    new Date(value).toLocaleDateString("en-US", {
+                                                        day: "numeric",
+                                                    })
+                                                }
+                                            />
+                                        }
+                                    />
 
-                                <Line
-                                    dataKey={activeChart}
-                                    type="monotone"
-                                    stroke={`var(--color-${activeChart})`}
-                                    strokeWidth={2}
-                                    dot={false}
-                                />
-                            </LineChart>
+                                    <Line
+                                        dataKey={activeChart}
+                                        type="monotone"
+                                        stroke={`var(--color-${activeChart})`}
+                                        strokeWidth={2}
+                                        dot={false}
+                                    />
+                                </LineChart>
+                            </>
                         </ChartContainer></>)
                     }
                 </CardContent>

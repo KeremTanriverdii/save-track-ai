@@ -17,12 +17,7 @@ export default function ListExpensesShow({ initialData }: { initialData: Expense
                     <DeleteExpenseButton
                         id={item.id}
                     />
-                    <UpdateExpenseButton
-                        id={item.id}
-                        category={item.category as string}
-                        amount={item.amount as number}
-                        description={item.description as string}
-                    />
+
                 </div>
             ))}
         </div>

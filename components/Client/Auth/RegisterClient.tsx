@@ -63,6 +63,7 @@ export default function RegisterClient() {
                 displayName: state.userName,
                 photoURL: '',
                 lastLogin: new Date(),
+                currency: 'TL'
             }
             await saveUserToFirestore(newUser)
             router.push('/dashboard')
