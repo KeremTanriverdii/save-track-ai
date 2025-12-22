@@ -3,6 +3,7 @@ import { calcRemaining } from "@/lib/budged/calcRemaining";
 import { getBudget } from "@/lib/budged/GetBudget";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { dateCustom } from "@/utils/nowDate";
+import { revalidateTag } from "next/cache";
 import { NextResponse } from "next/server"
 
 export async function GET(req?: Request) {
@@ -47,6 +48,7 @@ export async function POST(req: Request) {
 
         await addbudget(budget, uid, yearMonth);
 
+        revalidateTag('budget-data', { expire: 0 })
         return NextResponse.json({ message: 'Budget is added successfully.' }, { status: 200 });
 
     } catch (error: any) {

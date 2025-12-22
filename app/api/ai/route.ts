@@ -6,6 +6,7 @@ import { write } from "fs";
 import { writeResults } from "@/lib/ai-respons/writeResults";
 import { deleteDataById } from "@/lib/ai-respons/deleteResults";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
+import { revalidateTag } from "next/cache";
 
 
 
@@ -102,6 +103,7 @@ You must respond **strictly in the following JSON format**:
         if (insightData) {
             // await saveTheFirestoreInsight(insightData);
             await writeResults(verifyUid, insightData);
+            revalidateTag('ai-insights', { expire: 0 })
         } else {
             console.error('No insight data to save to Firestore.');
         }
@@ -125,6 +127,7 @@ export async function DELETE(req: Request) {
             return NextResponse.json({ message: 'error', status: 500 });
         } else {
             await deleteDataById(verifyUid, id);
+            revalidateTag('ai-insights', { expire: 0 })
             return NextResponse.json({ message: 'success', status: 200 })
         }
     } catch (err) {

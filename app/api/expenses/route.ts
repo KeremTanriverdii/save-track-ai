@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { deleteExpense } from "@/lib/expenses/deleteExpense";
 import { updateExpense } from "@/lib/expenses/uptadeExpense";
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
+import { revalidateTag } from 'next/cache';
 
 
 export async function POST(request: Request) {
@@ -27,7 +28,8 @@ export async function POST(request: Request) {
 
         // Firestore Logic
         addExpense(body, verifyUid as string)
-        revalidatePath('/dashboard/expenses')
+        revalidateTag('expense-data', { expire: 0 })
+        revalidateTag('budget-data', { expire: 0 })
         return NextResponse.json(
             {
                 message: "Expense added successfully.",
@@ -88,7 +90,8 @@ export async function DELETE(request: Request) {
 
         // Firestore Logic
         await deleteExpense(verifyUid, id)
-        revalidatePath('/dashboard/expenses')
+        revalidateTag('expense-data', { expire: 0 })
+        revalidateTag('budget-data', { expire: 0 })
         return NextResponse.json(
             {
                 message: "Expense deleted successfully.",
@@ -121,7 +124,8 @@ export async function PUT(request: Request) {
 
 
         await updateExpense(verifyUid, id, amount, category, description, title)
-        revalidatePath('/dashboard/expenses')
+        revalidateTag('expense-data', { expire: 0 })
+        revalidateTag('budget-data', { expire: 0 })
         return NextResponse.json(
             {
                 message: "Expense updated successfully.",
