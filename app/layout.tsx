@@ -28,52 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable}  dark bg-[#1F1020]`}
+        className={`${geistSans.variable} ${geistMono.variable}  dark`}
       >
-        <header className="lg:px-10 mb-10 border-b border-green-900 flex items-center justify-between">
-          <nav className="flex gap-2 items-center p-2 text-white">
-            <Link href={'/'} className="flex items-center gap-2">
-              <Layers className="h-8 w-8 text-white" />SaveTrack
-            </Link>
-          </nav>
 
-          <nav className="flex gap-3 items-center p-2 text-white">
-            <Link href={'#features'}>
-              Features
-            </Link>
-            <Link href={'/auth-login'}>
-              <Button className="bg-violet-950 text-white">
-                Login
-              </Button>
-            </Link>
-            <Link href={'/auth-register'}>
-              <Button className="bg-violet-800 text-white">
-                Register
-              </Button>
-            </Link>
-          </nav>
-        </header>
 
         {children}
 
-        <footer className="mt-10 p-5 border-t border-gray-300 ">
-          <div className="flex items-center gap-3 justify-between">
-            <div>
-              <div className="flex flex-col gap-3">
-                <nav className="flex items-center gap-4 font-bold">
-                  <Link href={'/'} className="flex items-center gap-2">
-                    <Layers className="h-8 w-8 text-violet-600" />SaveTrack
-                  </Link>
-                </nav>
-                <p className="text-muted-foreground">
-                  Your reliable partner on the road to financial freedom.
-                  <br />
-                  Take control of your budget with modern tools.</p>
-              </div>
-            </div>
-            <p>&copy; {new Date().getFullYear()} New Generation Finance. All rights reserved.</p>
-          </div>
-        </footer>
+
       </body>
     </html>
   );

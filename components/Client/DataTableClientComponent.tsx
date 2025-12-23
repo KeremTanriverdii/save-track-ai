@@ -35,6 +35,7 @@ type Props = {
 };
 
 export default function DataTableClientComponent({ data }: Props) {
+    console.log(data, 'xs')
     const [open, setOpen] = React.useState<boolean>(false);
     const [selected, setSelected] = React.useState<Expenses | null>(null)
     const router = useRouter()
@@ -87,19 +88,23 @@ export default function DataTableClientComponent({ data }: Props) {
                         </Button>
                     );
                 },
-                sortingFn: "datetime",
                 cell: ({ row }) => {
-                    const dateString = row.getValue("date") as string | null | undefined;
-                    if (!dateString) return "N/A";
+                    const dateValue = row.getValue("date");
+                    let dateString: string;
 
-                    const d = new Date(dateString);
-                    if (Number.isNaN(d.getTime())) return "N/A";
+                    // Check if dateValue is a Firestore timestamp
+                    if (dateValue && typeof dateValue === 'object' && 'seconds' in dateValue && typeof (dateValue as { seconds: number }).seconds === 'number') {
+                        const date = new Date((dateValue as { seconds: number }).seconds * 1000);
+                        dateString = date.toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                        });
+                    } else {
+                        dateString = "N/A"; // Fallback if date is not valid
+                    }
 
-                    return d.toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                    });
+                    return dateString;
                 },
             },
             {

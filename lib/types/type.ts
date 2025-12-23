@@ -9,6 +9,7 @@ export interface Expense {
         nanoseconds: number
         id?: string
     }
+    date: Date
 }
 
 export interface uptadeeExpense {
@@ -119,5 +120,5 @@ export type Expenses = {
     category: string
     title?: string
     description?: string
-    date: string
+    date: Date
 }

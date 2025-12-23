@@ -1,17 +1,30 @@
 'use server';
 import { DailyChartData, Expense } from '@/lib/types/type';
 
-export async function transformToDailyChart(data: Expense[]): Promise<DailyChartData[]> {
-    return data.reduce((acc: DailyChartData[], curr: Expense) => {
-        const day = new Date(curr.createdAt?.seconds * 1000)
-            .toISOString()
-            .substring(0, 10)
+export async function transformToDailyChart(data: Expense[], yearMonth: string): Promise<DailyChartData[]> {
+    const [year, month] = yearMonth.split('-').map(Number);
 
-        const existing = acc.find((item) => item.day === day)
+    const daysInMonth = new Date(year, month, 0).getDate();
 
-        if (existing) existing.amount += curr.amount
-        else acc.push({ day, amount: curr.amount })
+    const dailyMap: { [key: number]: number } = {};
+    for (let i = 1; i <= daysInMonth; i++) {
+        dailyMap[i] = 0;
+    }
+    data.forEach((curr) => {
 
-        return acc
-    }, [])
+        const dateSource = (curr.date && typeof curr.date === 'object' && 'seconds' in curr.date)
+            ? new Date((curr.date as any).seconds * 1000)
+            : new Date(curr.date);
+
+        const dayNumber = dateSource.getDate();
+
+        if (dailyMap[dayNumber] !== undefined) {
+            dailyMap[dayNumber] += curr.amount;
+        }
+    });
+
+    return Object.entries(dailyMap).map(([day, amount]) => ({
+        day: day,
+        amount
+    })).sort((a, b) => Number(a.day) - Number(b.day));
 }

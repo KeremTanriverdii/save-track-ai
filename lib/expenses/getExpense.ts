@@ -25,8 +25,8 @@ export const getExpenses = async (id: string, yearMonth?: string): Promise<Expen
 
             const q = query(
                 expensesCollectionRef,
-                where('createdAt', '>=', startTimestamp),
-                where('createdAt', '<', endTimestamp)
+                where('date', '>=', startTimestamp),
+                where('date', '<', endTimestamp),
             )
             const querySnapshot = await getDocs(q)
             const data = querySnapshot.docs.map((doc) => ({

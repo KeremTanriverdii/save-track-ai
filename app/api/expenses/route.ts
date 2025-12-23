@@ -17,7 +17,10 @@ export async function POST(request: Request) {
     try {
 
         const body = await request.json();
-        const { amount, category } = body;
+        const { amount, category, expenseDate } = body;
+
+        const finalDate = expenseDate || new Date().toISOString();
+        const targetMonthTag = `expenses-${finalDate.substring(0, 7)}`;
 
         if (!amount || !category) {
             return NextResponse.json(
@@ -25,11 +28,13 @@ export async function POST(request: Request) {
                 { status: 400 }
             );
         }
-
         // Firestore Logic
-        addExpense(body, verifyUid as string)
-        revalidateTag('expense-data', { expire: 0 })
-        revalidateTag('budget-data', { expire: 0 })
+        addExpense({ ...body, expenseDate: finalDate }, verifyUid as string)
+
+        if (!targetMonthTag.includes('undefined')) {
+            revalidateTag(targetMonthTag, { expire: 0 })
+            revalidateTag('budget-data', { expire: 0 })
+        }
         return NextResponse.json(
             {
                 message: "Expense added successfully.",
@@ -120,12 +125,15 @@ export async function PUT(request: Request) {
             );
         }
         const { id, expenseData } = body;
-        const { amount, category, description, title } = expenseData;
+        const { amount, category, description, title, expenseDate } = expenseData;
+        const targetMonthTag = `expenses-${expenseDate.substring(0, 7)}`;
 
 
         await updateExpense(verifyUid, id, amount, category, description, title)
-        revalidateTag('expense-data', { expire: 0 })
-        revalidateTag('budget-data', { expire: 0 })
+        if (!expenseDate.includes('undefined')) {
+            revalidateTag(targetMonthTag, { expire: 0 })
+            revalidateTag('budget-data', { expire: 0 })
+        }
         return NextResponse.json(
             {
                 message: "Expense updated successfully.",

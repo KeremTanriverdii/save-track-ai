@@ -1,12 +1,14 @@
 "use client"
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button"
-import { Divide, Loader2, Plus } from "lucide-react";
+import { ChevronDownIcon, Divide, Loader2, Plus } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Input } from "../ui/input";
-import { useReducer } from "react";
+import { useReducer, useState } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
 import { CATEGORY_MAP } from "@/lib/types/constants";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Calendar } from "../ui/calendar";
 
 type DialogState = {
     amount: number;
@@ -15,13 +17,15 @@ type DialogState = {
     title: string;
     isLoading: boolean;
     error: string | null;
+    date: Date | undefined;
 };
 
 type DialogAction =
-    | { type: 'POST_START'; payload: { amount: number; category: string; description: string } }
+    | { type: 'POST_START'; payload: { amount: number; category: string; description: string; date: Date | undefined } }
     | { type: 'POST_SUCCESS'; }
     | { type: 'POST_ERROR'; payload: { error: string } }
-    | { type: 'SET_FIELD'; field: keyof Omit<DialogState, 'isLoading' | 'error'>; value: any };
+    | { type: 'SET_FIELD'; field: keyof Omit<DialogState, 'isLoading' | 'error'>; value: any }
+    | { type: 'SET_DATE'; payload: Date | undefined };
 
 function dialogFormReducer(state: DialogState, action: DialogAction): DialogState {
     switch (action.type) {
@@ -33,6 +37,7 @@ function dialogFormReducer(state: DialogState, action: DialogAction): DialogStat
                 amount: action.payload.amount,
                 category: [action.payload.category], // Ensure category is an array
                 description: action.payload.description,
+                date: action.payload.date
             }
         case 'POST_SUCCESS':
             return {
@@ -51,6 +56,11 @@ function dialogFormReducer(state: DialogState, action: DialogAction): DialogStat
                 ...state,
                 [action.field]: action.value,
             };
+        case 'SET_DATE':
+            return {
+                ...state,
+                date: action.payload,
+            };
         default:
             return state;
     }
@@ -63,12 +73,13 @@ const initialNewExpenseForm = {
     description: '',
     isLoading: false,
     error: null,
+    date: undefined,
 }
 
 export default function TestAddExpense() {
     const [state, dispatch] = useReducer(dialogFormReducer, initialNewExpenseForm);
     const { category } = state;
-
+    const [open, setOpen] = useState<boolean>(false);
     const router = useRouter();
 
     const testAddExpenses = async () => {
@@ -77,6 +88,7 @@ export default function TestAddExpense() {
             category: state.category,
             title: state.title,
             description: state.description,
+            expenseDate: state.date ? state.date.toISOString() : undefined
         };
 
         const response = await fetch("/api/expenses", {
@@ -88,7 +100,6 @@ export default function TestAddExpense() {
         });
 
         if (response.ok) {
-            const data = await response.json();
             alert(`Expense added successfully!`);
             router.refresh()
         } else {
@@ -97,8 +108,6 @@ export default function TestAddExpense() {
             alert(`Error: ${error.error}`);
         }
     }
-
-
     return (
         <Dialog>
             <DialogTrigger asChild>
@@ -171,6 +180,36 @@ export default function TestAddExpense() {
                             onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'description', value: e.target.value })}
                         />
                     </label>
+
+                    <div className="flex flex-col gap-3">
+                        <label htmlFor="date" className="px-1">
+                            Select Date
+                        </label>
+                        <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="outline"
+                                    id="date"
+                                    className="w-full justify-between font-normal"
+                                >
+                                    {state.date ? state.date.toLocaleDateString() : "Select date"}
+                                    <ChevronDownIcon />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full overflow-hidden p-0" align="start">
+                                <Calendar
+                                    mode="single"
+                                    selected={state.date}
+                                    captionLayout="dropdown"
+                                    onSelect={(date) => {
+                                        dispatch({ type: 'SET_DATE', payload: date })
+                                        setOpen(false)
+                                    }}
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+
 
                     <Button className="w-full mt-3" disabled={state.isLoading} type="submit">
                         {state.isLoading && <Loader2 className="w-4 h-4 animate-spin" />}

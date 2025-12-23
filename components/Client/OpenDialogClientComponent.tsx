@@ -8,6 +8,9 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { Input } from '../ui/input'
 import { CATEGORY_MAP } from '@/lib/types/constants'
 import { useRouter } from 'next/navigation'
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { ChevronDownIcon } from 'lucide-react'
+import { Calendar } from '../ui/calendar'
 
 
 export default function OpenDialogClientComponent(
@@ -26,8 +29,11 @@ export default function OpenDialogClientComponent(
     const [newCategory, setNewCategory] = React.useState<string>(data.category)
     const [newDescription, setNewDescription] = React.useState<string>(data.description)
     const [newTitle, setNewTitle] = React.useState<string>(initialTitle);
-    const [error, setError] = React.useState<string>('')
+    const [error, setError] = React.useState<string>('');
+    const [date, setDate] = React.useState<Date | undefined>(data.date ? new Date(data.date) : undefined);
+    const [openDate, setOpenDate] = React.useState<boolean>(false);
     const router = useRouter();
+
     const uptadeFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const newExpensesData = {
@@ -106,6 +112,34 @@ export default function OpenDialogClientComponent(
                             />
                         </div>
 
+                        <div className="flex flex-col gap-3">
+                            <label htmlFor="date" className="px-1">
+                                Date
+                            </label>
+                            <Popover open={openDate} onOpenChange={setOpenDate}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        variant="outline"
+                                        id="date"
+                                        className="w-full justify-between font-normal"
+                                    >
+                                        {date ? date.toLocaleDateString() : "Select date"}
+                                        <ChevronDownIcon />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                                    <Calendar
+                                        mode="single"
+                                        selected={date}
+                                        captionLayout="dropdown"
+                                        onSelect={(date) => {
+                                            setDate(date)
+                                            setOpen(false)
+                                        }}
+                                    />
+                                </PopoverContent>
+                            </Popover>
+                        </div>
                         <div>
                             <label htmlFor="description">Description</label>
                             <Input
@@ -127,6 +161,8 @@ export default function OpenDialogClientComponent(
 
                             <Button type='submit'>Save</Button>
                         </div>
+
+
                     </div>
                     {error && (<div>{error}</div>)}
                 </form>
