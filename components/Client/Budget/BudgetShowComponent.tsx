@@ -1,7 +1,8 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Landmark } from "lucide-react";
 
-export default function BudgetShowComponent({ budget }: { budget: number }) {
+export default function BudgetShowComponent({ budget }: { budget: number | null }) {
+    if (!budget) return 0
     return (
         <Card>
             <CardHeader>

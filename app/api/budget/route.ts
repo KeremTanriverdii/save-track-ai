@@ -1,6 +1,8 @@
 import { addbudget } from "@/lib/budged/Budget";
 import { calcRemaining } from "@/lib/budged/calcRemaining";
 import { getBudget } from "@/lib/budged/GetBudget";
+import { getExpenses } from "@/lib/expenses/getExpense";
+import { detectOverspendAreas } from "@/lib/insights/detectOverspendAreas";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { dateCustom } from "@/utils/nowDate";
 import { revalidateTag } from "next/cache";
@@ -22,7 +24,9 @@ export async function GET(req?: Request) {
 
         const data = await getBudget(verifyUid, nowDate) as number;
         const remaining = await calcRemaining(verifyUid, totalSpending, nowDate) as unknown as number;
-        return NextResponse.json({ budget: data, remaining: remaining }, { status: 200 });
+        const dataExpense = await getExpenses(verifyUid, nowDate)
+        const overSpends = detectOverspendAreas(dataExpense, data)
+        return NextResponse.json({ budget: data, remaining: remaining, overSpends: overSpends }, { status: 200 });
     } catch (error) {
         console.error("API error:", error);
         return new NextResponse(JSON.stringify({ message: "Error of database" }), {

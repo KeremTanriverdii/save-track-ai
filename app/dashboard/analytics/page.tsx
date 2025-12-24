@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { cookies } from 'next/headers';
 import { transformToDailyChart } from './action';
 import { calTotal } from '@/lib/analytics/calcTotal';
@@ -8,39 +7,44 @@ import { Expense } from '@/lib/types/type';
 import MonthSelectClientComponent from '@/components/Client/MonthSelectClientComponent';
 import { ChartAnalytics } from '@/components/Client/Charts/ChartAnalytics';
 import InsightPanelComponent from '@/components/InsightPanelComponent';
+import BudgetState from '@/components/Client/Budget/BudgetStateComponent';
+import { Card, CardAction, CardContent } from '@/components/ui/card';
+
 
 async function getAnalyticsData(month: string) {
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('session');
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+    const headers = {
+        'Content-Type': 'application/json',
+        ...(sessionCookie && { Cookie: `${sessionCookie.name}=${sessionCookie.value}` }),
+    };
 
     try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-        const res = await fetch(`${baseUrl}/api/expenses?yearMonth=${month}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                ...(sessionCookie && { Cookie: `${sessionCookie.name}=${sessionCookie.value}` }),
-            },
-            next: {
-                revalidate: 60,
-                tags: [`expenses-${month}`]
-            }
-        });
+        const [expensesRes, budgetRes] = await Promise.all([
+            fetch(`${baseUrl}/api/expenses?yearMonth=${month}`, { headers, next: { revalidate: 60, tags: [`expenses-${month}`] } }),
+            fetch(`${baseUrl}/api/budget`, { headers, next: { revalidate: 300 } })
+        ]);
 
-        if (!res.ok) throw new Error('Failed to fetch expenses');
+        if (!expensesRes.ok || !budgetRes.ok) throw new Error('Fetch error');
 
-        const rawData: Expense[] = await res.json();
+        const rawData: Expense[] = await expensesRes.json();
+        const monthlyBudget = await budgetRes.json();
+
         const dailyData = await transformToDailyChart(rawData, month);
         return {
             rawData,
             dailyData,
+            monthlyBudget,
             totalSpending: calTotal(dailyData),
             averageSpending: calcAverage(dailyData),
             mostSpendingCategory: calcTopCategorySpending(rawData),
+            overSpends: monthlyBudget.overSpends,
         };
 
     } catch (error) {
-        console.error("Data fetch error:", error);
+        console.error("Fetch error", error);
         return null;
     }
 }
@@ -54,16 +58,29 @@ export default async function AnalyticsPage(props: {
     const analyticsData = await getAnalyticsData(currentMonth);
     return (
         <div className="p-6 space-y-6">
-
-
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <h1 className="text-2xl font-bold tracking-tight">Analytics Dashboard</h1>
-                <MonthSelectClientComponent />
+                <div className='w-full'>
+                    <BudgetState total={analyticsData?.totalSpending ?? 0} />
+                </div>
+                <Card className=''>
+                    <CardContent>
+                        <p className='mb-6'>
+                            You can select the month and year for analyzing data within the chosen range.
+                        </p>
+                        <CardAction>
+                            <MonthSelectClientComponent />
+                        </CardAction>
+                    </CardContent>
+                </Card>
             </div>
             {analyticsData ? (
                 <div>
                     <ChartAnalytics initialData={{ ...analyticsData }} />
-                    <InsightPanelComponent initialData={analyticsData.rawData} chartsData={{ ...analyticsData }} />
+                    <InsightPanelComponent
+                        initialData={analyticsData.rawData}
+                        chartsData={{ ...analyticsData }}
+                        overSpendsReports={analyticsData.overSpends}
+                    />
                 </div>
             ) : (
                 <div className="p-4 border border-red-500/50 rounded bg-red-500/10 text-red-200">

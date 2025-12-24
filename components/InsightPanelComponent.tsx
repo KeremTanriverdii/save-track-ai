@@ -1,19 +1,21 @@
 import { detectAnomalies } from '@/lib/insights/detectAnomalies'
-import { detectOverspendAreas } from '@/lib/insights/detectOverspendAreas'
+import { detectOverspendAreas, OverspendArea } from '@/lib/insights/detectOverspendAreas'
 import { detectWeeklyTrend } from '@/lib/insights/detectWeeklyTrend'
-import { AllData, AnalyticsData, DailyChartData, Expense } from '@/lib/types/type'
-import { Button } from './ui/button'
-import ButtonAiComponent from './Client/ButtonAiComponent'
+import { AllData, AnalyticsData, DailyChartData, Expense, User } from '@/lib/types/type'
 import { getCategoryAndTotalAmount } from '@/lib/analytics/calcTopCategory'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { TrendingDownIcon } from 'lucide-react'
+import { CriticalCard } from './CriticalCard'
 
-export default function InsightPanelComponent({
+export default async function InsightPanelComponent({
     initialData,
-    chartsData
+    chartsData,
+    overSpendsReports
 }:
     {
         initialData: Expense[],
-        chartsData: AnalyticsData
+        chartsData: AnalyticsData,
+        overSpendsReports: OverspendArea[]
     }) {
 
     const { dailyData, rawData, ...chartsDataWithoutDailyData } = chartsData;
@@ -21,8 +23,11 @@ export default function InsightPanelComponent({
     const detect = detectOverspendAreas(initialData)
     const categoryTotals: any = getCategoryAndTotalAmount(initialData);
 
+
     const dailyCharts = initialData.map((x: Expense) => {
-        const date = new Date(x.createdAt.seconds * 1000);
+        const date = typeof x.date === 'object' && 'seconds' in x.date
+            ? new Date((x.date as { seconds: number }).seconds * 1000)
+            : new Date(x.date);
         const day = date.getDate();
         return {
             day,
@@ -43,7 +48,14 @@ export default function InsightPanelComponent({
         <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-2 '>
             <Card>
                 <CardHeader>
-                    <CardTitle>Your Trend</CardTitle>
+                    <CardTitle className='flex items-center gap-4'>
+                        <div className='p-4 rounded-full bg-blue-500/30 flex items-center justify-center '>
+                            <TrendingDownIcon color='aqua' />
+                        </div>
+                        <h2>
+                            Weekly Trend
+                        </h2>
+                    </CardTitle>
                 </CardHeader>
                 <CardContent>
                     <ul>
@@ -56,56 +68,16 @@ export default function InsightPanelComponent({
                 </CardContent>
             </Card>
 
+            {/* {overSpendsReports.map((report, index) => (
+                <CriticalCard
+                    key={`${report.category}-${index}`}
+                    date={report.date}
+                    category={report.category}
+                    amount={report.amount}
+                    percentage={report.percentageExceeded}
+                />
+            ))} */}
 
-            {changeRate.map((item, index: number) => (
-                <Card key={index}>
-                    <CardContent>
-                        Your Trend With Spend<br />
-                        <ul>
-                            <li key={index}>Change Rate Week: {item.week} - {item.changeRate}% - {item.isRising ? 'Rising' : 'Falling'} - total: {item.total}</li>
-                        </ul>
-                    </CardContent>
-                </Card>
-            ))}
-
-            {detect.filter((item) => item.spike === true).map((item, index: number) => (
-                <Card key={index}>
-                    <CardContent>
-                        Your Overspends Area <br />
-                        <ul className='mt-2'>
-                            <li>Amount: {item.amount} - Day: {item.day}</li>
-                        </ul>
-                    </CardContent>
-                </Card>
-            ))}
-
-            {y.filter((item) => item.isAnomaly === true).map((item, index: number) => (
-                <Card key={index} className='flex flex-col gap-3'>
-                    <CardContent>
-                        Your Anomalies <br />
-                        <ul className=''>
-                            <li>Amount: {item.amount} - Day: {item.day}</li>
-                        </ul>
-                        You're mean: {item.stats.mean} and std: {item.stats.threshold} <br />
-                        Spend's day: {item.day} and amount: {item.amount}
-                    </CardContent>
-                </Card>
-            ))
-            }
-            <Card>
-                <CardHeader>
-                    <CardTitle>Summary</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    You most spends Category: {chartsDataWithoutDailyData.mostSpendingCategory ? Object.keys(chartsDataWithoutDailyData.mostSpendingCategory)[0] : 'N/A'}
-                    <br />
-                    Total Category Spend: {chartsDataWithoutDailyData.mostSpendingCategory ? Object.values(chartsDataWithoutDailyData.mostSpendingCategory)[0] : 'N/A'}
-                </CardContent>
-            </Card>
-
-            <div className='fixed bottom-5 right-3'>
-                <ButtonAiComponent requestData={allDataOneVariable} />
-            </div>
         </div>
     )
 }
