@@ -22,7 +22,7 @@ export function ChartAnalytics({ initialData }: { initialData: AnalyticsData }) 
             color: "hsl(var(--chart-1))",
         },
     } satisfies ChartConfig
-    console.log(mostSpendingCategory)
+
 
     return (
         <div>

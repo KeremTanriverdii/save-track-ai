@@ -5,6 +5,7 @@ type CategoryConfig = {
     icon: LucideIcon;
     color: string;
     background?: string;
+    alllocation?: number;
 }
 export const CATEGORY_MAP: Record<string, CategoryConfig> = {
     'Food & Dining': { icon: Utensils, color: "#16A34A", background: "#DCFCE7" },

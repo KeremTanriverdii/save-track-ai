@@ -18,13 +18,14 @@ export async function GET(req?: Request) {
     const url = new URL(req?.url as string);
     const totalSpendingStr = url.searchParams.get("totalSpending");
     const totalSpending = totalSpendingStr ? parseInt(totalSpendingStr, 10) : 0;
-    const nowDate = dateCustom();
+
+    const monthParam = url.searchParams.get("yearMonth");
+    const targerData = monthParam || dateCustom()
 
     try {
-
-        const data = await getBudget(verifyUid, nowDate) as number;
-        const remaining = await calcRemaining(verifyUid, totalSpending, nowDate) as unknown as number;
-        const dataExpense = await getExpenses(verifyUid, nowDate)
+        const data = await getBudget(verifyUid, targerData) as number;
+        const remaining = await calcRemaining(verifyUid, totalSpending, targerData) as unknown as number;
+        const dataExpense = await getExpenses(verifyUid, targerData)
         const overSpends = detectOverspendAreas(dataExpense, data)
         return NextResponse.json({ budget: data, remaining: remaining, overSpends: overSpends }, { status: 200 });
     } catch (error) {
@@ -52,7 +53,7 @@ export async function POST(req: Request) {
 
         await addbudget(budget, uid, yearMonth);
 
-        revalidateTag('budget-data', { expire: 0 })
+        revalidateTag(`budget-${yearMonth}`, { expire: 0 })
         return NextResponse.json({ message: 'Budget is added successfully.' }, { status: 200 });
 
     } catch (error: any) {

@@ -5,7 +5,7 @@ import { Budget } from "@/lib/types/type";
 import { Card, CardContent } from "@/components/ui/card";
 import { Loader2, TriangleAlert, Wallet2 } from "lucide-react";
 
-export default function BudgetState({ total }: { total: number }) {
+export default function BudgetState({ total }: { total?: number }) {
   const [remaining, setRemaining] = useState<Budget | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -34,7 +34,13 @@ export default function BudgetState({ total }: { total: number }) {
     getRemaining();
   }, [total]);
 
-  if (!total) return null;
+  if (total === 0) return (
+    <Card className="relative overflow-hidden w-full min-h-full col-span-2">
+      <CardContent className="my-auto mt-auto">
+        No have a budget.
+      </CardContent>
+    </Card>
+  )
 
   const diffValue = remaining?.diff ?? 0;
   const isNegative = diffValue < 0;

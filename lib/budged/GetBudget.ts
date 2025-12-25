@@ -6,7 +6,6 @@ export const getBudget = async (id: string | null, yearMonth: string): Promise<n
     if (!yearMonth) {
         return 'Error: YearMonth is required.';
     }
-    console.log(yearMonth)
     const docRef = doc(usersCollection, id as string, 'budgets', yearMonth);
     const docSnap = await getDoc(docRef);
 

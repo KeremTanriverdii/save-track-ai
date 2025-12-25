@@ -24,7 +24,7 @@ async function getAnalyticsData(month: string) {
     try {
         const [expensesRes, budgetRes] = await Promise.all([
             fetch(`${baseUrl}/api/expenses?yearMonth=${month}`, { headers, next: { revalidate: 60, tags: [`expenses-${month}`] } }),
-            fetch(`${baseUrl}/api/budget`, { headers, next: { revalidate: 300 } })
+            fetch(`${baseUrl}/api/budget?yearMonth=${month}`, { headers, next: { revalidate: 300, tags: [`budget-${month}`] } })
         ]);
 
         if (!expensesRes.ok || !budgetRes.ok) throw new Error('Fetch error');
@@ -48,24 +48,36 @@ async function getAnalyticsData(month: string) {
         return null;
     }
 }
-
 export default async function AnalyticsPage(props: {
     searchParams: Promise<{ yearMonth?: string }>;
 }) {
     const searchParams = await props.searchParams;
-
     const currentMonth = searchParams.yearMonth || new Date().toISOString().substring(0, 7);
     const analyticsData = await getAnalyticsData(currentMonth);
-    return (
-        <div className="p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                <div className='w-full'>
-                    <BudgetState total={analyticsData?.totalSpending ?? 0} />
+
+    if (!analyticsData) {
+        return (
+            <div className="p-6">
+                <div className="p-8 border border-red-500/20 rounded-2xl bg-red-500/5 backdrop-blur-md text-red-200 text-center">
+                    <h2 className="text-xl font-semibold mb-2">Data Unavailable</h2>
+                    <p className="opacity-80">Failed to load analytics. Please check your connection or try again later.</p>
                 </div>
-                <Card className=''>
-                    <CardContent>
-                        <p className='mb-6'>
-                            You can select the month and year for analyzing data within the chosen range.
+            </div>
+        )
+    }
+    console.log(analyticsData.overSpends)
+    return (
+        <div className="p-6 space-y-6 animate-in fade-in duration-500">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start h-full">
+
+                <div className="lg:col-span-2 h-full">
+                    <BudgetState total={analyticsData?.totalSpending || 0} />
+                </div>
+
+                <Card className="bg-white/5 backdrop-blur-lg border-white/10">
+                    <CardContent className="pt-6">
+                        <p className="text-sm text-muted-foreground mb-4">
+                            Select period to analyze your spending habits.
                         </p>
                         <CardAction>
                             <MonthSelectClientComponent />
@@ -73,21 +85,16 @@ export default async function AnalyticsPage(props: {
                     </CardContent>
                 </Card>
             </div>
-            {analyticsData ? (
-                <div>
-                    <ChartAnalytics initialData={{ ...analyticsData }} />
-                    <InsightPanelComponent
-                        initialData={analyticsData.rawData}
-                        chartsData={{ ...analyticsData }}
-                        overSpendsReports={analyticsData.overSpends}
-                    />
-                </div>
-            ) : (
-                <div className="p-4 border border-red-500/50 rounded bg-red-500/10 text-red-200">
-                    Failed to load analytics data. Please try again later.
-                </div>
-            )}
 
+            <div className="space-y-6">
+                <ChartAnalytics initialData={analyticsData} />
+
+                <InsightPanelComponent
+                    initialData={analyticsData.rawData}
+                    chartsData={analyticsData}
+                    overSpendsReports={analyticsData.overSpends}
+                />
+            </div>
         </div>
     );
 }

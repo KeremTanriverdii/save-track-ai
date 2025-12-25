@@ -10,7 +10,7 @@ export const calcRemaining = async (verifyUid: string, totalAmount: number, date
     // access doc 
     const docSnap = await getDoc(docRef)
     if (!docSnap.exists()) {
-        console.log('adg')
+        console.log('error not exist')
     } else {
         const budget: number = docSnap.data().budget;
         const diff: number = budget - totalAmount;

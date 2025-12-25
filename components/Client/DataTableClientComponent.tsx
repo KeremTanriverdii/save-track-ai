@@ -35,7 +35,6 @@ type Props = {
 };
 
 export default function DataTableClientComponent({ data }: Props) {
-    console.log(data, 'xs')
     const [open, setOpen] = React.useState<boolean>(false);
     const [selected, setSelected] = React.useState<Expenses | null>(null)
     const router = useRouter()

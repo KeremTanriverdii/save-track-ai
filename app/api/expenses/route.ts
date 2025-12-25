@@ -21,7 +21,7 @@ export async function POST(request: Request) {
 
         const finalDate = expenseDate || new Date().toISOString();
         const targetMonthTag = `expenses-${finalDate.substring(0, 7)}`;
-
+        const budgetDate = `budget-${finalDate.substring(0, 7)}`
         if (!amount || !category) {
             return NextResponse.json(
                 { error: "Missing required fields: amount and category are required." },
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
 
         if (!targetMonthTag.includes('undefined')) {
             revalidateTag(targetMonthTag, { expire: 0 })
-            revalidateTag('budget-data', { expire: 0 })
+            revalidateTag(budgetDate, { expire: 0 })
         }
         return NextResponse.json(
             {
@@ -127,12 +127,13 @@ export async function PUT(request: Request) {
         const { id, expenseData } = body;
         const { amount, category, description, title, expenseDate } = expenseData;
         const targetMonthTag = `expenses-${expenseDate.substring(0, 7)}`;
+        const targetBudget = `budget-${expenseDate.substring(0, 7)}`
 
 
         await updateExpense(verifyUid, id, amount, category, description, title)
         if (!expenseDate.includes('undefined')) {
             revalidateTag(targetMonthTag, { expire: 0 })
-            revalidateTag('budget-data', { expire: 0 })
+            revalidateTag(targetBudget, { expire: 0 })
         }
         return NextResponse.json(
             {
