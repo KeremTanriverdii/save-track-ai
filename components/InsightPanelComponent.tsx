@@ -1,11 +1,12 @@
 import { detectAnomalies } from '@/lib/insights/detectAnomalies'
 import { detectOverspendAreas, OverSpendArea } from '@/lib/insights/detectOverspendAreas'
-import { detectWeeklyTrend } from '@/lib/insights/detectWeeklyTrend'
+import { detectWeeklyTrend, WeeklyTrendResult } from '@/lib/insights/detectWeeklyTrend'
 import { AllData, AnalyticsData, DailyChartData, Expense, User } from '@/lib/types/type'
 import { getCategoryAndTotalAmount } from '@/lib/analytics/calcTopCategory'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { TrendingDownIcon, TriangleAlert } from 'lucide-react'
+import { TrendingDown, TrendingDownIcon, TrendingUp, TriangleAlert } from 'lucide-react'
 import { CriticalCard } from './CriticalCard'
+import TrendComponent from './Client/TrendComponent'
 
 export default async function InsightPanelComponent({
     initialData,
@@ -19,7 +20,9 @@ export default async function InsightPanelComponent({
     }) {
 
     const { dailyData, rawData, ...chartsDataWithoutDailyData } = chartsData;
-    const changeRate = detectWeeklyTrend(initialData);
+    const trendData = detectWeeklyTrend(initialData);
+    const latestData = trendData[trendData.length - 1];
+    const displayData = trendData.slice(-2)
     const detect = detectOverspendAreas(initialData)
     const categoryTotals: any = getCategoryAndTotalAmount(initialData);
 
@@ -40,34 +43,22 @@ export default async function InsightPanelComponent({
         categoryTotals: categoryTotals,
         daily: dailyCharts,
         anomalies: y.filter((item) => item.isAnomaly === true),
-        trend: changeRate.filter((item) => item.isRising === true),
+        trend: displayData.filter((item) => item.isRising === true),
     }
 
+    const trendComponentCompoundVariable = {
+        trendData: trendData,
+        latestData: latestData,
+        displayData: displayData
+
+    }
 
     return (
         <div className='grid grid-cols-1 xl:grid-cols-3 gap-4 w-full'>
-            <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-lg shadow-white/20 w-full">
-                <CardHeader className="pb-2">
-                    <CardTitle className='flex items-center gap-3 text-lg font-medium'>
-                        <div className='p-2.5 rounded-xl bg-blue-500/20 backdrop-blur-md border border-blue-500/20'>
-                            <TrendingDownIcon className="w-5 h-5 text-blue-400" />
-                        </div>
-                        <span>Weekly Trend</span>
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <ul className="space-y-3">
-                        {changeRate.map((item, index) => (
-                            <li key={index} className="flex justify-between items-center text-sm p-2 rounded-lg bg-white/5">
-                                <span className="text-muted-foreground">Week {item.week}</span>
-                                <span className={item.isRising ? 'text-red-400' : 'text-emerald-400 font-medium'}>
-                                    {item.isRising ? '↑' : '↓'} {item.changeRate}%
-                                </span>
-                            </li>
-                        ))}
-                    </ul>
-                </CardContent>
-            </Card>
+
+            <TrendComponent
+                {...trendComponentCompoundVariable}
+            />
 
             {overSpendsReports.length > 0 ? (
                 <Card className='xl:col-span-2 bg-white/5 backdrop-blur-xl border-white/10 overflow-hidden'>
