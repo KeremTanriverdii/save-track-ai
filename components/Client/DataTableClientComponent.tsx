@@ -3,8 +3,10 @@
 import * as React from "react";
 import {
     ColumnDef,
+    ColumnFiltersState,
     flexRender,
     getCoreRowModel,
+    getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
     useReactTable,
@@ -14,7 +16,6 @@ import {
     Table,
     TableBody,
     TableCell,
-    TableFooter,
     TableHead,
     TableHeader,
     TableRow,
@@ -23,9 +24,9 @@ import {
 import { Expenses } from "@/lib/types/type";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { ArrowDown, ArrowUp, ArrowUpDown, Download, HelpCircle, MoreHorizontal, Store } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Download, HelpCircle, MoreHorizontal, XIcon } from "lucide-react";
 import OpenDialogClientComponent from "./OpenDialogClientComponent";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { CATEGORY_MAP } from "@/lib/types/constants";
 import TestAddExpense from "./TestAddExpense";
@@ -37,7 +38,19 @@ type Props = {
 export default function DataTableClientComponent({ data }: Props) {
     const [open, setOpen] = React.useState<boolean>(false);
     const [selected, setSelected] = React.useState<Expenses | null>(null)
-    const router = useRouter()
+    const router = useRouter();
+    const searchParams = useSearchParams();
+    const datafilter = searchParams.get('date');
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+
+    React.useEffect(() => {
+        if (datafilter) {
+            setColumnFilters([{ id: 'date', value: datafilter }]);
+        } else {
+            setColumnFilters([]);
+        }
+    }, [datafilter])
+
     const columns = React.useMemo<ColumnDef<Expenses>[]>(
         () => [
             {
@@ -87,11 +100,10 @@ export default function DataTableClientComponent({ data }: Props) {
                         </Button>
                     );
                 },
+
                 cell: ({ row }) => {
                     const dateValue = row.getValue("date");
                     let dateString: string;
-
-                    // Check if dateValue is a Firestore timestamp
                     if (dateValue && typeof dateValue === 'object' && 'seconds' in dateValue && typeof (dateValue as { seconds: number }).seconds === 'number') {
                         const date = new Date((dateValue as { seconds: number }).seconds * 1000);
                         dateString = date.toLocaleDateString("en-US", {
@@ -100,11 +112,20 @@ export default function DataTableClientComponent({ data }: Props) {
                             day: "numeric",
                         });
                     } else {
-                        dateString = "N/A"; // Fallback if date is not valid
+                        dateString = "N/A";
                     }
 
                     return dateString;
                 },
+                filterFn: (row, columnId, value) => {
+                    const dateValue = row.getValue(columnId) as any;
+                    const formattedDate = new Date(dateValue.seconds as any * 1000).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                    });
+                    return formattedDate.includes(value);
+                }
             },
             {
                 accessorKey: "amount",
@@ -201,8 +222,11 @@ export default function DataTableClientComponent({ data }: Props) {
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(),
+        getSortedRowModel: getSortedRowModel(), state: {
+            columnFilters,
+        },
         getPaginationRowModel: getPaginationRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
         initialState: {
             pagination: {
                 pageIndex: 0,
@@ -266,6 +290,18 @@ export default function DataTableClientComponent({ data }: Props) {
                 </div>
             </div>
             <div className="overflow-hidden rounded-md border w-full">
+                {datafilter && (
+                    <div className="text-end p-2">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="px-5"
+                            onClick={() => { router.push('/dashboard/expenses'); router.refresh() }}
+                        >
+                            Clear Filter: {datafilter} <XIcon color="red" />
+                        </Button>
+                    </div>
+                )}
                 <Table>
                     <TableHeader className="bg-muted">
                         {table.getHeaderGroups().map((headerGroup) => (
@@ -305,8 +341,8 @@ export default function DataTableClientComponent({ data }: Props) {
                     </TableBody>
                 </Table>
 
-                <div className="flex items-center justify-between p-2 py-4 border-t">
-                    <div className="flex gap-2 items-center">
+                <div className="grid grid-cols-2 gap-2 p-2 border-t">
+                    <div className="flex flex-col sm:flex-row gap-2 text-nowrap justify-start md:items-center">
                         <Select
                             value={`${table.getState().pagination.pageSize}`}
                             onValueChange={(value) => {
@@ -333,7 +369,7 @@ export default function DataTableClientComponent({ data }: Props) {
                             of {table.getFilteredRowModel().rows.length}
                         </span>
                     </div>
-                    <div className="space-x-2 space-y-2 sm:">
+                    <div className="space-x-2 space-y-2 ms-auto">
                         <Button
                             className="w-full sm:w-fit"
                             variant='outline'

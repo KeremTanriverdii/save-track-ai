@@ -65,7 +65,6 @@ export default async function AnalyticsPage(props: {
             </div>
         )
     }
-    console.log(analyticsData.overSpends)
     return (
         <div className="p-6 space-y-6 animate-in fade-in duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start h-full">

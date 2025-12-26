@@ -45,8 +45,8 @@ export default async function InsightPanelComponent({
 
 
     return (
-        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-2 '>
-            <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-2xl">
+        <div className='grid grid-cols-1 xl:grid-cols-3 gap-4 w-full'>
+            <Card className="bg-white/5 backdrop-blur-xl border-white/10 shadow-lg shadow-white/20 w-full">
                 <CardHeader className="pb-2">
                     <CardTitle className='flex items-center gap-3 text-lg font-medium'>
                         <div className='p-2.5 rounded-xl bg-blue-500/20 backdrop-blur-md border border-blue-500/20'>
@@ -70,7 +70,7 @@ export default async function InsightPanelComponent({
             </Card>
 
             {overSpendsReports.length > 0 ? (
-                <Card className='md:col-span-2 bg-white/5 backdrop-blur-xl border-white/10 overflow-hidden'>
+                <Card className='xl:col-span-2 bg-white/5 backdrop-blur-xl border-white/10 overflow-hidden'>
                     <CardHeader>
                         <CardTitle className='flex gap-3 items-center'>
                             <div className='bg-red-500/20 p-2.5 rounded-xl border border-red-500/20'>
@@ -83,10 +83,10 @@ export default async function InsightPanelComponent({
                         </p>
                     </CardHeader>
                     <CardContent>
-                        <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-[280px] overflow-y-auto pr-2 custom-scrollbar'>
+                        <div className={`grid grid-cols-1 gap-5 ${overSpendsReports.length > 2 ? 'xl:grid-cols-3 overflow-auto h-[300px] px-5' : ''}`}>
                             {overSpendsReports.map((report, index) => (
                                 <CriticalCard
-                                    percentage={0} key={index}
+                                    key={index}
                                     {...report}
                                 />
                             ))}

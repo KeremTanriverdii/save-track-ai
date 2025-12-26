@@ -1,7 +1,7 @@
 import DataTableClientComponent from '@/components/Client/DataTableClientComponent';
 import { getUserData } from '@/lib/auth/user';
 import { getExpenses } from '@/lib/expenses/getExpense'
-import { Expense } from '@/lib/types/type';
+import { Expense, Expenses } from '@/lib/types/type';
 
 
 
@@ -14,10 +14,12 @@ export default async function page() {
         throw new Error('No data found')
     }
 
-    const data = rawData.map(expense => ({
+    const data: Expenses[] = rawData.map(expense => ({
         ...expense,
-        // date: (expense.createdAt as any)?.toDate?.().toISOString() || null,
+        date: expense.date as any,
         createdAt: null,
     }));
-    return <DataTableClientComponent data={data} />
+
+    const serializeData = JSON.parse(JSON.stringify(data))
+    return <DataTableClientComponent data={serializeData} />
 }
