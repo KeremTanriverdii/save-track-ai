@@ -20,7 +20,7 @@ export default function LogoutClientComponent() {
         }
     }
     return (
-        <DropdownMenuItem onSelect={handleLogout} className="w-full" >
+        <DropdownMenuItem onSelect={handleLogout} className="w-full cursor-pointer" >
             Logout
         </DropdownMenuItem>
     )

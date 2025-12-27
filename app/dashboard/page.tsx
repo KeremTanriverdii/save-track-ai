@@ -18,8 +18,8 @@ export default async function Dashboard() {
 
     const expenseData: any = await getExpenses(user.uid, dateCustom())
     const totalAmount = calTotal(expenseData)
-    const remaining: Budget = await calcRemaining(user.uid, totalAmount, dateCustom())
-
+    const remaining: Budget | undefined = await calcRemaining(user.uid, totalAmount, dateCustom())
+    if (!remaining) throw new Error('Remaining not found')
     return (
         <div className="relative me-3">
             <section className="bg-gradient-to-r from-[#4A00E0] to-[#8E2DE2] rounded-lg p-5 mt-3 flex items-center justify-between mb-8" data-purpose="welcome-banner">
@@ -43,7 +43,7 @@ export default async function Dashboard() {
                                 Total amount
                             </p>
 
-                            <p className="text-4xl font-bold text-white">{totalAmount}</p>
+                            <p className="text-4xl font-bold text-white">{totalAmount} {remaining.currency}</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -57,7 +57,7 @@ export default async function Dashboard() {
                             </p>
 
                             <p className="text-4xl font-bold text-white">
-                                {remaining.budget}
+                                {remaining.budget} {remaining.currency}
                             </p>
                         </div>
 
@@ -73,14 +73,14 @@ export default async function Dashboard() {
                             </p>
 
                             <p className="text-4xl font-bold text-white">
-                                {remaining.diff}
+                                {remaining.diff} {remaining.currency}
                             </p>
                         </div>
                     </CardContent>
                 </Card>
 
 
-                {remaining.diff < (remaining.budget * 0.2) && <Alert variant="destructive">
+                {remaining && remaining.diff !== undefined && remaining.diff < (remaining.budget * 0.2) && <Alert variant="destructive">
                     <AlertCircleIcon />
                     <AlertTitle>Your balance is low and nearly empty or in minus </AlertTitle>
                     <AlertDescription>
@@ -100,5 +100,3 @@ export default async function Dashboard() {
         </div>
     );
 }
-
-

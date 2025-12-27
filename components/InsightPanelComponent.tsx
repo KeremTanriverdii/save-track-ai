@@ -1,31 +1,30 @@
 import { detectAnomalies } from '@/lib/insights/detectAnomalies'
-import { detectOverspendAreas, OverSpendArea } from '@/lib/insights/detectOverspendAreas'
-import { detectWeeklyTrend, WeeklyTrendResult } from '@/lib/insights/detectWeeklyTrend'
-import { AllData, AnalyticsData, DailyChartData, Expense, User } from '@/lib/types/type'
+import { OverSpendArea } from '@/lib/insights/detectOverspendAreas'
+import { detectWeeklyTrend } from '@/lib/insights/detectWeeklyTrend'
+import { AllData, AnalyticsData, DailyChartData, Expense } from '@/lib/types/type'
 import { getCategoryAndTotalAmount } from '@/lib/analytics/calcTopCategory'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { TrendingDown, TrendingDownIcon, TrendingUp, TriangleAlert } from 'lucide-react'
+import { TriangleAlert } from 'lucide-react'
 import { CriticalCard } from './CriticalCard'
 import TrendComponent from './Client/TrendComponent'
 
 export default async function InsightPanelComponent({
     initialData,
     chartsData,
-    overSpendsReports
+    overSpendsReports,
+    currency
 }:
     {
         initialData: Expense[],
         chartsData: AnalyticsData,
-        overSpendsReports: OverSpendArea[]
+        overSpendsReports: OverSpendArea[],
+        currency: string
     }) {
-
     const { dailyData, rawData, ...chartsDataWithoutDailyData } = chartsData;
     const trendData = detectWeeklyTrend(initialData);
     const latestData = trendData[trendData.length - 1];
     const displayData = trendData.slice(-2)
-    const detect = detectOverspendAreas(initialData)
     const categoryTotals: any = getCategoryAndTotalAmount(initialData);
-
     const dailyCharts = initialData.map((x: Expense) => {
         const date = typeof x.date === 'object' && 'seconds' in x.date
             ? new Date((x.date as { seconds: number }).seconds * 1000)
@@ -57,6 +56,7 @@ export default async function InsightPanelComponent({
 
             <TrendComponent
                 {...trendComponentCompoundVariable}
+                currency={currency}
             />
 
             {overSpendsReports.length > 0 ? (
@@ -69,7 +69,7 @@ export default async function InsightPanelComponent({
                             <h2 className='text-xl font-semibold'>Critical Overspend Areas</h2>
                         </CardTitle>
                         <p className='text-xs text-muted-foreground mt-1 italic'>
-                            Daily limit threshold: <span className="text-white font-mono">{overSpendsReports[0].threshold.toFixed(0)}₺</span>
+                            Daily limit threshold: <span className="text-white font-mono">{overSpendsReports[0].threshold.toFixed(0)}{currency}</span>
                         </p>
                     </CardHeader>
                     <CardContent>
@@ -78,6 +78,7 @@ export default async function InsightPanelComponent({
                                 <CriticalCard
                                     key={index}
                                     {...report}
+                                    currency={currency}
                                 />
                             ))}
                         </div>

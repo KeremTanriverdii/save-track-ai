@@ -1,5 +1,6 @@
 import { BudgetDeclareComponent } from '@/components/Client/Budget/BudgetDeclareComponent'
 import BudgetShowComponent from '@/components/Client/Budget/BudgetShowComponent'
+import { Budget } from '@/lib/types/type'
 import { cookies } from 'next/headers'
 
 export default async function page() {
@@ -20,7 +21,7 @@ export default async function page() {
     }
 
     const response = await res.json();
-    const budgetData = response.budget;
+    const budgetData: Budget = response.budget;
     return (
         <div
             className='grid gap-2  max-w-4xl mx-auto sm:mt-25 mt-7'
@@ -31,10 +32,10 @@ export default async function page() {
             </div>
 
             <BudgetShowComponent
-                budget={budgetData}
+                {...budgetData}
             />
             <BudgetDeclareComponent
-                budgt={budgetData}
+                {...budgetData}
             />
 
         </div>

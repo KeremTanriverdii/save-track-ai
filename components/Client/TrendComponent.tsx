@@ -6,9 +6,10 @@ interface TrendProps {
     trendData: any[];
     latestData: any;
     displayData: any[];
+    currency: string;
 }
 
-export default function TrendComponent({ trendData, latestData, displayData }: TrendProps) {
+export default function TrendComponent({ trendData, latestData, displayData, currency }: TrendProps) {
     return (
         <Card className="w-full p-6 rounded-3xl text-white shadow-xl border border-white/5 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -57,7 +58,7 @@ export default function TrendComponent({ trendData, latestData, displayData }: T
                                 <>
                                     <p className="text-gray-500 text-xs mb-1">Projected Impact</p>
                                     <p className={`font-semibold ${item.impactAmount >= 0 ? 'text-green-400' : 'text-red-400'}`}>
-                                        {item.impactAmount >= 0 ? '+' : ''}₺{Math.abs(item.impactAmount)} {item.impactAmount >= 0 ? 'Saving' : 'Loss'}
+                                        {item.impactAmount >= 0 ? '+' : ''}{currency}{Math.abs(item.impactAmount)} {item.impactAmount >= 0 ? 'Saving' : 'Loss'}
                                     </p>
                                 </>
                             )}

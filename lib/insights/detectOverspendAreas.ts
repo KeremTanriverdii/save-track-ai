@@ -10,6 +10,7 @@ export interface OverSpendArea {
     category: string;
     threshold: number;
     expenseId: [];
+    currency?: string
 }
 interface GroupedByDate {
     [key: string]: {

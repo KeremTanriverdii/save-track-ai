@@ -2,12 +2,14 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Budget } from "@/lib/types/type"
 import { Info, Pencil } from "lucide-react"
 import { useRouter } from "next/navigation"
 import React, { useState, ChangeEvent } from "react"
+import { BudgetProps } from "./BudgetShowComponent"
 
-export const BudgetDeclareComponent = ({ budgt }: { budgt: number }) => {
-    const [budget, setBudget] = useState<number>(budgt);
+export const BudgetDeclareComponent = ({ budget, currency }: BudgetProps) => {
+    const [newBudget, setNewBudget] = useState<number>(budget);
     const [message, setMessage] = useState<string | null>()
     const router = useRouter();
 
@@ -15,13 +17,27 @@ export const BudgetDeclareComponent = ({ budgt }: { budgt: number }) => {
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const yearMonth = `${date.getFullYear()}-${month}`;
 
+    const getCurrencyCode = () => {
+        switch (currency) {
+            case '$':
+                return 'USD';
+            case '€':
+                return 'EUR';
+            case '₺':
+                return 'TRY';
+            default:
+                return 'No currency found'
+        }
+
+    }
+
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
             const res = await fetch(`/api/budget?yearMonth=${yearMonth}`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ budget, yearMonth })
+                body: JSON.stringify({ newBudget, yearMonth })
             })
 
             if (!res.ok) throw new Error('Network response was not ok');
@@ -29,7 +45,7 @@ export const BudgetDeclareComponent = ({ budgt }: { budgt: number }) => {
             const budgetResponse = await res.json();
 
             setMessage('Form submitted successfully!');
-            setBudget(budgetResponse.budget);
+            setNewBudget(budgetResponse.budget);
             router.refresh();
 
         } catch (err) {
@@ -71,7 +87,7 @@ export const BudgetDeclareComponent = ({ budgt }: { budgt: number }) => {
 
 
                             <span className="text-muted-foreground mr-2 font-medium">
-                                TL
+                                {currency}
                             </span>
 
 
@@ -80,15 +96,15 @@ export const BudgetDeclareComponent = ({ budgt }: { budgt: number }) => {
                                 type="number"
                                 placeholder="0"
                                 className="flex-1 bg-transparent outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
-                                value={budget}
+                                value={newBudget}
                                 onChange={(event: ChangeEvent<HTMLInputElement>) => {
-                                    setBudget(parseFloat(event.target.value));
+                                    setNewBudget(parseFloat(event.target.value));
                                 }}
                                 required
                             />
 
                             <span className="text-muted-foreground ml-2 text-xs font-medium text-gray-500">
-                                TRY
+                                {getCurrencyCode()}
                             </span>
                         </div>
                     </div>

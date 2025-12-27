@@ -2,7 +2,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { usersCollection } from "../firebase/firebase";
 import { Budget } from "../types/type";
 
-export const getBudget = async (id: string | null, yearMonth: string): Promise<number | string> => {
+export const getBudget = async (id: string | null, yearMonth: string): Promise<{ budget: number, currency: string } | string | number> => {
     if (!yearMonth) {
         return 'Error: YearMonth is required.';
     }
@@ -22,7 +22,7 @@ export const getBudget = async (id: string | null, yearMonth: string): Promise<n
     const budgetValue = (data?.budget) ?? 0;
 
     if (typeof budgetValue === 'number') {
-        return budgetValue as number;
+        return { budget: budgetValue, currency: data?.currency || '$' };
     } else {
         console.error(`Error: ${yearMonth} format is not number.`);
         return 0;

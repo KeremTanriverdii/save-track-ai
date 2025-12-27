@@ -3,6 +3,7 @@ import { calcRemaining } from "@/lib/budged/calcRemaining";
 import { getBudget } from "@/lib/budged/GetBudget";
 import { getExpenses } from "@/lib/expenses/getExpense";
 import { detectOverspendAreas } from "@/lib/insights/detectOverspendAreas";
+import { Budget } from "@/lib/types/type";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { dateCustom } from "@/utils/nowDate";
 import { revalidateTag } from "next/cache";
@@ -23,10 +24,10 @@ export async function GET(req?: Request) {
     const targerData = monthParam || dateCustom()
 
     try {
-        const data = await getBudget(verifyUid, targerData) as number;
-        const remaining = await calcRemaining(verifyUid, totalSpending, targerData) as unknown as number;
-        const dataExpense = await getExpenses(verifyUid, targerData)
-        const overSpends = detectOverspendAreas(dataExpense, data)
+        const data = await getBudget(verifyUid.uid, targerData) as Budget;
+        const remaining = await calcRemaining(verifyUid.uid, totalSpending, targerData) as unknown as number;
+        const dataExpense = await getExpenses(verifyUid.uid, targerData)
+        const overSpends = detectOverspendAreas(dataExpense, data.budget)
         return NextResponse.json({ budget: data, remaining: remaining, overSpends: overSpends }, { status: 200 });
     } catch (error) {
         console.error("API error:", error);
@@ -38,20 +39,20 @@ export async function GET(req?: Request) {
 }
 
 export async function POST(req: Request) {
-    const uid = await getAuthenticatedUser();
-    if (!uid) {
+    const verifyUid = await getAuthenticatedUser();
+    if (!verifyUid) {
         return NextResponse.json({ error: 'Unauthorized: Please log in.' }, { status: 401 });
     }
 
     try {
         const body = await req.json();
-        const { budget, yearMonth } = body;
+        const { newBudget, yearMonth } = body;
 
-        if (!budget || !yearMonth) {
+        if (!newBudget || !yearMonth) {
             return NextResponse.json({ error: 'Budget and yearMonth fields are required.' }, { status: 400 });
         }
 
-        await addbudget(budget, uid, yearMonth);
+        await addbudget(newBudget, verifyUid.uid, yearMonth);
 
         revalidateTag(`budget-${yearMonth}`, { expire: 0 })
         return NextResponse.json({ message: 'Budget is added successfully.' }, { status: 200 });

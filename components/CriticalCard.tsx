@@ -15,7 +15,11 @@ const getCategoryIcon = (categoryName: string) => {
     return <AlertCircle className="w-4 h-4 text-gray-400" />;
 };
 
-export function CriticalCard({ date, category, amount, title, isExceeded, threshold, percentageExceeded }: OverSpendArea) {
+export function CriticalCard(
+    { date, category, amount,
+        title, isExceeded, threshold,
+        percentageExceeded, currency
+    }: OverSpendArea) {
     const dateUrlString = new Date(date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
     return (
         <Card className="bg-[#121212] border-zinc-800 text-white min-w-[250px] flex-1">
@@ -30,7 +34,7 @@ export function CriticalCard({ date, category, amount, title, isExceeded, thresh
                 </div>
 
                 <div className='text-xs'>
-                    <h3 className="text-2xl font-bold">₺{amount.toLocaleString('tr-TR')}</h3>
+                    <h3 className="text-2xl font-bold">{currency}{amount.toLocaleString('tr-TR')}</h3>
                     <div className='flex gap-2 items-center'>
                         <p className="text-zinc-400"> {category}</p>
                         <p className="text-red-500 font-medium">

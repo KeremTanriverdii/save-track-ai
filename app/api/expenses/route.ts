@@ -29,7 +29,7 @@ export async function POST(request: Request) {
             );
         }
         // Firestore Logic
-        addExpense({ ...body, expenseDate: finalDate }, verifyUid as string)
+        addExpense({ ...body, expenseDate: finalDate }, verifyUid.uid as string)
 
         if (!targetMonthTag.includes('undefined')) {
             revalidateTag(targetMonthTag, { expire: 0 })
@@ -64,10 +64,10 @@ export async function GET(req: Request) {
         let usersCollectionData
 
         if (month) {
-            usersCollectionData = await getExpenses(verifyUid, month);
+            usersCollectionData = await getExpenses(verifyUid.uid, month);
             return NextResponse.json(usersCollectionData, { status: 200 })
         } else {
-            usersCollectionData = await getExpenses(verifyUid, undefined);
+            usersCollectionData = await getExpenses(verifyUid.uid, undefined);
             return NextResponse.json(usersCollectionData, { status: 200 })
         }
 
@@ -94,7 +94,7 @@ export async function DELETE(request: Request) {
         }
 
         // Firestore Logic
-        await deleteExpense(verifyUid, id)
+        await deleteExpense(verifyUid.uid, id)
         revalidateTag('expense-data', { expire: 0 })
         revalidateTag('budget-data', { expire: 0 })
         return NextResponse.json(
@@ -130,7 +130,7 @@ export async function PUT(request: Request) {
         const targetBudget = `budget-${expenseDate.substring(0, 7)}`
 
 
-        await updateExpense(verifyUid, id, amount, category, description, title)
+        await updateExpense(verifyUid.uid, id, amount, category, description, title)
         if (!expenseDate.includes('undefined')) {
             revalidateTag(targetMonthTag, { expire: 0 })
             revalidateTag(targetBudget, { expire: 0 })

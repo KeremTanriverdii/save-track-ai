@@ -77,7 +77,6 @@ export default function UserChangePPClient({ settings }: { settings: UserSetting
             setIsPending(false);
         }
     };
-
     return (
         <form action={handleFormAction} className="grid gap-6">
             <Card>
@@ -229,7 +228,7 @@ export default function UserChangePPClient({ settings }: { settings: UserSetting
                                 name="budget"
                                 type="number"
                                 defaultValue={settings.budget}
-                                placeholder="0.00"
+                                placeholder={`00.0 ${settings.currency}`}
                             />
                         </div>
                     </div>

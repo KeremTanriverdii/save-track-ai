@@ -22,8 +22,9 @@ export interface uptadeeExpense {
 }
 export interface Budget {
     budget: number,
-    diff: number,
-    error: string
+    diff?: number,
+    error?: string
+    currency: string
 }
 export interface DailyChartData {
     day: string;
@@ -133,4 +134,10 @@ export type Expenses = {
     title?: string
     description?: string
     date: Date
+}
+
+export interface MonthlyBudget {
+    budget: { budget: number, currency: string };
+    remaining: { budget: number, currency: string, diff: number, error: string },
+    overSpends: { date: string, amount: number; isExceeded: boolean, percentageExceeded: number; title: string; category: string; threshold: number }
 }

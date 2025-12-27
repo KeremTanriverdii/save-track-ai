@@ -3,6 +3,7 @@
 
 import { cookies } from 'next/headers';
 import { db, auth } from '@/lib/firebase/admin';
+import { dateCustom } from '@/utils/nowDate';
 
 export async function registerUser({
     idToken,
@@ -56,6 +57,12 @@ export async function registerUser({
             createdAt: new Date(),
             emailVerified: false, // Track verification status
         });
+
+        const date = dateCustom()
+        await db.collection('users').doc(uid).collection('budgets').doc(date).set({
+            budget: 0,
+            currency: '$'
+        })
 
         return { success: true };
 

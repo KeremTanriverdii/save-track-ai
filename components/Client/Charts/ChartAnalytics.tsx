@@ -18,11 +18,10 @@ export function ChartAnalytics({ initialData }: { initialData: AnalyticsData }) 
     const totalSpending = initialData.totalSpending
     const chartConfig = {
         amount: {
-            label: "Amount",
+            label: `Amount`,
             color: "hsl(var(--chart-1))",
         },
     } satisfies ChartConfig
-
 
     return (
         <div>
@@ -66,7 +65,7 @@ export function ChartAnalytics({ initialData }: { initialData: AnalyticsData }) 
                                 tickLine={false}
                                 axisLine={false}
                                 tickMargin={10}
-                                tickFormatter={(value) => value.toLocaleString() + 'K'}
+                                tickFormatter={(value) => value.toLocaleString()}
                             />
 
                             <ChartTooltip

@@ -1,4 +1,4 @@
-import { Bot, Calendar, ChevronDown, ChevronRight, ChevronUp, Delete, Home, Inbox, LogIn, LucideIcon, Search, Settings, User2 } from "lucide-react"
+import { Blocks, Bot, ChevronDown, ChevronRight, Home, LogIn, PieChart, User2, Wallet2, } from "lucide-react"
 
 import {
     Sidebar,
@@ -16,12 +16,9 @@ import {
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./collapsible"
 import getDateResultsAndDate from "@/lib/ai-respons/getDateResultsAndDate"
 import Link from "next/link"
-import { Button } from "./button"
 import DeleteReportButtonComponent from "../Client/DeleteReportButtonComponent"
 import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
 import { DropdownMenuContent, DropdownMenuItem } from "./dropdown-menu"
-import { User } from "@/lib/types/type"
-import Image from "next/image"
 import LogoutClientComponent from "../Client/Auth/LogoutClientComponent"
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar"
 import { getUserData } from "@/lib/auth/user"
@@ -36,17 +33,17 @@ const items = [
     {
         title: "Expenses",
         url: "/dashboard/expenses",
-        icon: Inbox,
+        icon: Blocks,
     },
     {
         title: "Analytics",
         url: "/dashboard/analytics",
-        icon: Calendar,
+        icon: PieChart,
     },
     {
         title: "Budged Settings",
         url: "/dashboard/budget",
-        icon: Search,
+        icon: Wallet2,
     },
 
 ]
@@ -125,18 +122,20 @@ export async function AppSidebar() {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <SidebarMenuButton>
-                                    <SidebarMenuItem>
+                                    <SidebarMenuItem className="w-full">
 
                                         {/* If user is exist render with user's information in siderbar self*/}
-                                        {user ? <div className="flex items-center gap-2">
+                                        {user ? <div className="flex items-center gap-2 ">
                                             <Avatar>
                                                 <AvatarImage src={user.photoURL} />
                                                 <AvatarFallback>
                                                     {user.displayName.substring(0, 2).toUpperCase() || 'CN'}
                                                 </AvatarFallback>
                                             </Avatar>
-                                            {user.displayName}
-                                            <ChevronRight className="ml-auto" />
+                                            <div >
+                                                {user.displayName.length > 15 ? user.displayName.substring(0, 15) + '...' : user.displayName}
+                                            </div>
+                                            <ChevronRight className="ms-auto" />
                                         </div> :
                                             <nav className="w-full flex items-center gap-3">
 
@@ -170,30 +169,18 @@ export async function AppSidebar() {
                                             </AvatarFallback>
                                         </Avatar>
 
-                                        <div className="text-[12px] font-medium">
+                                        <div className="text-[12px] font-medium text-nowrap">
                                             <span>{user.displayName}</span> <br />
                                             <span>{user.email}</span>
                                         </div>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
+                                    <DropdownMenuItem className="cursor-pointer" asChild>
                                         <Link href="/dashboard/settings">Settings</Link>
                                     </DropdownMenuItem>
                                     <LogoutClientComponent />
                                 </DropdownMenuContent>
                             }
 
-                            {/* Sidebar inside dropdown menu content if user not exist */}
-                            {/* {!user &&
-                                <DropdownMenuContent
-                                    side="right"
-                                    className="w-[--radix-popper-anchor-width]">
-                                    <DropdownMenuItem asChild>
-                                        <nav>
-                                            <Link href="/auth/login">Sign in</Link>
-                                        </nav>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            } */}
                         </DropdownMenu>
                     </SidebarMenuItem>
                 </SidebarMenu>

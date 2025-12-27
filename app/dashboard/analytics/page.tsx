@@ -3,12 +3,13 @@ import { transformToDailyChart } from './action';
 import { calTotal } from '@/lib/analytics/calcTotal';
 import { calcTopCategorySpending } from '@/lib/analytics/calcTopCategory';
 import { calcAverage } from '@/lib/analytics/calcAverage';
-import { Expense } from '@/lib/types/type';
+import { Expense, MonthlyBudget } from '@/lib/types/type';
 import MonthSelectClientComponent from '@/components/Client/MonthSelectClientComponent';
 import { ChartAnalytics } from '@/components/Client/Charts/ChartAnalytics';
 import InsightPanelComponent from '@/components/InsightPanelComponent';
 import BudgetState from '@/components/Client/Budget/BudgetStateComponent';
 import { Card, CardAction, CardContent } from '@/components/ui/card';
+import { OverSpendArea } from '@/lib/insights/detectOverspendAreas';
 
 
 async function getAnalyticsData(month: string) {
@@ -30,8 +31,7 @@ async function getAnalyticsData(month: string) {
         if (!expensesRes.ok || !budgetRes.ok) throw new Error('Fetch error');
 
         const rawData: Expense[] = await expensesRes.json();
-        const monthlyBudget = await budgetRes.json();
-
+        const monthlyBudget = await budgetRes.json() as MonthlyBudget;
         const dailyData = await transformToDailyChart(rawData, month);
         return {
             rawData,
@@ -91,7 +91,8 @@ export default async function AnalyticsPage(props: {
                 <InsightPanelComponent
                     initialData={analyticsData.rawData}
                     chartsData={analyticsData}
-                    overSpendsReports={analyticsData.overSpends}
+                    overSpendsReports={analyticsData.monthlyBudget.overSpends as unknown as OverSpendArea[]}
+                    currency={analyticsData?.monthlyBudget?.budget.currency as string}
                 />
             </div>
         </div>

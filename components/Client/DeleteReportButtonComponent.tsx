@@ -19,6 +19,6 @@ const deleteReport = async (id: string) => {
 
 export default function DeleteReportButtonComponent({ id }: { id: string }) {
     return (
-        <Button onClick={() => deleteReport(id)}> <DeleteIcon /> </Button>
+        <Button variant='ghost' onClick={() => deleteReport(id)}> <DeleteIcon color='red' /> </Button>
     )
 }

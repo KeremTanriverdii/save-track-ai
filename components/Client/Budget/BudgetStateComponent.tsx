@@ -55,7 +55,7 @@ export default function BudgetState({ total }: { total?: number }) {
           <div className="flex flex-col">
             <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Monthly Budget</h2>
             <span className="text-white font-bold text-2xl">
-              {remaining ? `${remaining.budget.toFixed(2)}₺` : '---'}
+              {remaining ? `${remaining.budget.toFixed(2)}${remaining.currency}` : '---'}
             </span>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function BudgetState({ total }: { total?: number }) {
           <div className="flex flex-col">
             <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Remaining</h2>
             <span className={`font-bold text-2xl ${isNegative ? 'text-red-500' : 'text-white'}`}>
-              {remaining ? `${diffValue.toFixed(2)}₺` : '---'}
+              {remaining ? `${diffValue.toFixed(2)}${remaining.currency}` : '---'}
             </span>
           </div>
         </div>
