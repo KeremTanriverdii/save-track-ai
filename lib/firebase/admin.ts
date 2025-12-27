@@ -1,7 +1,6 @@
 import * as admin from 'firebase-admin';
+import { getStorage } from 'firebase/storage';
 
-// Hizmet hesabı (service account) JSON dosyanızın yolu
-// Next.js'de, bu dosyayı projenizin dışına veya process.env ile güvenli bir şekilde saklayın.
 const serviceAccount = {
     type: process.env.FIREBASE_TYPE,
     projectId: process.env.FIREBASE_PROJECT_ID,
@@ -19,13 +18,18 @@ const serviceAccount = {
 if (!admin.apps.length) {
     admin.initializeApp({
         credential: admin.credential.cert(serviceAccount),
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
     });
 }
 
-// Admin SDK'yı dışa aktar
+const db = admin.firestore();
+const auth = admin.auth();
+
+const adminStorage = admin.storage();
 
 export const verifyIdToken = async (idToken: string) => {
     return admin.auth().verifyIdToken(idToken);
 };
 
 export default admin;
+export { db, auth, adminStorage }

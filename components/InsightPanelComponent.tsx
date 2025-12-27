@@ -50,7 +50,6 @@ export default async function InsightPanelComponent({
         trendData: trendData,
         latestData: latestData,
         displayData: displayData
-
     }
 
     return (

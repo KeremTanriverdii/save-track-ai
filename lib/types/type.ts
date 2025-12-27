@@ -104,7 +104,12 @@ export interface User {
     lastLogin: Date;
     currency: string;
 }
-
+export interface UserLog {
+    uid: string;
+    name: string;
+    email: string;
+    photoURL: string
+}
 export interface UserProviderProps {
     children: React.ReactNode;
     initialData: User;
@@ -114,7 +119,11 @@ export interface UserSettings {
     displayName: string,
     email: string,
     photoURL: string,
-    currency: string
+    currency: string,
+    budget?: string;
+    provider: string;
+    isOAuthUser: boolean;
+
 }
 
 export type Expenses = {

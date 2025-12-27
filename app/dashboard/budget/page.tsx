@@ -23,10 +23,10 @@ export default async function page() {
     const budgetData = response.budget;
     return (
         <div
-            className='grid gap-2 max-w-6xl mx-auto sm:mt-25 mt-7 me-2'
+            className='grid gap-2  max-w-4xl mx-auto sm:mt-25 mt-7'
         >
             <div>
-                <h2>Budget Settings</h2>
+                <h2 className='2xl:text-4xl font-bold'>Budget Settings</h2>
                 <p>Manage your monthly expenses here for limits.</p>
             </div>
 

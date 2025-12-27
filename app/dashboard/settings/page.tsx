@@ -2,11 +2,35 @@ import UserChangePPClient from '@/components/Client/Settings/UserChangePPClient'
 import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { getUserData } from '@/lib/auth/user'
 import { getSettings } from '@/lib/auth/userDat';
+import { db } from '@/lib/firebase/admin';
 import { User } from '@/lib/types/type';
+import { auth } from 'firebase-admin';
+import { redirect } from 'next/navigation';
 import React from 'react'
 
 export default async function SettingsPage() {
-    const settings = await getSettings();
+    const user = await getUserData();
+    if (!user) redirect('/login');
+
+    // Get auth provider info
+    const firebaseUser = await auth().getUser(user.uid);
+    const provider = firebaseUser.providerData[0]?.providerId || 'password';
+
+    // Check if user is using OAuth (Google/Apple)
+    const isOAuthUser = provider === 'google.com' || provider === 'apple.com';
+
+    // Get user settings from Firestore
+    const userDoc = await db.collection("users").doc(user.uid).get();
+    const userData = userDoc.data();
+    const settings = {
+        displayName: userData?.displayName || user.displayName,
+        email: user.email,
+        photoURL: userData?.photoURL || user.photoURL,
+        currency: userData?.currency || '₺',
+        budget: userData?.budget || 0,
+        provider: provider, // Pass provider to client
+        isOAuthUser: isOAuthUser, // Pass flag to client
+    };
     return (
         <div>
             <div className='grid gap-4 p-2'>

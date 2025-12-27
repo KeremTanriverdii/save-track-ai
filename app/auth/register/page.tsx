@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export default function page() {
     return (
         <div className='bg-[url("/bg-cover.png")] bg-cover bg-center bg-no-repeat'>
-            <div className='flex items-center justify-center h-screen'>
+            <div className='flex items-center justify-center h-screen p-2'>
                 <Card className='p-3'>
                     <CardTitle className='sm:px-6 text-center sm:text-start'>Register
                         <CardHeader className='p-1 sm:mt-2 text-center sm:text-start mt-2'>Join Us Today! Create Your Account</CardHeader>
@@ -23,7 +23,7 @@ export default function page() {
                         <div className='order-2 sm:order-1'>
                             <RegisterClient />
                         </div>
-                        <div className='float-right mx-auto h-full order-1 sm:order-2'>
+                        <div className='float-right mx-auto mt-auto mb-auto h-full order-1 sm:order-2'>
                             <Image src="/asset-1.jpg" width={272} height={272} alt='cover-register' />
                         </div>
                     </CardContent>
