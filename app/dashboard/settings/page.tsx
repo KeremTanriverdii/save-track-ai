@@ -1,9 +1,6 @@
 import UserChangePPClient from '@/components/Client/Settings/UserChangePPClient';
-import { Card, CardContent, CardDescription, CardHeader } from '@/components/ui/card';
 import { getUserData } from '@/lib/auth/user'
-import { getSettings } from '@/lib/auth/userDat';
 import { db } from '@/lib/firebase/admin';
-import { User } from '@/lib/types/type';
 import { dateCustom } from '@/utils/nowDate';
 import { auth } from 'firebase-admin';
 import { redirect } from 'next/navigation';

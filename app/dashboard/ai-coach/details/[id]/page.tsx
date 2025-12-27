@@ -15,7 +15,7 @@ export default async function page({ params }: PageProps) {
   if (!verifyUid) {
     redirect('auth/login');
   }
-  const data = (await getDataAiResultById(verifyUid, id)) as AiResultType;
+  const data = (await getDataAiResultById(verifyUid.uid, id)) as AiResultType;
 
   const serializableData = JSON.parse(JSON.stringify(data))
   return (
