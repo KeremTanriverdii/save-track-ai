@@ -2,8 +2,7 @@ import { getApp, getApps, initializeApp } from "firebase/app";
 
 import { getFirestore, collection } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
-import { getAuth, GoogleAuthProvider, OAuthProvider } from "firebase/auth";
-import jsonFirebase from '../../firebase.json'
+import { getAuth, OAuthProvider } from "firebase/auth";
 
 const clientCredentials = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -24,7 +23,6 @@ const storage = getStorage(app);
 const usersCollection = collection(db, "users");
 const commentsCollection = collection(db, "insights");
 const budgetCollection = collection(db, "budgets");
-// const googleprovider = new GoogleAuthProvider()
 const appleProvider = new OAuthProvider("apple.com")
 
 export {

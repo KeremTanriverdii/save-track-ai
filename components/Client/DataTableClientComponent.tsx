@@ -24,12 +24,17 @@ import {
 import { Expenses } from "@/lib/types/type";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { ArrowDown, ArrowUp, ArrowUpDown, Download, HelpCircle, MoreHorizontal, XIcon } from "lucide-react";
+import { ArrowDown, ArrowDownWideNarrow, ArrowUp, ArrowUpDown, ArrowUpWideNarrow, Download, HelpCircle, MoreHorizontal, Search, XIcon } from "lucide-react";
 import OpenDialogClientComponent from "./OpenDialogClientComponent";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
 import { CATEGORY_MAP } from "@/lib/types/constants";
 import TestAddExpense from "./TestAddExpense";
+import { Input } from "../ui/input";
+import { Card, CardContent } from "../ui/card";
+import { DateRange } from "react-day-picker";
+import { Calendar } from "../ui/calendar";
+import { AnalyticsFiltersClientComponent } from "./AnalyticsFiltersClientComponent";
 
 type Props = {
     data: Expenses[];
@@ -42,7 +47,10 @@ export default function DataTableClientComponent({ data }: Props) {
     const searchParams = useSearchParams();
     const datafilter = searchParams.get('date');
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-
+    const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
+        from: new Date(2025, 5, 12),
+        to: new Date(2025, 6, 15),
+    })
     React.useEffect(() => {
         if (datafilter) {
             setColumnFilters([{ id: 'date', value: datafilter }]);
@@ -55,16 +63,32 @@ export default function DataTableClientComponent({ data }: Props) {
         () => [
             {
                 accessorKey: "description", header: "Description",
+                filterFn: (row, columnId, filterValue) => {
+                    const title = String(row.original.title ?? "").toLowerCase();
+                    const description = String(row.original.description ?? "").toLowerCase();
+                    const search = String(filterValue).toLowerCase();
+
+                    // Hem başlıkta hem de açıklamada ara
+                    return title.includes(search) || description.includes(search);
+                },
                 cell: ({ row }) => {
                     const { title, description, category } = row.original;
                     const catName = Array.isArray(category) ? category[0] : category;
-                    const config = CATEGORY_MAP[catName as string] || { icon: HelpCircle, color: "text-gray-400" }
-                    const Icon = config.icon
-                    if (!description) return "N/A";
+                    const config = CATEGORY_MAP[catName as string] || { icon: HelpCircle, color: "text-gray-400" };
+                    const Icon = config.icon;
+
+                    // Burada ufak bir mantık hatasını da düzeltelim: 
+                    // Eğer description yoksa ama title varsa yine de render etmelisin.
+                    if (!description && !title) return "N/A";
+
                     return (
                         <div className={`flex items-center gap-3`}>
-                            <div className={`p-2 rounded-full border-white/10  backdrop-blur-md`}
-                                style={{ backgroundColor: config.background || 'rgba(255,255,255,0.1', color: config.color }}
+                            <div
+                                className={`p-2 rounded-full border-white/10 backdrop-blur-md`}
+                                style={{
+                                    backgroundColor: config.background || 'rgba(255,255,255,0.1)',
+                                    color: config.color
+                                }}
                             >
                                 <Icon size={18} />
                             </div>
@@ -73,11 +97,23 @@ export default function DataTableClientComponent({ data }: Props) {
                                 <span className="text-xs text-muted-foreground line-clamp-1">{description}</span>
                             </div>
                         </div>
-                    )
+                    );
                 },
             }
             , {
-                header: "Category", accessorKey: "category"
+                header: "Category",
+                accessorKey: "category",
+                filterFn: (row, columnId, filterValue) => {
+                    if (!filterValue || filterValue === "all") return true
+                    const rowValue = row.getValue(columnId);
+
+                    if (Array.isArray(rowValue)) {
+                        return rowValue.includes(filterValue)
+                    } else {
+                        return String(rowValue) === String(filterValue)
+                    }
+
+                }
             }
             , {
                 accessorKey: "date",
@@ -119,12 +155,23 @@ export default function DataTableClientComponent({ data }: Props) {
                 },
                 filterFn: (row, columnId, value) => {
                     const dateValue = row.getValue(columnId) as any;
+
+                    if (!dateValue) return false
+                    const rowDateObj = new Date(dateValue.seconds * 1000);
                     const formattedDate = new Date(dateValue.seconds as any * 1000).toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
                     });
-                    return formattedDate.includes(value);
+
+                    if (typeof value === 'object' && (value.from || value.to)) {
+                        const { from, to } = value;
+                        if (from && !to) return rowDateObj >= from;
+                        if (from && to) return rowDateObj >= from && rowDateObj <= to;
+                        return true
+                    }
+
+                    return formattedDate.toLowerCase().includes(String(value).toLowerCase());
                 }
             },
             {
@@ -222,11 +269,13 @@ export default function DataTableClientComponent({ data }: Props) {
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
-        getSortedRowModel: getSortedRowModel(), state: {
+        getSortedRowModel: getSortedRowModel(),
+        state: {
             columnFilters,
         },
         getPaginationRowModel: getPaginationRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        onColumnFiltersChange: setColumnFilters,
         initialState: {
             pagination: {
                 pageIndex: 0,
@@ -238,7 +287,7 @@ export default function DataTableClientComponent({ data }: Props) {
                     desc: true,
                 }
             ]
-        }
+        },
     });
 
 
@@ -250,11 +299,19 @@ export default function DataTableClientComponent({ data }: Props) {
 
         const csvRows = rows.map((row: any) => {
             const d = row.original;
+            let dateString = "";
+            if (d.date && typeof d.date.seconds === "number") {
+                const dateObj = new Date(d.date.seconds * 1000);
+                dateString = dateObj.toLocaleDateString();
+
+            }
+            const categoryName = Array.isArray(d.category) ? d.category[0] : d.category;
             return [
-                `"${d.title}"`,
-                `"${d.category[0]}"`,
+                `"${(d.title || "Untitled").replace(/"/g, '""')}"`,       // Tırnak işaretlerini kaçıralım
+                `"${(d.description || "").replace(/"/g, '""')}"`,
+                `"${(categoryName || "N/A")}"`,
                 d.amount,
-                `"${new Date(d.date).toLocaleDateString("en-US")}"`
+                `"${dateString}"`
             ].join(",");
         });
 
@@ -289,6 +346,7 @@ export default function DataTableClientComponent({ data }: Props) {
                     <TestAddExpense />
                 </div>
             </div>
+            <AnalyticsFiltersClientComponent table={table} setFilterValue={() => setColumnFilters} />
             <div className="overflow-hidden rounded-md border w-full">
                 {datafilter && (
                     <div className="text-end p-2">

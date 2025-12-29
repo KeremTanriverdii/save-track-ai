@@ -13,6 +13,12 @@ export interface Expense {
         seconds: number,
         nanoseconds: number
     }
+    type: "one-time" | "subscription";
+    subscriptionDetails?: {
+        frequency: "monthly" | "yearly";
+        startDate: any;
+        status: "active" | "cancelled";
+    };
 }
 
 export interface uptadeeExpense {
