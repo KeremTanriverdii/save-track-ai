@@ -264,7 +264,6 @@ export default function DataTableClientComponent({ data }: Props) {
         ],
         [router]
     );
-
     const table = useReactTable({
         data,
         columns,

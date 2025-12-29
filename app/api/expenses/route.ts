@@ -6,6 +6,7 @@ import { deleteExpense } from "@/lib/expenses/deleteExpense";
 import { updateExpense } from "@/lib/expenses/uptadeExpense";
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
 import { revalidateTag } from 'next/cache';
+import { ExpensePayload } from '@/lib/types/type';
 
 
 export async function POST(request: Request) {
@@ -16,12 +17,13 @@ export async function POST(request: Request) {
     }
     try {
 
-        const body = await request.json();
+        const body: ExpensePayload = await request.json();
         const { amount, category, expenseDate } = body;
 
         const finalDate = expenseDate || new Date().toISOString();
         const targetMonthTag = `expenses-${finalDate.substring(0, 7)}`;
         const budgetDate = `budget-${finalDate.substring(0, 7)}`
+
         if (!amount || !category) {
             return NextResponse.json(
                 { error: "Missing required fields: amount and category are required." },
@@ -29,7 +31,7 @@ export async function POST(request: Request) {
             );
         }
         // Firestore Logic
-        addExpense({ ...body, expenseDate: finalDate }, verifyUid.uid as string)
+        addExpense(body, verifyUid.uid as string)
 
         if (!targetMonthTag.includes('undefined')) {
             revalidateTag(targetMonthTag, { expire: 0 })

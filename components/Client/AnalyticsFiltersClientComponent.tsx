@@ -16,7 +16,7 @@ import { CATEGORY_MAP } from "@/lib/types/constants"
 import { useRouter } from "next/navigation"
 import { DateRange } from "react-day-picker"
 
-function formatDate(date: Date | undefined) {
+export function formatDate(date: Date | undefined) {
     if (!date) {
         return ""
     }

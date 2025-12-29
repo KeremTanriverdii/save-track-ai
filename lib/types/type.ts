@@ -14,11 +14,6 @@ export interface Expense {
         nanoseconds: number
     }
     type: "one-time" | "subscription";
-    subscriptionDetails?: {
-        frequency: "monthly" | "yearly";
-        startDate: any;
-        status: "active" | "cancelled";
-    };
 }
 
 export interface uptadeeExpense {
@@ -146,4 +141,25 @@ export interface MonthlyBudget {
     budget: { budget: number, currency: string };
     remaining: { budget: number, currency: string, diff: number, error: string },
     overSpends: { date: string, amount: number; isExceeded: boolean, percentageExceeded: number; title: string; category: string; threshold: number }
+}
+
+export type SubscriptionFrequency = "monthly" | "yearly";
+export type SubscriptionStatus = "active" | "cancelled" | "expired";
+
+export interface SubscriptionDetails {
+    frequency: SubscriptionFrequency;
+    startDate: string;
+    status: SubscriptionStatus;
+    billingDay: number;
+    billingMonth: number;
+}
+
+export interface ExpensePayload {
+    amount: number;
+    category: string | string[];
+    title?: string;
+    description?: string;
+    expenseDate: string; // ISO string
+    type: "one-time" | "subscription";
+    subscription?: SubscriptionDetails | null;
 }
