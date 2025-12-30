@@ -2,7 +2,7 @@
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button"
 import { CalendarIcon, ChevronDownIcon, Divide, Loader2, Plus } from "lucide-react";
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogOverlay, DialogPortal, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { useReducer, useState } from "react";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
@@ -11,6 +11,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Calendar } from "../ui/calendar";
 import { Switch } from "../ui/switch";
 import { formatDate } from "./AnalyticsFiltersClientComponent";
+import { toast } from "sonner";
 
 export type DialogState = {
     amount: number;
@@ -31,7 +32,8 @@ type DialogAction =
     | { type: 'POST_SUCCESS'; }
     | { type: 'POST_ERROR'; payload: { error: string } }
     | { type: 'SET_FIELD'; field: keyof Omit<DialogState, 'isLoading' | 'error'>; value: any }
-    | { type: 'SET_DATE'; payload: Date | undefined };
+    | { type: 'SET_DATE'; payload: Date | undefined }
+    | { type: 'RESET_FORM' }
 
 function dialogFormReducer(state: DialogState, action: DialogAction): DialogState {
     switch (action.type) {
@@ -63,6 +65,12 @@ function dialogFormReducer(state: DialogState, action: DialogAction): DialogStat
                 ...state,
                 date: action.payload,
             };
+        case 'RESET_FORM':
+            return {
+                ...initialNewExpenseForm,
+                isLoading: false,
+                error: null,
+            };
         default:
             return state;
     }
@@ -86,6 +94,7 @@ export default function TestAddExpense() {
     const [state, dispatch] = useReducer(dialogFormReducer, initialNewExpenseForm);
     const { category } = state;
     const [open, setOpen] = useState<boolean>(false);
+    const [openDialog, setOpenDialog] = useState<boolean>(false);
     const router = useRouter();
     const isSubscription = state.type === 'subscription'
 
@@ -125,9 +134,9 @@ export default function TestAddExpense() {
             });
 
             if (response.ok) {
-                alert(`Expense added successfully!`);
-                setOpen(false);
-                dispatch({ type: 'POST_SUCCESS' });
+                toast.success("Expense added successfully!");
+                dispatch({ type: 'RESET_FORM' });
+                setOpenDialog(false);
                 router.refresh()
             } else {
                 const error = await response.json();
@@ -141,8 +150,8 @@ export default function TestAddExpense() {
         }
     }
     return (
-        <Dialog>
-            <DialogTrigger asChild>
+        <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+            <DialogTrigger onClick={() => setOpenDialog(true)} asChild>
                 <Button className="bg-blue-500 text-white">
                     <Plus /> New Expense
                 </Button>
@@ -169,9 +178,10 @@ export default function TestAddExpense() {
                     </div>
                     {isSubscription && <p className="text-muted-foreground">* This expense will be automatically added to your financial statements each month until you cancel it.</p>}
                 </div>
+                {/* Form Begining */}
                 <form onSubmit={testAddExpenses} className="flex flex-col gap-4">
                     <label htmlFor="amount" className="w-full">
-                        <span>Amount *</span>
+                        {state.type === "subscription" ? <span>Monthly subscription amount *</span> : <span>Amount *</span>}
                         <Input
                             type="number"
                             name="amount"
@@ -208,7 +218,7 @@ export default function TestAddExpense() {
                     </label>
 
                     <label htmlFor="title">
-                        <span>Title (optional)</span>
+                        {isSubscription ? <span>Title (Your Subscription Title)</span> : <span>Title (optional)</span>}
                         <Input
                             type="text"
                             name="title"
@@ -298,16 +308,15 @@ export default function TestAddExpense() {
                             </div>
                         </div>
                     }
-
-
+                    {/* Submit Button with loading state */}
                     <Button className="w-full mt-3" disabled={state.isLoading} type="submit">
                         {state.isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                         {state.isLoading ? "Adding..." : "Add Expense"}
                     </Button>
-
+                    {/* Error Message */}
                     {state.error && <p className="text-red-500">{state.error}</p>}
-
                 </form>
+                {/* Form End */}
             </DialogContent>
         </Dialog>
     )

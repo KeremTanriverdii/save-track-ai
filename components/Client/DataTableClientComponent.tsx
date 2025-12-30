@@ -21,36 +21,32 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
-import { Expenses } from "@/lib/types/type";
+import { ReturnAPIResponseData } from "@/lib/types/type";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { ArrowDown, ArrowDownWideNarrow, ArrowUp, ArrowUpDown, ArrowUpWideNarrow, Download, HelpCircle, MoreHorizontal, Search, XIcon } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, Download, HelpCircle, MoreHorizontal, XIcon } from "lucide-react";
 import OpenDialogClientComponent from "./OpenDialogClientComponent";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { CATEGORY_MAP } from "@/lib/types/constants";
 import TestAddExpense from "./TestAddExpense";
-import { Input } from "../ui/input";
-import { Card, CardContent } from "../ui/card";
-import { DateRange } from "react-day-picker";
-import { Calendar } from "../ui/calendar";
 import { AnalyticsFiltersClientComponent } from "./AnalyticsFiltersClientComponent";
+import { Checkbox } from "../ui/checkbox";
+import { Label } from "../ui/label";
 
 type Props = {
-    data: Expenses[];
+    data: ReturnAPIResponseData[];
 };
 
 export default function DataTableClientComponent({ data }: Props) {
     const [open, setOpen] = React.useState<boolean>(false);
-    const [selected, setSelected] = React.useState<Expenses | null>(null)
+    const [selected, setSelected] = React.useState<ReturnAPIResponseData | null>(null)
+    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+
     const router = useRouter();
     const searchParams = useSearchParams();
     const datafilter = searchParams.get('date');
-    const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-    const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
-        from: new Date(2025, 5, 12),
-        to: new Date(2025, 6, 15),
-    })
+
     React.useEffect(() => {
         if (datafilter) {
             setColumnFilters([{ id: 'date', value: datafilter }]);
@@ -59,7 +55,7 @@ export default function DataTableClientComponent({ data }: Props) {
         }
     }, [datafilter])
 
-    const columns = React.useMemo<ColumnDef<Expenses>[]>(
+    const columns = React.useMemo<ColumnDef<ReturnAPIResponseData>[]>(
         () => [
             {
                 accessorKey: "description", header: "Description",
@@ -68,7 +64,6 @@ export default function DataTableClientComponent({ data }: Props) {
                     const description = String(row.original.description ?? "").toLowerCase();
                     const search = String(filterValue).toLowerCase();
 
-                    // Hem başlıkta hem de açıklamada ara
                     return title.includes(search) || description.includes(search);
                 },
                 cell: ({ row }) => {
@@ -77,8 +72,7 @@ export default function DataTableClientComponent({ data }: Props) {
                     const config = CATEGORY_MAP[catName as string] || { icon: HelpCircle, color: "text-gray-400" };
                     const Icon = config.icon;
 
-                    // Burada ufak bir mantık hatasını da düzeltelim: 
-                    // Eğer description yoksa ama title varsa yine de render etmelisin.
+
                     if (!description && !title) return "N/A";
 
                     return (
@@ -197,8 +191,68 @@ export default function DataTableClientComponent({ data }: Props) {
                 },
                 cell: ({ row }) => {
                     const amount = parseFloat(row.getValue("amount"));
-                    return <div className="text-left font-extrabold ">{amount.toFixed(2)}</div>;
+                    const subscriptionDetails = row.original.subscriptionDetails;
+                    const currency = row.original.currency;
+                    return <div className="text-left font-extrabold ">{amount.toFixed(2) + `${currency}`}
+                        {subscriptionDetails?.status === "active" && (<span className="ms-1">monthly</span>)}
+                    </div>;
                 },
+            },
+            {
+                id: "subscription",
+                header: ({ column }) => {
+                    return (
+                        <Button
+                            variant="ghost"
+                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+                        >
+                            Subscription
+                            <ArrowUpDown className="ml-2 h-4 w-4" />
+                        </Button>
+                    )
+                },
+                accessorKey: "type",
+                sortingFn: (rowA, rowB, columnId) => {
+                    const getPriority = (row: any) => {
+                        const type = row.original.type;
+                        const status = row.original.subscriptionDetails?.status;
+
+                        if (type === "subscription") {
+                            return status === "active" ? 3 : 2; // Active en öncelikli
+                        }
+                        return 1; // One-time en az öncelikli
+                    };
+
+                    const priorityA = getPriority(rowA);
+                    const priorityB = getPriority(rowB);
+
+                    return priorityA > priorityB ? 1 : priorityA < priorityB ? -1 : 0;
+                },
+                cell: ({ row }) => {
+                    const types = row.original.type;
+                    const subscription = row.original.subscriptionDetails;
+                    if (!types) return null;
+
+                    return (
+                        <div className="flex items-center gap-2">
+                            {types === "subscription" ? (
+                                <div className="flex items-center gap-2">
+                                    <Checkbox
+                                        checked={subscription?.status === "active"}
+                                        disabled
+                                        id={`sub-${row.id}`} // Unique ID kullanımı önemli
+                                    />
+                                    <Label htmlFor={`sub-${row.id}`}>
+                                        {subscription?.status === "active" ? "Active" : "Cancelled"}
+                                    </Label>
+                                </div>
+                            ) : (
+                                <Label className="text-muted-foreground italic">One-time paid</Label>
+                            )}
+                        </div>
+                    )
+
+                }
             },
             {
                 id: "actions",

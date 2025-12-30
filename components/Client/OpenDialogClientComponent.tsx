@@ -1,8 +1,8 @@
 "use client"
 
-import { Expenses } from '@/lib/types/type'
+import { ReturnAPIResponseData } from '@/lib/types/type'
 import React, { JSX } from 'react'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Button } from '../ui/button'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '../ui/select'
 import { Input } from '../ui/input'
@@ -15,7 +15,7 @@ import { Calendar } from '../ui/calendar'
 
 export default function OpenDialogClientComponent(
     { data, open, setOpen }: {
-        data: Expenses,
+        data: ReturnAPIResponseData,
         open: boolean,
         setOpen: React.Dispatch<React.SetStateAction<boolean>>
     }) {
@@ -26,11 +26,11 @@ export default function OpenDialogClientComponent(
     if (!initialTitle) initialTitle = "";
 
     const [newAmount, setNewAmount] = React.useState<number>(data.amount)
-    const [newCategory, setNewCategory] = React.useState<string>(data.category)
+    const [newCategory, setNewCategory] = React.useState<string>(data.category[0])
     const [newDescription, setNewDescription] = React.useState<string>(data.description)
     const [newTitle, setNewTitle] = React.useState<string>(initialTitle);
     const [error, setError] = React.useState<string>('');
-    const [date, setDate] = React.useState<Date | undefined>(data.date ? new Date(data.date) : undefined);
+    const [date, setDate] = React.useState<Date | undefined>(data.date ? new Date(data.date.seconds * 1000) : undefined);
     const [openDate, setOpenDate] = React.useState<boolean>(false);
     const router = useRouter();
 

@@ -77,7 +77,6 @@ export interface categoryTotalsType {
     [category: string]: number | null;
 }
 export interface AllData {
-
     summary: AnalyticsData,
     categoryTotals: categoryTotalsType
     anomalies: DetectAnomalies[];
@@ -151,7 +150,7 @@ export interface SubscriptionDetails {
     startDate: string;
     status: SubscriptionStatus;
     billingDay: number;
-    billingMonth: number;
+    billingMonth?: number;
 }
 
 export interface ExpensePayload {
@@ -162,4 +161,36 @@ export interface ExpensePayload {
     expenseDate: string; // ISO string
     type: "one-time" | "subscription";
     subscription?: SubscriptionDetails | null;
+}
+
+export interface ReturnAPIResponseData {
+    id: string;
+    title: string;
+    description: string;
+    date: {
+        seconds: number
+    };
+    category: string[];
+    amount: number;
+    creadetAt?: null | string;
+    currency: string;
+    type: string;
+    subscriptionDetails?: {
+        frequency: string;
+        startDate: string;
+        status: SubscriptionStatus;
+        billingDay: number;
+    }
+}
+
+export interface SubscriptionCalculate {
+    frequency: SubscriptionFrequency;
+    totalPaidForThis?: number,
+    startDate: any;
+    status: "active" | "paused";
+    billingDay: number;
+    billingMonth?: number;
+    monthlyCost: number;
+    accumulatedTotal?: number;
+    lastUpdated?: any;
 }
