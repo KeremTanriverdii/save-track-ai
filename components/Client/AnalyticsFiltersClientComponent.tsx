@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { ArrowDownWideNarrow, ArrowUpWideNarrow, CalendarIcon, Search, XIcon } from "lucide-react"
+import { CalendarIcon, Search, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { Input } from "@/components/ui/input"
@@ -28,7 +28,7 @@ export function formatDate(date: Date | undefined) {
     })
 }
 
-export function AnalyticsFiltersClientComponent({ table, setFilterValue }: { table: any, setFilterValue: React.Dispatch<React.SetStateAction<string>> }) {
+export function AnalyticsFiltersClientComponent({ table }: { table: any, setFilterValue: React.Dispatch<React.SetStateAction<string>> }) {
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = React.useState("In 2 days")
     const [date, setDate] = React.useState<Date | undefined>(undefined)
@@ -153,7 +153,7 @@ export function AnalyticsFiltersClientComponent({ table, setFilterValue }: { tab
                 </div>
                 {/* Show filter clear button if have filter */}
                 {table.getState().columnFilters.length > 0 && (
-                    <div className="flex justify-end pt-2 w-full self-end h-full">
+                    <div className="flex flex-col gap-2 justify-end pt-2 w-full self-end h-full">
                         <Button
                             variant="secondary"
                             size="sm"

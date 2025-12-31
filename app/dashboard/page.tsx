@@ -1,6 +1,4 @@
-import { calTotal } from "@/lib/analytics/calcTotal";
 import { calcRemaining } from "@/lib/budged/calcRemaining";
-import { getExpenses } from "@/lib/expenses/getExpense";
 import { dateCustom } from "@/utils/nowDate";
 import { Budget } from "@/lib/types/type";
 import { Card, CardContent } from "@/components/ui/card";
@@ -9,6 +7,9 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import Link from "next/link";
 import Image from "next/image";
 import { getUserData } from "@/lib/auth/user";
+import totalAmounts from "@/lib/expenses/totalAmount";
+import { DashboardHomeSubsChart } from "@/components/Client/DashboardHomeSubsChart";
+import { getSubscriptionDetails } from "@/lib/expenses/getSubscriptionDetails";
 
 export default async function Dashboard() {
     const user = await getUserData();
@@ -16,10 +17,15 @@ export default async function Dashboard() {
         throw new Error('User not found')
     }
 
-    const expenseData: any = await getExpenses(user.uid, dateCustom())
-    const totalAmount = calTotal(expenseData)
-    const remaining: Budget | undefined = await calcRemaining(user.uid, totalAmount, dateCustom())
+
+    const totalAmount = await totalAmounts(user.uid)
+    if (!totalAmount) throw new Error('Total amount not found');
+
+    const subsDetails = await getSubscriptionDetails(user.uid);
+
+    const remaining: Budget | undefined = await calcRemaining(user.uid, totalAmount?.total || 0, dateCustom())
     if (!remaining) throw new Error('Remaining not found')
+
     return (
         <div className="relative me-3">
             <section className="bg-gradient-to-r from-[#4A00E0] to-[#8E2DE2] rounded-lg p-5 mt-3 flex items-center justify-between mb-8" data-purpose="welcome-banner">
@@ -43,7 +49,7 @@ export default async function Dashboard() {
                                 Total amount
                             </p>
 
-                            <p className="text-4xl font-bold text-white">{totalAmount} {remaining.currency}</p>
+                            <p className="text-4xl font-bold text-white">{`${totalAmount.total}${remaining.currency}`}</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -57,7 +63,7 @@ export default async function Dashboard() {
                             </p>
 
                             <p className="text-4xl font-bold text-white">
-                                {remaining.budget} {remaining.currency}
+                                {`${remaining.budget}${remaining.currency}`}
                             </p>
                         </div>
 
@@ -73,7 +79,7 @@ export default async function Dashboard() {
                             </p>
 
                             <p className="text-4xl font-bold text-white">
-                                {remaining.diff} {remaining.currency}
+                                {`${remaining.diff}${remaining.currency}`}
                             </p>
                         </div>
                     </CardContent>
@@ -96,6 +102,8 @@ export default async function Dashboard() {
                         </ul>
                     </AlertDescription>
                 </Alert>}
+
+                <DashboardHomeSubsChart totalSubs={totalAmount?.subsData} subDetails={subsDetails} />
             </div>
         </div>
     );

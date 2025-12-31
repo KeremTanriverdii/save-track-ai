@@ -24,7 +24,7 @@ import {
 import { ReturnAPIResponseData } from "@/lib/types/type";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
-import { ArrowDown, ArrowUp, ArrowUpDown, Download, HelpCircle, MoreHorizontal, XIcon } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ArrowUpDownIcon, Download, HelpCircle, MoreHorizontal, XIcon } from "lucide-react";
 import OpenDialogClientComponent from "./OpenDialogClientComponent";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
@@ -33,6 +33,8 @@ import TestAddExpense from "./TestAddExpense";
 import { AnalyticsFiltersClientComponent } from "./AnalyticsFiltersClientComponent";
 import { Checkbox } from "../ui/checkbox";
 import { Label } from "../ui/label";
+import { cn } from "@/lib/utils";
+import DeleteAllButton from "./DeleteAllButton";
 
 type Props = {
     data: ReturnAPIResponseData[];
@@ -111,61 +113,34 @@ export default function DataTableClientComponent({ data }: Props) {
             }
             , {
                 accessorKey: "date",
-                header: ({ column }) => {
-                    const isSorted = column.getIsSorted();
-                    return (
-                        <Button
-                            variant="ghost"
-                            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                            className="hover:bg-transparent p-0 font-bold"
-                        >
-                            Date
-                            {isSorted === "asc" ? (
-                                <ArrowUp className="ml-2 h-4 w-4" />
-                            ) : isSorted === "desc" ? (
-                                <ArrowDown className="ml-2 h-4 w-4" />
-                            ) : (
-                                <ArrowUpDown className="ml-2 h-4 w-4 text-muted-foreground" />
-                            )}
-                        </Button>
-                    );
-                },
-
+                header: ({ column }) => (
+                    <Button
+                        variant="ghost"
+                        onClick={() => column.toggleSorting()}
+                        className="hover:bg-transparent p-0 font-bold"
+                    >
+                        Date
+                        <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+                    </Button>
+                ),
                 cell: ({ row }) => {
-                    const dateValue = row.getValue("date");
-                    let dateString: string;
-                    if (dateValue && typeof dateValue === 'object' && 'seconds' in dateValue && typeof (dateValue as { seconds: number }).seconds === 'number') {
-                        const date = new Date((dateValue as { seconds: number }).seconds * 1000);
-                        dateString = date.toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                        });
-                    } else {
-                        dateString = "N/A";
-                    }
-
-                    return dateString;
-                },
-                filterFn: (row, columnId, value) => {
-                    const dateValue = row.getValue(columnId) as any;
-
-                    if (!dateValue) return false
-                    const rowDateObj = new Date(dateValue.seconds * 1000);
-                    const formattedDate = new Date(dateValue.seconds as any * 1000).toLocaleDateString("en-US", {
+                    const dateValue = row.getValue("date") as Date;
+                    return dateValue.toLocaleDateString("en-US", {
                         year: "numeric",
                         month: "long",
                         day: "numeric",
                     });
+                },
+                filterFn: (row, columnId, value) => {
+                    const rowDate = row.getValue(columnId) as Date;
 
-                    if (typeof value === 'object' && (value.from || value.to)) {
+                    if (value?.from || value?.to) {
                         const { from, to } = value;
-                        if (from && !to) return rowDateObj >= from;
-                        if (from && to) return rowDateObj >= from && rowDateObj <= to;
-                        return true
+                        if (from && !to) return rowDate >= from;
+                        if (from && to) return rowDate >= from && rowDate <= to;
                     }
 
-                    return formattedDate.toLowerCase().includes(String(value).toLowerCase());
+                    return rowDate.toLocaleDateString().toLowerCase().includes(String(value).toLowerCase());
                 }
             },
             {
@@ -194,7 +169,7 @@ export default function DataTableClientComponent({ data }: Props) {
                     const subscriptionDetails = row.original.subscriptionDetails;
                     const currency = row.original.currency;
                     return <div className="text-left font-extrabold ">{amount.toFixed(2) + `${currency}`}
-                        {subscriptionDetails?.status === "active" && (<span className="ms-1">monthly</span>)}
+                        {subscriptionDetails?.status === "active" && (<span className="ms-1">{subscriptionDetails.frequency}</span>)}
                     </div>;
                 },
             },
@@ -218,9 +193,9 @@ export default function DataTableClientComponent({ data }: Props) {
                         const status = row.original.subscriptionDetails?.status;
 
                         if (type === "subscription") {
-                            return status === "active" ? 3 : 2; // Active en öncelikli
+                            return status === "active" ? 3 : 2;
                         }
-                        return 1; // One-time en az öncelikli
+                        return 1;
                     };
 
                     const priorityA = getPriority(rowA);
@@ -237,17 +212,24 @@ export default function DataTableClientComponent({ data }: Props) {
                         <div className="flex items-center gap-2">
                             {types === "subscription" ? (
                                 <div className="flex items-center gap-2">
-                                    <Checkbox
-                                        checked={subscription?.status === "active"}
-                                        disabled
-                                        id={`sub-${row.id}`} // Unique ID kullanımı önemli
-                                    />
-                                    <Label htmlFor={`sub-${row.id}`}>
-                                        {subscription?.status === "active" ? "Active" : "Cancelled"}
-                                    </Label>
+                                    <span className={cn(
+                                        "px-2.5 py-0.5 rounded-full text-[10px] font-bold border backdrop-blur-md shadow-sm transition-all",
+                                        subscription?.status === "active"
+                                            ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.1)]"
+                                            : "bg-rose-500/10 text-rose-400 border-rose-500/20 grayscale-[0.5] opacity-80"
+                                    )}>
+                                        {subscription?.status === "active" ? "● ACTIVE" : "○ CANCELLED"}
+                                    </span>
+                                    {subscription?.status !== "active" && (
+                                        <span className="text-[9px] text-muted-foreground italic">Stopped</span>
+                                    )}
                                 </div>
                             ) : (
-                                <Label className="text-muted-foreground italic">One-time paid</Label>
+                                <div className="flex items-center gap-2 opacity-60">
+                                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold border border-white/10 bg-white/5 text-gray-400 uppercase tracking-tighter">
+                                        One-time
+                                    </span>
+                                </div>
                             )}
                         </div>
                     )
@@ -397,6 +379,7 @@ export default function DataTableClientComponent({ data }: Props) {
                         Export (.CSV)
                     </Button>
                     <TestAddExpense />
+                    <DeleteAllButton data={data} />
                 </div>
             </div>
             <AnalyticsFiltersClientComponent table={table} setFilterValue={() => setColumnFilters} />

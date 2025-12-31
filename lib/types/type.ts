@@ -172,7 +172,6 @@ export interface ReturnAPIResponseData {
     };
     category: string[];
     amount: number;
-    creadetAt?: null | string;
     currency: string;
     type: string;
     subscriptionDetails?: {
@@ -181,6 +180,7 @@ export interface ReturnAPIResponseData {
         status: SubscriptionStatus;
         billingDay: number;
     }
+    numberOfMonthsPaid?: number;
 }
 
 export interface SubscriptionCalculate {
@@ -194,3 +194,4 @@ export interface SubscriptionCalculate {
     accumulatedTotal?: number;
     lastUpdated?: any;
 }
+

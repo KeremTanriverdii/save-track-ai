@@ -1,8 +1,8 @@
 import { collection, doc, getDocs, query, Timestamp, where } from "firebase/firestore"
 import { db } from "../firebase/firebase"
-import { Expense } from "../types/type";
+import { ReturnAPIResponseData } from "../types/type";
 
-export const getExpenses = async (id: string, yearMonth?: string): Promise<Expense[]> => {
+export const getExpenses = async (id: string, yearMonth?: string): Promise<ReturnAPIResponseData[]> => {
     if (id === null) {
         return []
     }
@@ -29,18 +29,50 @@ export const getExpenses = async (id: string, yearMonth?: string): Promise<Expen
                 where('date', '<', endTimestamp),
             )
             const querySnapshot = await getDocs(q)
-            const data = querySnapshot.docs.map((doc) => ({
-                ...(doc.data() as Expense),
-                id: doc.id,// Ensure 'id' is correctly assigned from doc.id
-            })) as Expense[];
-            return data
+            const data = querySnapshot.docs.map((doc) => {
+                const rawData = doc.data();
+
+                return {
+                    ...rawData,
+                    id: doc.id,
+
+                    date: rawData.date?.toDate ? rawData.date.toDate() : new Date(),
+                    createdAt: rawData.createdAt?.toDate ? rawData.createdAt.toDate() : new Date(),
+
+                    subscriptionDetails: rawData.subscriptionDetails
+                        ? {
+                            ...rawData.subscriptionDetails,
+                            startDate: rawData.subscriptionDetails.startDate?.toDate
+                                ? rawData.subscriptionDetails.startDate.toDate()
+                                : rawData.subscriptionDetails.startDate
+                        }
+                        : null
+                };
+            });
+            return data as unknown as ReturnAPIResponseData[];
         } else {
             const querySnapshot = await getDocs(expensesCollectionRef)
-            const data = querySnapshot.docs.map((doc) => ({
-                ...(doc.data() as Expense),
-                id: doc.id,
-            })) as Expense[];
-            return data
+            const data = querySnapshot.docs.map((doc) => {
+                const rawData = doc.data();
+
+                return {
+                    ...rawData,
+                    id: doc.id,
+
+                    date: rawData.date?.toDate ? rawData.date.toDate() : new Date(),
+                    createdAt: rawData.createdAt?.toDate ? rawData.createdAt.toDate() : new Date(),
+
+                    subscriptionDetails: rawData.subscriptionDetails
+                        ? {
+                            ...rawData.subscriptionDetails,
+                            startDate: rawData.subscriptionDetails.startDate?.toDate
+                                ? rawData.subscriptionDetails.startDate.toDate()
+                                : rawData.subscriptionDetails.startDate
+                        }
+                        : null
+                };
+            });
+            return data as unknown as ReturnAPIResponseData[];
         }
     } catch (err) {
         throw new Error('Error getting expenses' + err)
