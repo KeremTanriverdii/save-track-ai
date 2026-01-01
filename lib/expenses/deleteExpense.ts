@@ -1,15 +1,25 @@
-import { doc, deleteDoc } from "firebase/firestore";
+import { doc, deleteDoc, collection, getDocs, writeBatch } from "firebase/firestore";
 import { db } from "../firebase/firebase";
 
 export const deleteExpense = async (verifyUid: string, id: string) => {
     try {
-        // Create a reference to the specific expense document to be deleted
-        const expenseDocRef = doc(db, 'users', verifyUid, 'expenses', id);
+        const expenseDocRef = doc(db, "users", verifyUid, "expenses", id);
         await deleteDoc(expenseDocRef);
 
-        console.log('Expense deleted successfully')
+        const budgetsCollectionRef = collection(db, "users", verifyUid, "budgets");
+        const budgetsSnapshot = await getDocs(budgetsCollectionRef);
 
-    } catch (err) {
-        throw new Error('Error deleting expense: ' + err);
+        const batch = writeBatch(db);
+
+        budgetsSnapshot.docs.forEach((budgetDoc) => {
+            batch.delete(budgetDoc.ref);
+        });
+
+        await batch.commit();
+
+
+    } catch (err: any) {
+        console.error("Error deleting expense:", err.message);
+        throw new Error(`Error deleting expense: ${err.message}`);
     }
 };

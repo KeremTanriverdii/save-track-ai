@@ -19,7 +19,6 @@ export async function POST(request: Request) {
 
         const body: ExpensePayload = await request.json();
         const { amount, category, expenseDate } = body;
-
         const finalDate = expenseDate || new Date().toISOString();
         const targetMonthTag = `expenses-${finalDate.substring(0, 7)}`;
         const budgetDate = `budget-${finalDate.substring(0, 7)}`
@@ -30,6 +29,8 @@ export async function POST(request: Request) {
                 { status: 400 }
             );
         }
+
+
         // Firestore Logic
         addExpense(body, verifyUid.uid as string)
 
@@ -132,7 +133,7 @@ export async function PUT(request: Request) {
         const targetBudget = `budget-${expenseDate.substring(0, 7)}`
 
 
-        await updateExpense(verifyUid.uid, id, amount, category, description, title)
+        await updateExpense(verifyUid.uid, id, amount, category, description)
         if (!expenseDate.includes('undefined')) {
             revalidateTag(targetMonthTag, { expire: 0 })
             revalidateTag(targetBudget, { expire: 0 })

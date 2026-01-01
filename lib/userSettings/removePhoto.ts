@@ -25,7 +25,7 @@ export const removeProfilePhoto = async () => {
             };
         }
 
-        console.log("🗑️ Removing profile photo for user:", user.uid);
+
 
         const bucket = adminStorage.bucket();
         const userDocRef = db.collection("users").doc(user.uid);
@@ -40,7 +40,6 @@ export const removeProfilePhoto = async () => {
                 const [exists] = await fileRef.exists();
                 if (exists) {
                     await fileRef.delete();
-                    console.log(`✅ Deleted: ${filePath}`);
                     return true;
                 }
             } catch (err) {
@@ -57,14 +56,14 @@ export const removeProfilePhoto = async () => {
             lastLogin: new Date()
         }, { merge: true });
 
-        console.log("✅ Firestore updated - photoURL removed");
+        ("✅ Firestore updated - photoURL removed");
 
         // Update Firebase Auth to remove photoURL
         await auth.updateUser(user.uid, {
             photoURL: null as any, // Remove the photo
         });
 
-        console.log("✅ Firebase Auth updated - photoURL removed");
+
 
         revalidatePath('/dashboard/settings');
         return { success: true };

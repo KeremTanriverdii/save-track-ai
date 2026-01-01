@@ -1,30 +1,56 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
 import { usersCollection } from "../firebase/firebase";
-import { Budget } from "../types/type";
+import { Budged, Budget } from "../types/type";
+import { format, parse, subMonths } from "date-fns";
 
-export const getBudget = async (id: string | null, yearMonth: string): Promise<{ budget: number, currency: string } | string | number> => {
-    if (!yearMonth) {
-        return 'Error: YearMonth is required.';
-    }
-    const docRef = doc(usersCollection, id as string, 'budgets', yearMonth);
-    const docSnap = await getDoc(docRef);
-
-    // 4. Veri Check and Safety Return
-    // If document not exist, we return 0 for the don't get error.
-    if (!docSnap.exists()) {
-        console.warn(`Warning: ${yearMonth} Not found in budgets collection.`);
-        return 0;
+export const getBudget = async (id: string | null, yearMonth: string): Promise<Budget> => {
+    if (!id || !yearMonth) {
+        return { budget: 0, currency: '$', source: 'default' };
     }
 
-    // Open exist document
-    const data = docSnap.data() as Budget;
+    const docRef = doc(usersCollection, id, 'budgets', yearMonth);
 
-    const budgetValue = (data?.budget) ?? 0;
+    try {
+        const docSnap = await getDoc(docRef);
 
-    if (typeof budgetValue === 'number') {
-        return { budget: budgetValue, currency: data?.currency || '$' };
-    } else {
-        console.error(`Error: ${yearMonth} format is not number.`);
-        return 0;
+        if (docSnap.exists()) {
+            const data = docSnap.data() as Budget;
+            return {
+                budget: data.budget ?? 0,
+                currency: data.currency || '$',
+                source: 'current'
+            };
+        }
+
+        const currentDate = parse(yearMonth, 'yyyy-MM', new Date());
+        const prevDate = subMonths(currentDate, 1);
+        const prevMonthId = format(prevDate, 'yyyy-MM');
+
+        const prevDocRef = doc(usersCollection, id, 'budgets', prevMonthId);
+        const prevSnapshot = await getDoc(prevDocRef);
+
+        if (prevSnapshot.exists()) {
+            const prevData = prevSnapshot.data() as Budget;
+
+            const newBudgetData = {
+                budget: prevData.budget,
+                currency: prevData.currency || 'TRY',
+                createdAt: serverTimestamp(),
+                isAutoCarried: true
+            };
+
+            await setDoc(docRef, newBudgetData);
+
+            return {
+                ...newBudgetData,
+                source: 'auto-carried'
+            };
+        }
+
+        return { budget: 0, currency: 'TRY', source: 'default' };
+
+    } catch (error) {
+        console.error(`Error fetching budget for ${yearMonth}:`, error);
+        return { budget: 0, currency: 'TRY', source: 'default' };
     }
 };

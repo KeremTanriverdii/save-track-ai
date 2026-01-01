@@ -15,16 +15,10 @@ import {
     type ChartConfig,
 } from "@/components/ui/chart"
 import { ChartSubsDetails } from "@/lib/expenses/getSubscriptionDetails"
-
-
-
-
 interface Props {
     totalSubs: number | undefined
     subDetails: ChartSubsDetails[] | undefined
 }
-
-
 export function DashboardHomeSubsChart({ totalSubs, subDetails }: Props) {
 
     const dynamicChartData = subDetails?.map((item, index) => {
@@ -51,15 +45,27 @@ export function DashboardHomeSubsChart({ totalSubs, subDetails }: Props) {
     } as ChartConfig) || {};
 
     return (
-        <Card className="flex flex-col">
-            <CardHeader className="items-center pb-0">
-                <CardTitle>Your Total Subscriptions</CardTitle>
-                <CardDescription>Your all of time total subscription spend: <span className="text-2xl">{totalSubs}{subDetails?.[0]?.currency}</span></CardDescription>
+        <Card className="flex flex-row p-5">
+            <CardHeader className="items-center">
+                <CardTitle className="text-nowrap">Your Subscription Summary <br />
+                    <CardDescription>Your all of time total subscription spend</CardDescription>
+                </CardTitle>
+                <div>
+                    <span className="text-2xl font-bold">
+                        {new Intl.NumberFormat('en-US', {
+                            style: 'currency',
+                            currency: subDetails?.[0]?.currency === '$' ? 'USD' : subDetails?.[0]?.currency === '€' ? 'EUR' : subDetails?.[0]?.currency === '₺' ? 'TRY' : 'USD',
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2
+                        }).format(totalSubs || 0)}
+                    </span>
+                    <p className="text-muted-foreground">Total Subscription Spend</p>
+                </div>
             </CardHeader>
-            <CardContent className="flex-1 pb-0">
+            <CardContent className="flex-1 p-0">
                 <ChartContainer
                     config={dynamicChartConfig}
-                    className="[&_.recharts-text]:fill-background mx-auto aspect-square max-h-[250px]"
+                    className="[&_.recharts-text]:fill-background ms-auto  max-h-[250px]"
                 >
                     <PieChart>
                         <ChartTooltip

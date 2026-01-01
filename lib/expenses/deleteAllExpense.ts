@@ -36,6 +36,14 @@ export const deleteAllExpense = async () => {
     subsQuerySnapshot.forEach((doc) => {
         batch.delete(doc.ref);
     });
+
+    const budgetsRef = collection(db, 'users', user.uid, 'budgets');
+    const budgetsQuerySnapshot = await getDocs(budgetsRef);
+    budgetsQuerySnapshot.forEach((doc) => {
+        batch.delete(doc.ref);
+    });
+
+
     await batch.commit();
     redirect('/dashboard/expenses')
 

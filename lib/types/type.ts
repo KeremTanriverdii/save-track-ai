@@ -26,11 +26,20 @@ export interface Budget {
     diff?: number,
     error?: string
     currency: string
+    source?: 'current' | 'auto-carried' | 'default';
+    isAutoCarried?: boolean;
+    projectedSubs?: number;
 }
 export interface DailyChartData {
     day: string;
     amount: number;
     spike?: boolean;
+}
+
+export interface RemainingResponse {
+    rDiff: number;
+    rError: string;
+    rCurrency: string;
 }
 
 export interface AnalyticsData {
@@ -143,7 +152,7 @@ export interface MonthlyBudget {
 }
 
 export type SubscriptionFrequency = "monthly" | "yearly";
-export type SubscriptionStatus = "active" | "cancelled" | "expired";
+export type SubscriptionStatus = "active" | "cancelled";
 
 export interface SubscriptionDetails {
     frequency: SubscriptionFrequency;
@@ -173,7 +182,7 @@ export interface ReturnAPIResponseData {
     category: string[];
     amount: number;
     currency: string;
-    type: string;
+    type: "one-time" | "subscription";
     subscriptionDetails?: {
         frequency: string;
         startDate: string;

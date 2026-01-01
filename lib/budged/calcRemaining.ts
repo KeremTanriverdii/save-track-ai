@@ -1,22 +1,19 @@
-import { doc, getDoc } from "firebase/firestore"
-import { db } from "../firebase/firebase"
-import { Budget } from "../types/type";
-import { dateCustom } from "@/utils/nowDate";
+import { RemainingResponse } from "../types/type";
+import { getBudget } from "./GetBudget";
 
-export const calcRemaining = async (verifyUid: string, totalAmount: number, date: string): Promise<Budget> => {
-    if (!totalAmount) return { budget: 0, currency: 'No currency found', diff: 0, error: 'Error: An error occurred while calculating the remaining budget.' };
+export const calcRemaining = async (verifyUid: string, totalAmount: number, date: string): Promise<RemainingResponse> => {
+    if (!totalAmount) return { rCurrency: 'No currency found', rDiff: 0, rError: 'Error: An error occurred while calculating the remaining budget.' };
     // Access budget collection
-    const docRef = doc(db, 'users', verifyUid, 'budgets', date);
+    const docRef = await getBudget(verifyUid, date)
     // access doc 
-    const docSnap = await getDoc(docRef)
-    if (!docSnap.exists()) {
-        console.log('error not exist')
+    if (docRef.source === 'current' || docRef.source === 'auto-carried' || docRef.source === 'default') {
+        const rBudget: number = docRef.budget
+        const rDiff: number = rBudget - totalAmount
+        const rError = !totalAmount ? 'You have no expenses or budgets for this month' : ''
+        const rCurrency: string = docRef.currency
+        return { rDiff, rError, rCurrency }
     } else {
-        const budget: number = docSnap.data().budget;
-        const diff: number = budget - totalAmount;
-        const error = !totalAmount ? 'You have no expenses or budgets for this month' : ''
-        const currency: string = docSnap.data().currency
-        return { budget, diff, error, currency }
+        throw new Error('Budget document not found');
     }
-    throw new Error('Budget document not found');
+
 }
