@@ -128,23 +128,20 @@ export async function PUT(request: Request) {
             );
         }
         const { id, expenseData } = body;
-        const { amount, category, description, title, expenseDate } = expenseData;
-        const targetMonthTag = `expenses-${expenseDate.substring(0, 7)}`;
-        const targetBudget = `budget-${expenseDate.substring(0, 7)}`
-
-
-        await updateExpense(verifyUid.uid, id, amount, category, description)
-        if (!expenseDate.includes('undefined')) {
-            revalidateTag(targetMonthTag, { expire: 0 })
-            revalidateTag(targetBudget, { expire: 0 })
+        // const targetMonthTag = `expenses-${expenseData.date.substring(0, 7)}`;
+        // const targetBudget = `budget-${expenseData.date.substring(0, 7)}`
+        await updateExpense(verifyUid.uid, id, expenseData)
+        if (!expenseData.date.includes('undefined')) {
+            // revalidateTag(targetMonthTag, { expire: 0 })
+            // revalidateTag(targetBudget, { expire: 0 })
+            // }
+            return NextResponse.json(
+                {
+                    message: "Expense updated successfully.",
+                },
+                { status: 201 }
+            )
         }
-        return NextResponse.json(
-            {
-                message: "Expense updated successfully.",
-            },
-            { status: 201 }
-        )
-
     } catch (err) {
         throw new Error('Error deleting expense: ' + err);
     }

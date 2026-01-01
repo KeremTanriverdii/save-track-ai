@@ -218,11 +218,12 @@ export default function TestAddExpense() {
                     </label>
 
                     <label htmlFor="title">
-                        {isSubscription ? <span>Title (Your Subscription Title)</span> : <span>Title (optional)</span>}
+                        {isSubscription ? <span>Title *(Your Subscription Title)</span> : <span>Title *</span>}
                         <Input
                             type="text"
                             name="title"
                             value={state.title}
+                            required
                             onChange={(e) => dispatch({ type: 'SET_FIELD', field: 'title', value: e.target.value })}
                         />
                     </label>

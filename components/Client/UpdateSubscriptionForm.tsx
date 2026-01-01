@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { SubscriptionStatus } from '@/lib/types/type'
 import { FormDataType } from './OpenDialogClientComponent'
 import { cn } from '@/lib/utils'
-import { format } from 'date-fns'
+import { format, isValid } from 'date-fns'
 
 interface Props {
     formData: FormDataType;
@@ -24,7 +24,7 @@ export default function UpdateSubscriptionForm({ formData, setFormData, onSubmit
 
     return (
         <form onSubmit={onSubmit} className="space-y-4 pt-2">
-            <h2 className="text-xl font-bold text-white mb-4">Edit Subscription</h2>
+            <h2 className="text-xl font-bold text-emerald-400">Edit Subscription</h2>
 
             {/* Title Field */}
             <div className="space-y-2">
@@ -42,7 +42,7 @@ export default function UpdateSubscriptionForm({ formData, setFormData, onSubmit
                 <div className="space-y-2">
                     <Label>Status</Label>
                     <Select value={formData.status} onValueChange={(val) => setFormData({ ...formData, status: val as SubscriptionStatus })}>
-                        <SelectTrigger className="bg-white/5 border-white/10"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="bg-white/5 border-white/10 w-full"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="active">Active</SelectItem>
                             <SelectItem value="cancelled">Cancelled</SelectItem>
@@ -51,8 +51,10 @@ export default function UpdateSubscriptionForm({ formData, setFormData, onSubmit
                 </div>
                 <div className="space-y-2">
                     <Label>Frequency</Label>
-                    <Select value={formData.frequency} onValueChange={(val) => setFormData({ ...formData, frequency: val })}>
-                        <SelectTrigger className="bg-white/5 border-white/10"><SelectValue /></SelectTrigger>
+                    <Select value={formData.frequency} onValueChange={(val) => setFormData({ ...formData, frequency: val })}
+                        disabled={formData.status !== 'active'}
+                    >
+                        <SelectTrigger className="bg-white/5 border-white/10 w-full"><SelectValue /></SelectTrigger>
                         <SelectContent>
                             <SelectItem value="monthly">Monthly</SelectItem>
                             <SelectItem value="yearly">Yearly</SelectItem>
@@ -65,7 +67,7 @@ export default function UpdateSubscriptionForm({ formData, setFormData, onSubmit
             <div className="space-y-2 flex flex-col">
                 <Label>First Payment Date</Label>
                 <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                    <PopoverTrigger asChild>
+                    <PopoverTrigger asChild disabled={formData.status !== 'active'}>
                         <Button
                             variant={"outline"}
                             className={cn(
@@ -74,7 +76,10 @@ export default function UpdateSubscriptionForm({ formData, setFormData, onSubmit
                             )}
                         >
                             <CalendarIcon className="mr-2 h-4 w-4" />
-                            {formData.date ? format(formData.date, "PPP") : <span>Pick a date</span>}
+                            {formData.date && isValid(new Date(formData.date)) ?
+                                format(new Date(formData.date), "PPP")
+                                : <span>Pick a date</span>
+                            }
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0" align="start">
@@ -103,6 +108,7 @@ export default function UpdateSubscriptionForm({ formData, setFormData, onSubmit
                     value={formData.amount}
                     onChange={(e) => setFormData({ ...formData, amount: Number(e.target.value) })}
                     className="bg-white/5 border-white/10"
+                    disabled={formData.status !== 'active'}
                 />
             </div>
 

@@ -21,10 +21,6 @@ interface Props {
 
 export default function UpdateOneTimeForm({ formData, setFormData, onSubmit, loading }: Props) {
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-    console.log(formData.date && isValid(new Date(formData.date)) ?
-        format(new Date(formData.date), "PPP")
-        : <span>Pick a date</span>
-    )
     return (
         <form onSubmit={onSubmit} className="space-y-5 pt-2">
             <div className="space-y-1 mb-4">

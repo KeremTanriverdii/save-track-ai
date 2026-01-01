@@ -100,6 +100,7 @@ export const BudgetDeclareComponent = ({ budget, currency }: BudgetProps) => {
                                 onChange={(event: ChangeEvent<HTMLInputElement>) => {
                                     setNewBudget(parseFloat(event.target.value));
                                 }}
+                                disabled={currency === 'not choosed user profile'}
                                 required
                             />
 

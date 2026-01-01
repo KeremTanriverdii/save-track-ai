@@ -22,9 +22,10 @@ export const runLazySubscriptionCheck = async (userId: string) => {
         while (now >= nextBillingDate) {
 
             await addExpense({
-                title: sub.id,
-                amount: data.monthlyCost,
+                title: data.title,
+                subscriptionId: sub.id,
                 type: "subscription",
+                amount: data.amount || 0,
                 category: data.category || "General",
                 expenseDate: nextBillingDate.toISOString(),
                 subscription: {
@@ -33,7 +34,7 @@ export const runLazySubscriptionCheck = async (userId: string) => {
                     status: "active",
                     billingDay: nextBillingDate.getDate(),
                     billingMonth: nextBillingDate.getMonth() + 1,
-                }
+                },
             }, userId);
 
             nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);

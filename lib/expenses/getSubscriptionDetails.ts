@@ -1,5 +1,6 @@
 import { collection, getDocs } from "firebase/firestore"
 import { db } from "../firebase/firebase"
+import { ChartSubsDetails } from "../types/type";
 
 export const getSubscriptionDetails = async (uid: string) => {
     if (!uid) return
@@ -14,21 +15,12 @@ export const getSubscriptionDetails = async (uid: string) => {
             category: doc.data().category,
             totalPeriodsProcessed: doc.data().totalPeriodsProcessed,
             currency: doc.data().currency,
-            frequency: doc.data().frequency
+            frequency: doc.data().frequency,
+            title: doc.data().title
         })) as unknown as ChartSubsDetails[];
 
     } catch (err) {
         console.error("Error fetching subscription details:", err);
         throw new Error("Failed to fetch subscription details.");
     }
-}
-
-export interface ChartSubsDetails {
-    id: string;
-    totalPaidForThis: number;
-    status: string;
-    category: string[];
-    totalPeriodsProcessed: number;
-    currency: string;
-    frequency: 'monthly' | 'yearly';
 }

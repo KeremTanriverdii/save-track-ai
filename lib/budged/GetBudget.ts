@@ -47,10 +47,10 @@ export const getBudget = async (id: string | null, yearMonth: string): Promise<B
             };
         }
 
-        return { budget: 0, currency: 'TRY', source: 'default' };
+        return { budget: 0, currency: 'not choosed user profile', source: 'default' };
 
     } catch (error) {
         console.error(`Error fetching budget for ${yearMonth}:`, error);
-        return { budget: 0, currency: 'TRY', source: 'default' };
+        return { budget: 0, currency: 'not choosed user profile', source: 'default' };
     }
 };

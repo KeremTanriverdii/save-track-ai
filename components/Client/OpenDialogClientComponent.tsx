@@ -2,7 +2,7 @@
 
 import { ReturnAPIResponseData } from '@/lib/types/type'
 import React, { useState } from 'react'
-import { Dialog, DialogContent } from '../ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogTitle } from '../ui/dialog'
 import { useRouter } from 'next/navigation'
 
 import UpdateOneTimeForm from './UpdateOneTimeForm'
@@ -11,13 +11,13 @@ import UpdateSubscriptionForm from './UpdateSubscriptionForm'
 
 type status = 'active' | 'cancelled' | 'expired';
 export interface FormDataType {
-    amount: number;
+    amount?: number;
     category: string;
     description: string;
     title: string;
     status?: status;
     frequency?: string;
-    date: Date;
+    date?: Date;
 }
 
 export default function OpenDialogClientComponent(
@@ -54,6 +54,12 @@ export default function OpenDialogClientComponent(
             delete dataToSubmit.frequency;
         }
 
+        if (data.type === 'subscription' && formData.status === 'cancelled') {
+            delete dataToSubmit.frequency;
+            delete dataToSubmit.date;
+            delete dataToSubmit.amount;
+        }
+
         try {
             const response = await fetch(`/api/expenses`, {
                 method: 'PUT',
@@ -76,9 +82,11 @@ export default function OpenDialogClientComponent(
     };
     return (
         <Dialog open={open} onOpenChange={setOpen}>
+
             <DialogContent className='sm:max-w-[500px]'>
                 {/* One-Time paid update form */}
                 {data.type === 'one-time' ? (
+
                     <UpdateOneTimeForm
                         formData={formData}
                         setFormData={setFormData}
@@ -94,6 +102,8 @@ export default function OpenDialogClientComponent(
                     />
                 }
                 {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
+                <DialogTitle className='hidden'></DialogTitle>
+                <DialogDescription className='hidden'></DialogDescription>
             </DialogContent>
 
         </Dialog>

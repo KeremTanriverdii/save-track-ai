@@ -14,17 +14,17 @@ import {
     ChartTooltip,
     type ChartConfig,
 } from "@/components/ui/chart"
-import { ChartSubsDetails } from "@/lib/expenses/getSubscriptionDetails"
+import { ChartSubsDetails } from "@/lib/types/type"
 interface Props {
     totalSubs: number | undefined
     subDetails: ChartSubsDetails[] | undefined
 }
 export function DashboardHomeSubsChart({ totalSubs, subDetails }: Props) {
-
     const dynamicChartData = subDetails?.map((item, index) => {
         const frequencyLabel = item.frequency === 'yearly' ? ' Year' : ' Month';
         return {
-            subscription: item.id,
+            id: item.id,
+            title: item.title,
             totalSpent: item.totalPaidForThis,
             totalPeriod: `${item.totalPeriodsProcessed}${frequencyLabel}${item.totalPeriodsProcessed > 1 ? 's' : ''}`,
             status: item.status,
@@ -35,8 +35,8 @@ export function DashboardHomeSubsChart({ totalSubs, subDetails }: Props) {
 
 
     const dynamicChartConfig = subDetails?.reduce((acc, item, index) => {
-        acc[item.id] = {
-            label: item.id,
+        acc[item.title] = {
+            label: item.title,
             color: `var(--chart-${(index % 5) + 1})`,
         };
         return acc;
@@ -80,7 +80,7 @@ export function DashboardHomeSubsChart({ totalSubs, subDetails }: Props) {
                                                     className="h-2 w-2 rounded-full"
                                                     style={{ backgroundColor: data.fill }}
                                                 />
-                                                <span className="font-bold text-white text-sm">{data.subscription}</span>
+                                                <span className="font-bold text-white text-sm">{data.title}</span>
                                             </div>
 
                                             <div className="flex flex-col gap-1 text-[12px]">
@@ -107,7 +107,7 @@ export function DashboardHomeSubsChart({ totalSubs, subDetails }: Props) {
                         />
                         <Pie data={dynamicChartData} dataKey="totalSpent" >
                             <LabelList
-                                dataKey="subscription"
+                                dataKey="title"
                                 className="fill-background"
                                 stroke="none"
                                 fontSize={12}

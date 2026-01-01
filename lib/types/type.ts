@@ -163,6 +163,8 @@ export interface SubscriptionDetails {
 }
 
 export interface ExpensePayload {
+    id?: string;
+    subscriptionId?: string;
     amount: number;
     category: string | string[];
     title?: string;
@@ -204,3 +206,13 @@ export interface SubscriptionCalculate {
     lastUpdated?: any;
 }
 
+export interface ChartSubsDetails {
+    id: string;
+    totalPaidForThis: number;
+    status: string;
+    category: string[];
+    totalPeriodsProcessed: number;
+    currency: string;
+    frequency: 'monthly' | 'yearly';
+    title: string;
+}
