@@ -23,7 +23,7 @@ export default function page() {
                     <CardContent className='flex flex-col sm:flex-row items-stretch gap-5 justify-center h-full'>
                         <LoginFormClient />
                         <div>
-                            <Image src="/bwink.jpg" width={150} height={150} alt="logo" className='bg-light rounded-md h-fit w-full sm:w-auto' />
+                            <Image src="/bwink.png" width={150} height={150} alt="logo" className='bg-white rounded-md h-fit w-full sm:w-auto' />
                         </div>
                     </CardContent>
                     <CardFooter className='flex-cols'>

@@ -11,7 +11,7 @@ export default function Home() {
       <header className="lg:px-10 mb-10 border-b border-green-900 flex items-center justify-between">
         <nav className="flex gap-2 items-center p-2 text-white">
           <Link href={'/'} className="flex items-center gap-2">
-            <Layers className="h-8 w-8 text-white" />SaveTrack
+            <Layers className="h-8 w-8  text-violet-600" />SaveTrack
           </Link>
         </nav>
 
@@ -19,12 +19,12 @@ export default function Home() {
           <Link href={'#features'}>
             Features
           </Link>
-          <Link href={'/auth-login'}>
+          <Link href={'/auth/login'}>
             <Button className="bg-violet-950 text-white">
               Login
             </Button>
           </Link>
-          <Link href={'/auth-register'}>
+          <Link href={'/auth/register'}>
             <Button className="bg-violet-800 text-white">
               Register
             </Button>
@@ -45,7 +45,7 @@ export default function Home() {
             </Link>
           </div>
           <div className="h-1/2 w-1/2 hidden md:block lg:block">
-            <Image src={'/logotrack.png'} alt="logo" width={800} height={800}
+            <Image src={'/logoTrack.png'} alt="logo" width={800} height={800}
               className="border-2 border-green-800 rounded-2xl mt-2"
             />
           </div>
