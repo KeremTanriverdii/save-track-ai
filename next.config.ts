@@ -17,7 +17,22 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '5mb'
     }
-  }
+  },
+  webpack: (config, { isServer }) => {
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        child_process: false,
+        http2: false,
+        dns: false,
+        perf_hooks: false,
+      };
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
