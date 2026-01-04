@@ -16,10 +16,10 @@ export const calcTopCategorySpending = (data: Expense[]): Record<string, number>
     })
     return { [topEntry[0]]: topEntry[1] };
 }
-
+type CategoryTotals = Record<string, number>;
 export const getCategoryAndTotalAmount = (data: Expense[]) => {
     if (data.length === 0) return null;
-    const categoryTotals = data.reduce((acc: any, curr) => {
+    const categoryTotals = data.reduce<CategoryTotals>((acc, curr) => {
         const category = curr.category;
         if (category) {
             acc[category as string] = (acc[category] || 0) + curr.amount;

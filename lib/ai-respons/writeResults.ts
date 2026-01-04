@@ -1,13 +1,26 @@
-import { addDoc, collection, doc, serverTimestamp } from "firebase/firestore";
-import { db } from "../firebase/firebase";
 
-export const writeResults = async (verifyUid: string, data: any) => {
+import admin from "../firebase/admin";
+import { FieldValue } from "firebase-admin/firestore";
+
+export const writeResults = async (verifyUid: string, data: {
+    summary: string;
+    risks: string[];
+    patterns: string[];
+    suggestions: string[];
+}) => {
+
+    if (!verifyUid) throw new Error("Missing required identifier: uid");
+
+    const db = admin.firestore();
+
     try {
-        const aiCoachingRef = collection(db, 'users', verifyUid, 'aiResults');
-        const addDocRef = await addDoc(aiCoachingRef, {
+        const aiCoachingRef = db.collection('users').doc(verifyUid).collection('aiResults');
+
+        const addDocRef = await aiCoachingRef.add({
             insight: data,
-            createdAt: serverTimestamp()
+            createdAt: FieldValue.serverTimestamp()
         });
+
         return addDocRef;
     } catch (error) {
         console.error("Error writing AI results to Firestore:", error);

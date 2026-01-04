@@ -17,19 +17,14 @@ export const setSettings = async (formData: FormData) => {
         const budgetValue = Number(formData.get('budget'));
         const imageFile = formData.get("profileImage") as File | null;
 
-
-
         const date = dateCustom();
         const now = new Date();
-
-        const firebaseAuthUser = await auth.getUser(uid);
-
 
         const batch = db.batch();
         const userDocRef = db.collection("users").doc(uid);
         const budgetDocRef = userDocRef.collection("budgets").doc(date);
 
-        let userUpdates: any = {
+        const userUpdates: any = {
             displayName: displayName,
             currency: currency,
             lastLogin: now
@@ -95,8 +90,9 @@ export const setSettings = async (formData: FormData) => {
         revalidatePath('/dashboard/settings');
         return { success: true };
 
-    } catch (err: any) {
+    } catch (err: unknown) {
+        const errMessage = err instanceof Error ? err.message : 'Unknown error'
         console.error("❌ Firebase Update Error:", err);
-        return { success: false, error: err.message };
+        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
     }
 }

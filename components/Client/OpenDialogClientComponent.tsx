@@ -48,7 +48,7 @@ export default function OpenDialogClientComponent(
         setLoading(true);
         setError('');
 
-        let dataToSubmit = { ...formData };
+        const dataToSubmit = { ...formData };
         if (data.type === 'one-time') {
             delete dataToSubmit.status;
             delete dataToSubmit.frequency;
@@ -75,6 +75,7 @@ export default function OpenDialogClientComponent(
             router.refresh();
             setOpen(false);
         } catch (err) {
+            console.error('Update error:', err);
             setError('Something went wrong. Please try again.');
         } finally {
             setLoading(false);

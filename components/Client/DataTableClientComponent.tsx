@@ -9,6 +9,8 @@ import {
     getFilteredRowModel,
     getPaginationRowModel,
     getSortedRowModel,
+    Row,
+    RowModel,
     useReactTable,
 } from "@tanstack/react-table";
 
@@ -21,7 +23,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 
-import { ReturnAPIResponseData } from "@/lib/types/type";
+import { ExpenseRow, ReturnAPIResponseData } from "@/lib/types/type";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Button } from "../ui/button";
 import { ArrowDown, ArrowUp, ArrowUpDown, ArrowUpDownIcon, Download, HelpCircle, MoreHorizontal, XIcon } from "lucide-react";
@@ -31,8 +33,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { CATEGORY_MAP } from "@/lib/types/constants";
 import TestAddExpense from "./TestAddExpense";
 import { AnalyticsFiltersClientComponent } from "./AnalyticsFiltersClientComponent";
-import { Checkbox } from "../ui/checkbox";
-import { Label } from "../ui/label";
 import { cn } from "@/lib/utils";
 import DeleteAllButton from "./DeleteAllButton";
 
@@ -188,7 +188,7 @@ export default function DataTableClientComponent({ data }: Props) {
                 },
                 accessorKey: "type",
                 sortingFn: (rowA, rowB, columnId) => {
-                    const getPriority = (row: any) => {
+                    const getPriority = (row: Row<ReturnAPIResponseData>) => {
                         const type = row.original.type;
                         const status = row.original.subscriptionDetails?.status;
 
@@ -300,6 +300,7 @@ export default function DataTableClientComponent({ data }: Props) {
         ],
         [router]
     );
+    // eslint-disable-next-line react-hooks/incompatible-library
     const table = useReactTable({
         data,
         columns,
@@ -327,16 +328,16 @@ export default function DataTableClientComponent({ data }: Props) {
 
 
 
-    const handleExportCSV = (table: any) => {
+    const handleExportCSV = (table: ReturnType<typeof useReactTable>) => {
         const rows = table.getFilteredRowModel().rows;
 
         const csvHeaders = ["Title", "Category", "Amount", "Date"].join(",");
 
         const csvRows = rows.map((row: any) => {
-            const d = row.original;
+            const d = row.original as ReturnAPIResponseData;
             let dateString = "";
-            if (d.date && typeof d.date.seconds === "number") {
-                const dateObj = new Date(d.date.seconds * 1000);
+            if (d.date && typeof (d.date as any).seconds === "number") {
+                const dateObj = new Date((d.date as any).seconds * 1000);
                 dateString = dateObj.toLocaleDateString();
 
             }
@@ -350,11 +351,11 @@ export default function DataTableClientComponent({ data }: Props) {
             ].join(",");
         });
 
-        const csvString = [csvHeaders, ...csvRows].join("\n");
+        const csvString: string = [csvHeaders, ...csvRows].join("\n");
 
         const blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
+        const url: string = URL.createObjectURL(blob);
+        const link: HTMLAnchorElement = document.createElement("a");
         link.href = url;
         link.setAttribute("download", `amount_${new Date().toLocaleDateString()}.csv`);
         document.body.appendChild(link);
@@ -372,7 +373,7 @@ export default function DataTableClientComponent({ data }: Props) {
                 <div className='flex flex-col gap-2 sm:flex-row'>
                     <Button
                         variant="outline"
-                        onClick={() => handleExportCSV(table)}
+                        onClick={() => handleExportCSV(table as ReturnType<typeof useReactTable>)}
                         className="bg-green-500/10 hover:bg-green-500/20 text-green-600 border-green-500/20"
                     >
                         <Download className="mr-2 h-4 w-4" />
@@ -382,7 +383,7 @@ export default function DataTableClientComponent({ data }: Props) {
                     <DeleteAllButton data={data} />
                 </div>
             </div>
-            <AnalyticsFiltersClientComponent table={table} setFilterValue={() => setColumnFilters} />
+            <AnalyticsFiltersClientComponent table={table as ReturnType<typeof useReactTable>} setFilterValue={() => setColumnFilters} />
             <div className="overflow-hidden rounded-md border w-full">
                 {datafilter && (
                     <div className="text-end p-2">

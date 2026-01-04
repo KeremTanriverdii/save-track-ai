@@ -1,16 +1,14 @@
-import LogoutClientComponent from "@/components/Client/Auth/LogoutClientComponent";
 import { UserProviderCC } from "@/components/Client/Providers/UserProvider";
 import { AppSidebar } from "@/components/ui/AppSidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { getDataAiResultById } from "@/lib/ai-respons/getDataAiResultById";
 import { getUserData } from "@/lib/auth/user";
+import { getBudget } from "@/lib/budged/GetBudget";
 import { User } from "@/lib/types/type";
+import { dateCustom } from "@/utils/nowDate";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
-import { use } from "react";
+
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -32,12 +30,9 @@ export default async function Dashboard({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    let userData: User | undefined = undefined;
-    try {
-        userData = await getUserData();
-    } catch (err) {
-        console.log(err)
-    }
+    const userData = await getUserData();
+    const date = dateCustom();
+
     return (
 
         <div

@@ -1,15 +1,15 @@
 import { TrendingDown, TrendingUp } from 'lucide-react'
-import React from 'react'
 import { Card } from '../ui/card';
+import { WeeklyTrendResult } from '@/lib/insights/detectWeeklyTrend';
 
 interface TrendProps {
-    trendData: any[];
-    latestData: any;
-    displayData: any[];
+    trendData?: WeeklyTrendResult[];
+    latestData: WeeklyTrendResult;
+    displayData: WeeklyTrendResult[];
     currency: string;
 }
 
-export default function TrendComponent({ trendData, latestData, displayData, currency }: TrendProps) {
+export default function TrendComponent({ latestData, displayData, currency }: TrendProps) {
     return (
         <Card className="w-full p-6 rounded-3xl text-white shadow-xl border border-white/5 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />

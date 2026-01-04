@@ -5,7 +5,7 @@ import { auth } from '@/lib/firebase/firebase';
 import { createSessionCookie } from '@/utils/createSessionCookie';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import React, { useReducer, useState } from 'react'
+import React, { useReducer } from 'react'
 
 const initialState = {
     email: '',
@@ -72,7 +72,7 @@ export default function LoginFormClient() {
             console.error('Login Error:', err);
 
             let errorMessage = 'Unexpected error occurred. Please try again.';
-            const firebaseErrorCode = (err as any)?.code;
+            const firebaseErrorCode = (err as { code?: string })?.code;
             if (firebaseErrorCode) {
                 switch (firebaseErrorCode) {
                     case 'auth/user-not-found':

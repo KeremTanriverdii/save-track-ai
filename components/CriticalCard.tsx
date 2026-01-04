@@ -1,4 +1,3 @@
-import React from 'react';
 import { AlertCircle, Calendar } from 'lucide-react';
 import { Card, CardAction, CardContent } from './ui/card';
 import { CATEGORY_MAP } from '@/lib/types/constants';

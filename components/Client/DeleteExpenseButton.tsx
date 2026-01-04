@@ -1,5 +1,4 @@
 "use client"
-import { deleteExpense } from "@/lib/expenses/deleteExpense";
 import { Button } from "../ui/button"
 import { useRouter } from "next/navigation";
 export const DeleteExpenseButton = ({ id }: { id: string }) => {

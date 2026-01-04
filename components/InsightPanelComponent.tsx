@@ -1,8 +1,7 @@
 import { detectAnomalies } from '@/lib/insights/detectAnomalies'
 import { OverSpendArea } from '@/lib/insights/detectOverspendAreas'
 import { detectWeeklyTrend } from '@/lib/insights/detectWeeklyTrend'
-import { AllData, AnalyticsData, DailyChartData, Expense } from '@/lib/types/type'
-import { getCategoryAndTotalAmount } from '@/lib/analytics/calcTopCategory'
+import { AnalyticsData, DailyChartData, Expense } from '@/lib/types/type'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { TriangleAlert } from 'lucide-react'
 import { CriticalCard } from './CriticalCard'
@@ -20,11 +19,9 @@ export default async function InsightPanelComponent({
         overSpendsReports: OverSpendArea[],
         currency: string
     }) {
-    const { dailyData, rawData, ...chartsDataWithoutDailyData } = chartsData;
     const trendData = detectWeeklyTrend(initialData);
     const latestData = trendData[trendData.length - 1];
     const displayData = trendData.slice(-2)
-    const categoryTotals: any = getCategoryAndTotalAmount(initialData);
     const dailyCharts = initialData.map((x: Expense) => {
         const date = typeof x.date === 'object' && 'seconds' in x.date
             ? new Date((x.date as { seconds: number }).seconds * 1000)
@@ -36,14 +33,6 @@ export default async function InsightPanelComponent({
         }
     }) as unknown as DailyChartData[]
     const y = detectAnomalies(dailyCharts as unknown as DailyChartData[])
-
-    const allDataOneVariable: AllData = {
-        summary: chartsDataWithoutDailyData,
-        categoryTotals: categoryTotals,
-        daily: dailyCharts,
-        anomalies: y.filter((item) => item.isAnomaly === true),
-        trend: displayData.filter((item) => item.isRising === true),
-    }
 
     const trendComponentCompoundVariable = {
         trendData: trendData,

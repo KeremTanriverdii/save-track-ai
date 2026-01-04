@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation";
 import { Button } from "../ui/button"
-import { CalendarIcon, ChevronDownIcon, Divide, Loader2, Plus } from "lucide-react";
+import { CalendarIcon, ChevronDownIcon, Loader2, Plus } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
 import { Input } from "../ui/input";
 import { useReducer, useState } from "react";
@@ -31,7 +31,13 @@ type DialogAction =
     | { type: 'POST_START'; }
     | { type: 'POST_SUCCESS'; }
     | { type: 'POST_ERROR'; payload: { error: string } }
-    | { type: 'SET_FIELD'; field: keyof Omit<DialogState, 'isLoading' | 'error'>; value: any }
+    | {
+        [K in keyof Omit<DialogState, 'isLoading' | 'error'>]: {
+            type: 'SET_FIELD';
+            field: K;
+            value: DialogState[K];
+        };
+    }[keyof Omit<DialogState, 'isLoading' | 'error'>]
     | { type: 'SET_DATE'; payload: Date | undefined }
     | { type: 'RESET_FORM' }
 

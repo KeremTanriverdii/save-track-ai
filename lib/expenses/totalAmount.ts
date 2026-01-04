@@ -1,24 +1,24 @@
-import { collection, doc, getDoc, getDocs, query, serverTimestamp, setDoc, updateDoc, where } from "firebase/firestore"
-import { db, usersCollection } from "../firebase/firebase"
 import { dateCustom } from "@/utils/nowDate"
 import { getBudget } from "../budged/GetBudget"
+import admin from "../firebase/admin";
+import { FieldValue } from "firebase-admin/firestore";
 
 export default async function FetchAllAndMonthlyBudget(uid: string) {
     if (!uid) return null
-
-    const userRef = doc(db, 'users', uid);
+    const db = admin.firestore();
+    const userRef = db.collection('users').doc(uid);
     const currentMonth = dateCustom();
-    const budgetRef = doc(usersCollection, uid, 'budgets', currentMonth);
+    const budgetRef = db.collection('users').doc(uid).collection('budgets').doc(currentMonth);
 
     try {
         const [userSnap, expensesSnap, budgetData] = await Promise.all([
-            getDoc(userRef),
-            getDocs(collection(db, 'users', uid, 'expenses')),
+            userRef.get(),
+            db.collection('users').doc(uid).collection('expenses').get(),
             getBudget(uid, currentMonth)
         ])
 
 
-        if (!userSnap.exists()) {
+        if (!userSnap.exists) {
             console.error('User document not found');
             return null;
         }
@@ -51,31 +51,31 @@ export default async function FetchAllAndMonthlyBudget(uid: string) {
 
         const remaining = (budgetData?.budget || 0) - currentMonthTotal;
 
-        const budgetDocSnap = await getDoc(budgetRef);
-        if (budgetDocSnap.exists()) {
-            await updateDoc(budgetRef, {
+        const budgetDocSnap = await budgetRef.get();
+        if (budgetDocSnap.exists) {
+            await budgetRef.update({
                 monthlySpend: currentMonthTotal,
                 remaining: remaining,
-                lastUpdated: serverTimestamp()
+                lastUpdated: FieldValue.serverTimestamp()
             })
         } else {
-            await setDoc(budgetRef, {
+            await budgetRef.set({
                 budget: budgetData?.budget || 0,
                 currency: budgetData?.currency || '$',
                 projectedSubs: budgetData?.projectedSubs || 0,
                 monthlySpend: currentMonthTotal,
                 remaining: remaining,
                 id: currentMonth,
-                createdAt: serverTimestamp(),
-                lastUpdated: serverTimestamp(),
+                createdAt: FieldValue.serverTimestamp(),
+                lastUpdated: FieldValue.serverTimestamp(),
                 isAutoCarried: budgetData?.isAutoCarried || false
             });
         }
         return {
             allTime: {
-                total: userData.totalSpent || 0,
-                subsData: userData.totalSubscriptionSpent || 0,
-                oneTimeTotal: userData.totalOneTimeSpent || 0
+                total: userData?.totalSpent || 0,
+                subsData: userData?.totalSubscriptionSpent || 0,
+                oneTimeTotal: userData?.totalOneTimeSpent || 0
             },
             currentMonth: {
                 monthId: currentMonth,

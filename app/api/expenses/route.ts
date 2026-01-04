@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'; // Yanıt için NextResponse kullanılır
 import { getExpenses } from "@/lib/expenses/getExpense";
 import { addExpense } from "@/lib/expenses/addExpense";
-import { revalidatePath } from "next/cache";
 import { deleteExpense } from "@/lib/expenses/deleteExpense";
 import { updateExpense } from "@/lib/expenses/uptadeExpense";
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';

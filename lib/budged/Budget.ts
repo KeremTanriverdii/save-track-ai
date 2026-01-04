@@ -1,16 +1,16 @@
-import { collection, doc, serverTimestamp, setDoc } from "firebase/firestore";
-import { usersCollection } from "../firebase/firebase"
+import { FieldValue } from "firebase-admin/firestore";
+import admin from "../firebase/admin";
 
 export const addbudget = async (bud: number, id: string | null, yearMonth: string) => {
     if (!id && !bud && !yearMonth) {
         throw new Error('Missing required fields')
     }
-
+    const db = admin.firestore();
     try {
-        const budgedCollection = doc(collection(usersCollection, id as string, 'budgets'), yearMonth);
+        const budgedCollection = db.collection('users').doc(id as string).collection('budgets').doc(yearMonth);
 
-        await setDoc(budgedCollection, {
-            createdAt: serverTimestamp(),
+        await budgedCollection.set({
+            createdAt: FieldValue.serverTimestamp(),
             budget: bud,
         }, { merge: true })
     } catch (err) {

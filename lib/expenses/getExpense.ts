@@ -1,14 +1,15 @@
-import { collection, doc, getDocs, query, Timestamp, where } from "firebase/firestore"
-import { db } from "../firebase/firebase"
+import { Timestamp } from "firebase-admin/firestore";
+import admin from "../firebase/admin";
 import { ReturnAPIResponseData } from "../types/type";
 
 export const getExpenses = async (id: string, yearMonth?: string): Promise<ReturnAPIResponseData[]> => {
     if (id === null) {
         return []
     }
+    const db = admin.firestore()
     try {
-        const usersCollection = doc(db, 'users', id);
-        const expensesCollectionRef = collection(usersCollection, 'expenses')
+        const usersCollection = db.collection('users').doc(id);
+        const expensesCollectionRef = db.collection('users').doc(id).collection('expenses')
         if (yearMonth) {
             const [yearStr, monthStr] = yearMonth.split('-');
             const year = parseInt(yearStr);
@@ -23,12 +24,10 @@ export const getExpenses = async (id: string, yearMonth?: string): Promise<Retur
             const startTimestamp = Timestamp.fromDate(startDate);
             const endTimestamp = Timestamp.fromDate(endDate);
 
-            const q = query(
-                expensesCollectionRef,
-                where('date', '>=', startTimestamp),
-                where('date', '<', endTimestamp),
-            )
-            const querySnapshot = await getDocs(q)
+            const querySnapshot = await expensesCollectionRef
+                .where('date', '>=', startTimestamp)
+                .where('date', '<', endTimestamp)
+                .get()
             const data = querySnapshot.docs.map((doc) => {
                 const rawData = doc.data();
 
@@ -51,7 +50,7 @@ export const getExpenses = async (id: string, yearMonth?: string): Promise<Retur
             });
             return data as unknown as ReturnAPIResponseData[];
         } else {
-            const querySnapshot = await getDocs(expensesCollectionRef)
+            const querySnapshot = await expensesCollectionRef.get();
             const data = querySnapshot.docs.map((doc) => {
                 const rawData = doc.data();
 

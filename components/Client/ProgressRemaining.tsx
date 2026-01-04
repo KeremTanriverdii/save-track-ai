@@ -5,12 +5,10 @@ import { Progress } from "@/components/ui/progress"
 interface Props {
     budgetMonth: number;
     totalMonth: number;
-    remaining: number;
-    rDiff: number;
-    rCurrency: string;
+
 }
 
-export default function ProgressRemaining({ budgetMonth, totalMonth, remaining, rDiff, rCurrency }: Props) {
+export default function ProgressRemaining({ budgetMonth, totalMonth }: Props) {
     const [progress, setProgress] = React.useState(10)
 
     const spentPercentage = budgetMonth > 0

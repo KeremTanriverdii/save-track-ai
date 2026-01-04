@@ -62,8 +62,8 @@ export default function ReAuthDialog({ onSuccess, children }: Props) {
 
             await onSuccess()
             resetStates()
-        } catch (err: any) {
-            setError(err.message || "Again auth failed")
+        } catch (err: unknown | Error) {
+            setError((err as Error).message || "Again auth failed")
         } finally {
             setLoading(false)
         }

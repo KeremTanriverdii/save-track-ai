@@ -7,14 +7,14 @@ const UserContext = createContext<User | undefined>(undefined)
 
 export function UserProviderCC({ children, initialData }: UserProviderProps) {
     return (
-        <UserContext.Provider value={initialData!}>
+        <UserContext.Provider value={initialData! || undefined}>
             {children}
         </UserContext.Provider>
     );
 }
 
 export const useUser = (): User => {
-    const context = useContext(UserContext as unknown as React.Context<User>);
+    const context = useContext(UserContext);
     if (context === undefined) {
         throw new Error('useUser must be used within a UserProvider')
     }

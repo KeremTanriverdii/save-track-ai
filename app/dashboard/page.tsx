@@ -28,10 +28,12 @@ export default async function Dashboard() {
     }
 
 
-    const totalAmount = await FetchAllAndMonthlyBudget(user.uid)
-    if (!totalAmount) throw new Error('Total amount not found');
+    const totalAmount = await FetchAllAndMonthlyBudget(user.uid) || {
+        allTime: { total: 0, subsData: [] },
+        currentMonth: { budget: 0, totalMonth: 0, monthlySpend: 0, remaining: 0 }
+    };
 
-    const subsDetails = await getSubscriptionDetails(user.uid);
+    const subsDetails = await getSubscriptionDetails(user.uid) || [];
     const allBudget: RemainingResponse | undefined = await calcRemaining(user.uid, totalAmount?.allTime.total || 0, dateCustom())
     if (!allBudget) throw new Error('Remaining not found')
 
@@ -124,7 +126,7 @@ export default async function Dashboard() {
                                 {formatterCurrency(remaining, rCurrency)}
                             </p>
                             <div className="space-y-2">
-                                <ProgressRemaining budgetMonth={budget} totalMonth={totalMonth} remaining={remaining} rDiff={rDiff} rCurrency={rCurrency} />
+                                <ProgressRemaining budgetMonth={budget} totalMonth={totalMonth} />
                                 <span>The remaining {Math.max(0, Math.round(((budget - monthlySpend) / budget) * 100))}%</span>
                             </div>
                         </div>

@@ -1,5 +1,4 @@
 import * as admin from 'firebase-admin';
-import { getStorage } from 'firebase/storage';
 
 const serviceAccount = {
     type: process.env.FIREBASE_TYPE,

@@ -57,7 +57,7 @@ export async function POST(req: Request) {
         revalidateTag(`budget-${yearMonth}`, { expire: 0 })
         return NextResponse.json({ message: 'Budget is added successfully.' }, { status: 200 });
 
-    } catch (error: any) {
-        return NextResponse.json({ error: error.message || 'Server Error' }, { status: 500 });
+    } catch (error: unknown | Error) {
+        return NextResponse.json({ error: (error as Error).message || 'Server Error' }, { status: 500 });
     }
 }

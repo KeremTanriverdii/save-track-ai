@@ -1,9 +1,21 @@
-import { deleteDoc, doc } from "firebase/firestore";
-import { db } from "../firebase/firebase";
 
-export const deleteDataById = (verifyUid: string, id: string): Promise<void> => {
-    if (!id) return Promise.reject("No id provided");
+import { db } from "../firebase/admin";
 
-    const docRef = doc(db, "users", verifyUid, "aiResults", id);
-    return deleteDoc(docRef);
-}
+export const deleteDataById = async (verifyUid: string, id: string): Promise<void> => {
+    if (!id || !verifyUid) {
+        throw new Error("Missing required identifiers: uid or id");
+    }
+
+    try {
+        // 2. Reference the specific document
+        await db.
+            collection('users')
+            .doc(verifyUid)
+            .collection('aiResults')
+            .doc(id).delete();
+
+    } catch (error) {
+        console.error("Error deleting document:", error);
+        throw new Error("Failed to delete data. Please try again.");
+    }
+};

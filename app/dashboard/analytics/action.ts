@@ -13,7 +13,7 @@ export async function transformToDailyChart(data: Expense[], yearMonth: string):
     data.forEach((curr) => {
 
         const dateSource = (curr.date && typeof curr.date === 'object' && 'seconds' in curr.date)
-            ? new Date((curr.date as any).seconds * 1000)
+            ? new Date((curr.date as unknown as { seconds: number }).seconds * 1000)
             : new Date(curr.date);
 
         const dayNumber = dateSource.getDate();

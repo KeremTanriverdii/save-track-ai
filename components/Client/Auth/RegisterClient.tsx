@@ -2,13 +2,10 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { registerUser } from '@/lib/auth/registerUser'
-import { saveUserToFirestore } from '@/lib/authRecord/saveUserToFirestore'
 import { auth } from '@/lib/firebase/firebase'
-import { User } from '@/lib/types/type'
-import { createSessionCookie } from '@/utils/createSessionCookie'
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth'
 import { useRouter } from 'next/navigation'
-import React, { useReducer, useState } from 'react'
+import React, { useReducer } from 'react'
 
 
 const initialState = {
@@ -129,7 +126,7 @@ export default function RegisterClient() {
             console.error('Registration Error:', err);
 
             let errorMessage = 'Unexpected error occurred. Please try again.';
-            const firebaseErrorCode = (err as any)?.code;
+            const firebaseErrorCode = (err as { code?: string })?.code;
 
             if (firebaseErrorCode) {
                 switch (firebaseErrorCode) {

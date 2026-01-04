@@ -3,7 +3,6 @@
 import { db, adminStorage, auth } from "../firebase/admin";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { revalidatePath } from "next/cache";
-import { dateCustom } from "@/utils/nowDate";
 
 
 export const removeProfilePhoto = async () => {
@@ -60,7 +59,7 @@ export const removeProfilePhoto = async () => {
 
         // Update Firebase Auth to remove photoURL
         await auth.updateUser(user.uid, {
-            photoURL: null as any, // Remove the photo
+            photoURL: null as null, // Remove the photo
         });
 
 
@@ -68,8 +67,8 @@ export const removeProfilePhoto = async () => {
         revalidatePath('/dashboard/settings');
         return { success: true };
 
-    } catch (err: any) {
+    } catch (err: unknown) {
         console.error("❌ Remove Photo Error:", err);
-        return { success: false, error: err.message };
+        return { success: false, error: err instanceof Error ? err.message : 'Unknown error' };
     }
 }

@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase-admin/firestore"
+
 export interface Expense {
     id: string,
     amount: number,
@@ -192,12 +194,13 @@ export interface ReturnAPIResponseData {
         billingDay: number;
     }
     numberOfMonthsPaid?: number;
+    createdAt?: Date;
 }
 
 export interface SubscriptionCalculate {
     frequency: SubscriptionFrequency;
     totalPaidForThis?: number,
-    startDate: any;
+    startDate: Timestamp;
     status: "active" | "paused";
     billingDay: number;
     billingMonth?: number;
@@ -216,3 +219,8 @@ export interface ChartSubsDetails {
     frequency: 'monthly' | 'yearly';
     title: string;
 }
+
+export type ExpenseRow = {
+    original: ReturnAPIResponseData;
+
+};

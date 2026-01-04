@@ -18,7 +18,7 @@ export function detectWeeklyTrend(expenses: Expense[]): WeeklyTrendResult[] {
     const weeklyTotals: Record<number, number> = {};
     expenses.forEach((expense) => {
         const date = typeof expense.date === 'object' && 'seconds' in expense.date
-            ? new Date((expense.date as any).seconds * 1000)
+            ? new Date((expense.date as { seconds: number }).seconds * 1000)
             : new Date(expense.date);
 
         const weekNumber = getWeekNumber(date);
@@ -94,6 +94,6 @@ export function detectWeeklyTrend(expenses: Expense[]): WeeklyTrendResult[] {
 function getWeekNumber(d: Date): number {
     d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
     d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
-    var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
     return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
 }

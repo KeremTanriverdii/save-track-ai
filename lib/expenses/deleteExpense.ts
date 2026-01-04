@@ -1,15 +1,15 @@
-import { doc, deleteDoc, collection, getDocs, writeBatch } from "firebase/firestore";
-import { db } from "../firebase/firebase";
+import admin from "../firebase/admin";
 
 export const deleteExpense = async (verifyUid: string, id: string) => {
+    const db = admin.firestore();
     try {
-        const expenseDocRef = doc(db, "users", verifyUid, "expenses", id);
-        await deleteDoc(expenseDocRef);
+        const expenseDocRef = db.collection('users').doc(verifyUid).collection('expenses').doc(id);
+        await expenseDocRef.delete();
 
-        const budgetsCollectionRef = collection(db, "users", verifyUid, "budgets");
-        const budgetsSnapshot = await getDocs(budgetsCollectionRef);
+        const budgetsCollectionRef = db.collection('users').doc(verifyUid).collection('budgets');
+        const budgetsSnapshot = await budgetsCollectionRef.get();
 
-        const batch = writeBatch(db);
+        const batch = db.batch();
 
         budgetsSnapshot.docs.forEach((budgetDoc) => {
             batch.delete(budgetDoc.ref);
@@ -18,8 +18,9 @@ export const deleteExpense = async (verifyUid: string, id: string) => {
         await batch.commit();
 
 
-    } catch (err: any) {
-        console.error("Error deleting expense:", err.message);
-        throw new Error(`Error deleting expense: ${err.message}`);
+    } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        console.error("Error deleting expense:", message);
+        throw new Error(`Error deleting expense: ${message}`);
     }
 };

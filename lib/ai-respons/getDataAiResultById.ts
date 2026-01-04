@@ -1,17 +1,11 @@
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../firebase/firebase";
+import admin from "../firebase/admin";
 
 export const getDataAiResultById = async (verifyUid: string, id: string) => {
     // Get the firestore inside aiResults collection and inside with id document return the data
-    const docRef = doc(db, "users", verifyUid, "aiResults", id);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-        return docSnap.data();
-    } else {
-        console.log("No such document!");
-        return null;
-    }
+    if (!id || !verifyUid) throw new Error("Missing required identifiers: uid or id");
 
-
-
+    const db = admin.firestore();
+    const snap = await db.collection('users').doc(verifyUid).collection('aiResults').doc(id).get();
+    if (!snap.exists) return null;
+    return snap.data();
 }

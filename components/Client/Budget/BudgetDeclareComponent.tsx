@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Budget } from "@/lib/types/type"
 import { Info, Pencil } from "lucide-react"
 import { useRouter } from "next/navigation"
 import React, { useState, ChangeEvent } from "react"

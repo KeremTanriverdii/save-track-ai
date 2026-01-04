@@ -1,6 +1,5 @@
-import { collection, getDocs, QueryDocumentSnapshot } from "firebase/firestore";
-import { db } from "../firebase/firebase";
-import { Delete } from "lucide-react";
+import { Delete, LucideProps } from "lucide-react";
+import admin from "../firebase/admin";
 
 /**
  * Fetches documents from users/{userId}/aiResults and returns an array with
@@ -11,13 +10,16 @@ import { Delete } from "lucide-react";
  * numeric epoch, or ISO string) into an ISO string.
  */
 export async function getDateResultsAndDate(userId: string) {
-    const aiResultsRef = collection(db, "users", userId, "aiResults");
+    if (!userId) throw new Error("Missing required identifier: userId");
+
+    const db = admin.firestore();
+    const aiResultsRef = db.collection('users').doc(userId).collection('aiResults')
 
     try {
-        const snapshot = await getDocs(aiResultsRef);
+        const snapshot = await aiResultsRef.get();
 
-        const results = snapshot.docs.map((doc: QueryDocumentSnapshot) => {
-            const raw = doc.data() as Record<string, any>;
+        const results = snapshot.docs.map((doc) => {
+            const raw = doc.data();
 
             const createdAtRaw = raw.createdAt;
             let createdAtIso: string | null = null;
@@ -46,7 +48,7 @@ export async function getDateResultsAndDate(userId: string) {
                 id: doc.id,
                 createdAt: createdAtIso,
                 data: raw,
-                icon: Delete as any
+                icon: Delete as LucideProps
             };
         });
 

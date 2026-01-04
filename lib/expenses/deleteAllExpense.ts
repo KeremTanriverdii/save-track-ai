@@ -1,9 +1,8 @@
 "use server"
 
-import { collection, doc, getDocs, writeBatch } from "firebase/firestore";
-import { db } from "../firebase/firebase";
 import { getUserData } from "../auth/user";
 import { redirect } from "next/navigation";
+import admin from "../firebase/admin";
 
 export const deleteAllExpense = async () => {
     const user = await getUserData();
@@ -15,15 +14,15 @@ export const deleteAllExpense = async () => {
     if (typeof user.uid !== 'string' || user.uid.length < 10) {
         throw new Error("Invalid User ID");
     }
-
-    const batch = writeBatch(db);
-    const expensesCollectionRef = collection(db, 'users', user.uid, 'expenses');
-    const querySnapshot = await getDocs(expensesCollectionRef);
+    const db = admin.firestore();
+    const batch = db.batch();
+    const expensesCollectionRef = db.collection('users').doc(user.uid).collection('expenses');
+    const querySnapshot = await expensesCollectionRef.get();
     querySnapshot.forEach((doc) => {
         batch.delete(doc.ref);
     });
 
-    const userRef = doc(db, 'users', user.uid);
+    const userRef = db.collection('users').doc(user.uid);
     batch.update(userRef, {
         totalSpent: 0,
         totalSubscriptionSpent: 0,
@@ -31,14 +30,14 @@ export const deleteAllExpense = async () => {
         lastUpdated: new Date()
     });
 
-    const subsRef = collection(db, 'users', user.uid, 'subscriptionsDetails');
-    const subsQuerySnapshot = await getDocs(subsRef);
+    const subsRef = db.collection('users').doc(user.uid).collection('subscriptionsDetails');
+    const subsQuerySnapshot = await subsRef.get();
     subsQuerySnapshot.forEach((doc) => {
         batch.delete(doc.ref);
     });
 
-    const budgetsRef = collection(db, 'users', user.uid, 'budgets');
-    const budgetsQuerySnapshot = await getDocs(budgetsRef);
+    const budgetsRef = db.collection('users').doc(user.uid).collection('budgets');
+    const budgetsQuerySnapshot = await budgetsRef.get();
     budgetsQuerySnapshot.forEach((doc) => {
         batch.delete(doc.ref);
     });

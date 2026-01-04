@@ -1,6 +1,5 @@
-import { doc, getDoc, serverTimestamp, setDoc } from "firebase/firestore";
-import { usersCollection } from "../firebase/firebase";
-import { Budged, Budget } from "../types/type";
+import admin, { db } from "../firebase/admin";
+import { Budget } from "../types/type";
 import { format, parse, subMonths } from "date-fns";
 
 export const getBudget = async (id: string | null, yearMonth: string): Promise<Budget> => {
@@ -8,12 +7,12 @@ export const getBudget = async (id: string | null, yearMonth: string): Promise<B
         return { budget: 0, currency: '$', source: 'default' };
     }
 
-    const docRef = doc(usersCollection, id, 'budgets', yearMonth);
+    const docRef = db.collection('users').doc(id).collection('budgets').doc(yearMonth);
 
     try {
-        const docSnap = await getDoc(docRef);
+        const docSnap = await docRef.get();
 
-        if (docSnap.exists()) {
+        if (docSnap.exists) {
             const data = docSnap.data() as Budget;
             return {
                 budget: data.budget ?? 0,
@@ -26,31 +25,31 @@ export const getBudget = async (id: string | null, yearMonth: string): Promise<B
         const prevDate = subMonths(currentDate, 1);
         const prevMonthId = format(prevDate, 'yyyy-MM');
 
-        const prevDocRef = doc(usersCollection, id, 'budgets', prevMonthId);
-        const prevSnapshot = await getDoc(prevDocRef);
+        const prevDocRef = db.collection('users').doc(id).collection('budgets').doc(prevMonthId);
+        const prevSnapshot = await prevDocRef.get();
 
-        if (prevSnapshot.exists()) {
+        if (prevSnapshot.exists) {
             const prevData = prevSnapshot.data() as Budget;
 
             const newBudgetData = {
                 budget: prevData.budget,
                 currency: prevData.currency || 'TRY',
-                createdAt: serverTimestamp(),
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
                 isAutoCarried: true
             };
 
-            await setDoc(docRef, newBudgetData);
+            await docRef.set(newBudgetData);
 
             return {
                 ...newBudgetData,
                 source: 'auto-carried'
-            };
+            } as Budget;
         }
 
-        return { budget: 0, currency: 'not choosed user profile', source: 'default' };
+        return { budget: 0, currency: 'not chosen user profile', source: 'default' };
 
     } catch (error) {
         console.error(`Error fetching budget for ${yearMonth}:`, error);
-        return { budget: 0, currency: 'not choosed user profile', source: 'default' };
+        return { budget: 0, currency: '$', source: 'default' };
     }
 };

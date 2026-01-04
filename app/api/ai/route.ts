@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
 import { GoogleGenAI } from '@google/genai'
-import { collection, doc } from "firebase/firestore";
-import { db } from "@/lib/firebase/firebase";
-import { write } from "fs";
 import { writeResults } from "@/lib/ai-respons/writeResults";
 import { deleteDataById } from "@/lib/ai-respons/deleteResults";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { revalidateTag } from "next/cache";
+import { AllData } from "@/lib/types/type";
 
 
 
@@ -18,9 +16,7 @@ export async function POST(req: Request) {
     }
 
     try {
-        const body = await req.json();
-        const { analytics } = body;
-
+        const body: AllData = await req.json();
         const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
         const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
@@ -59,7 +55,7 @@ You must respond **strictly in the following JSON format**:
     "Actionable suggestion 2",
     "Actionable suggestion 3"
   ]
-} ` .replace('{{analyticsInput}}', JSON.stringify(analytics));
+} ` .replace('{{analyticsInput}}', JSON.stringify(body));
 
         const response = await ai.models.generateContent({
             model: 'gemini-2.0-flash',
@@ -92,7 +88,12 @@ You must respond **strictly in the following JSON format**:
         });
         const geminiResponseText = response.text;
 
-        let insightData;
+        let insightData: {
+            summary: string;
+            risks: string[];
+            patterns: string[];
+            suggestions: string[];
+        } | null = null;
         try {
             insightData = JSON.parse(geminiResponseText as string);
         } catch (parseError) {

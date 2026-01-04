@@ -1,5 +1,5 @@
 import admin from "@/lib/firebase/admin";
-import { User, UserLog } from "@/lib/types/type";
+import { UserLog } from "@/lib/types/type";
 import { cookies } from "next/headers"
 
 export const getAuthenticatedUser = async (): Promise<UserLog | null> => {

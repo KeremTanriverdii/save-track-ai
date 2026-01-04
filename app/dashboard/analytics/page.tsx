@@ -95,8 +95,8 @@ export default async function AnalyticsPage(props: {
                     chartsData={analyticsData}
                     overSpendsReports={analyticsData.overSpends}
                 />
-
             </div>
+            {/* <ButtonAiComponent requestData={{...analyticsData, }} /> */}
         </div>
     );
 }

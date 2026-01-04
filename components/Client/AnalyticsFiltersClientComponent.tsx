@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { CATEGORY_MAP } from "@/lib/types/constants"
 import { useRouter } from "next/navigation"
 import { DateRange } from "react-day-picker"
+import { useReactTable } from "@tanstack/react-table"
 
 export function formatDate(date: Date | undefined) {
     if (!date) {
@@ -28,7 +29,7 @@ export function formatDate(date: Date | undefined) {
     })
 }
 
-export function AnalyticsFiltersClientComponent({ table }: { table: any, setFilterValue: React.Dispatch<React.SetStateAction<string>> }) {
+export function AnalyticsFiltersClientComponent({ table }: { table: ReturnType<typeof useReactTable>, setFilterValue: React.Dispatch<React.SetStateAction<string>> }) {
     const [open, setOpen] = React.useState(false)
     const [value, setValue] = React.useState("In 2 days")
     const [date, setDate] = React.useState<Date | undefined>(undefined)

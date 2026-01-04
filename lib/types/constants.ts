@@ -1,5 +1,4 @@
-import * as React from "react";
-import { Book, Bus, Car, Film, Heart, House, LucideIcon, RectangleEllipsis, Soup, Store, Utensils, Zap } from "lucide-react";
+import { Book, Bus, Car, Film, Heart, LucideIcon, RectangleEllipsis, Store, Utensils, Zap } from "lucide-react";
 
 type CategoryConfig = {
     icon: LucideIcon;

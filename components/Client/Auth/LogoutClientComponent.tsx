@@ -1,6 +1,6 @@
 "use client"
 
-import { DropdownMenuItem, DropdownMenuShortcut } from "@/components/ui/dropdown-menu"
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
 import { useRouter } from "next/navigation";
 
 

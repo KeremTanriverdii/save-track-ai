@@ -7,7 +7,6 @@ import { User } from '@/lib/types/type';
 import { useRouter } from 'next/navigation';
 import { createSessionCookie } from '@/utils/createSessionCookie';
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
 const provider = new GoogleAuthProvider();
 
 

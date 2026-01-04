@@ -1,5 +1,5 @@
 
-import { Expense } from "../types/type";
+import { ReturnAPIResponseData } from "../types/type";
 
 export interface OverSpendArea {
     date: Date;
@@ -14,17 +14,18 @@ export interface OverSpendArea {
 }
 interface GroupedByDate {
     [key: string]: {
-        date: Date;
+        date: string;
         amount: number;
         categories: string[];
+        expenseId: string[];
     };
 }
-export function detectOverspendAreas(expenses: Expense[], monthlyBudget?: number) {
+export function detectOverspendAreas(expenses: ReturnAPIResponseData[], monthlyBudget?: number) {
     if (!expenses || !monthlyBudget || expenses.length === 0) return [];
     const DAILY_LIMIT = monthlyBudget / 30;
     const THRESHOLD = DAILY_LIMIT * 1.2;
 
-    const groupedByDate: GroupedByDate = expenses.reduce((acc: any, curr: Expense) => {
+    const groupedByDate: GroupedByDate = expenses.reduce<Record<string, { date: string; amount: number; categories: string[], expenseId: string[] }>>((acc, curr: ReturnAPIResponseData) => {
         const dateKey = (curr.date as { seconds: number }).seconds ?
             new Date((curr.date as { seconds: number }).seconds * 1000).toLocaleDateString('en-US', {
                 month: 'long',
@@ -40,8 +41,8 @@ export function detectOverspendAreas(expenses: Expense[], monthlyBudget?: number
             acc[dateKey] = { date: dateKey, amount: 0, categories: [], expenseId: [] };
         }
         acc[dateKey].amount += curr.amount;
-        if (!acc[dateKey].categories.includes(curr.category)) {
-            acc[dateKey].categories.push(curr.category);
+        if (!acc[dateKey].categories.includes(curr.category as unknown as string)) {
+            acc[dateKey].categories.push(curr.category as unknown as string);
             acc[dateKey].expenseId.push(curr.id);
         }
         return acc;
@@ -61,7 +62,8 @@ export function detectOverspendAreas(expenses: Expense[], monthlyBudget?: number
             title: `Daily Limit Exceeded: ${item.amount} TL`,
             category: item.categories.join(', '),
             threshold: DAILY_LIMIT,
-        } as OverSpendArea;
+            expenseId: item.expenseId,
+        } as unknown as OverSpendArea;
     })
         .filter(item => item.isExceeded)
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());

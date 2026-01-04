@@ -3,7 +3,6 @@ import { getDataAiResultById } from '@/lib/ai-respons/getDataAiResultById';
 import { AiResultType } from '@/lib/types/type';
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
 import { redirect } from 'next/navigation';
-import React from 'react'
 
 type PageProps = {
   params: Promise<{ id: string }>

@@ -12,9 +12,9 @@ export const runLazySubscriptionCheck = async (userId: string) => {
 
         if (data.status !== 'active' || !data.lastUpdated) continue;
 
-        let processingDate = data.lastUpdated.toDate();
+        const processingDate = data.lastUpdated.toDate();
 
-        let nextBillingDate = new Date(processingDate);
+        const nextBillingDate = new Date(processingDate);
         nextBillingDate.setMonth(nextBillingDate.getMonth() + 1);
 
 
