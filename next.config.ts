@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       }
     ]
   },
+  turbopack: {},
   serverExternalPackages: ['firebase-admin', '@google-cloud/storage'],
   experimental: {
     serverActions: {
