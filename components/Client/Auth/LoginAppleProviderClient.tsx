@@ -3,13 +3,12 @@ import { Button } from '@/components/ui/button'
 import { auth } from '@/lib/firebase/firebase';
 import { OAuthProvider, signInWithPopup } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
-import { saveUserToFirestore } from '@/lib/authRecord/saveUserToFirestore';
 import { User } from '@/lib/types/type';
 import { createSessionCookie } from '@/utils/createSessionCookie';
 import { Apple } from 'lucide-react';
+import { saveUserToFirestoreAction } from '@/lib/authRecord/saveUserToFirestore';
 
 const provider = new OAuthProvider('apple.com')
-
 provider.addScope('email')
 provider.addScope('name')
 
@@ -28,7 +27,9 @@ export default function LoginAppleProviderClient() {
                 photoURL: user.photoURL || '',
             } as User;
 
-            await saveUserToFirestore(newUser);
+            // Use server action instead
+            await saveUserToFirestoreAction(newUser);
+
             const idToken = await user.getIdToken();
             await createSessionCookie(idToken);
             router.push('/dashboard');

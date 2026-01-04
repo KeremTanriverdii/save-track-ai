@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   images: {
     remotePatterns: [
       {
@@ -9,16 +8,28 @@ const nextConfig: NextConfig = {
         hostname: '**',
         port: '',
         pathname: '**'
+      },
+      {
+        protocol: 'https',
+        hostname: '**',
+        port: '',
+        pathname: '**'
       }
     ]
   },
-  turbopack: {},
+
   serverExternalPackages: ['firebase-admin', '@google-cloud/storage'],
+
   experimental: {
     serverActions: {
       bodySizeLimit: '5mb'
     }
   },
+
+  turbopack: {
+
+  },
+
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -30,6 +41,7 @@ const nextConfig: NextConfig = {
         http2: false,
         dns: false,
         perf_hooks: false,
+        os: false,
       };
     }
     return config;
