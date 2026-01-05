@@ -124,4 +124,4 @@ pnpm dev
 # or
 bun dev
 ```
-## Check the site: https://savetrackai.keremtanriverdi.com/auth/login
+## Check the site: https://savetrackai.keremtanriverdi.com
