@@ -115,6 +115,7 @@ NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID="..."
 First, run the development server:
 
 ```bash
+npm install and 
 npm run dev
 # or
 yarn dev
