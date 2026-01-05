@@ -11,7 +11,7 @@ export async function saveUserToFirestoreAction(user: User) {
         displayName: user.displayName || 'Anonymous User',
         photoURL: user.photoURL,
         lastLogin: admin.firestore.FieldValue.serverTimestamp(),
-        currency: 'TRY'
+        currency: '$'
     };
 
     const db = admin.firestore();

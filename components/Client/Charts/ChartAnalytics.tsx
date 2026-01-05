@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts"
 import {
     Card,
@@ -12,7 +11,20 @@ import { ChartConfig, ChartContainer, ChartTooltip, ChartTooltipContent } from "
 import { TrendingUpIcon } from "lucide-react"
 export const description = "An interactive line chart"
 
-export function ChartAnalytics({ initialData }: { initialData: AnalyticsData }) {
+interface ChartAnalyticsProps {
+    initialData: AnalyticsData,
+    currentMonth: {
+        monthId: string;
+        budget: number;
+        currency: string;
+        totalMonth: number;
+        monthlySpend: number;
+        remaining: number;
+    } | null
+
+}
+
+export function ChartAnalytics({ initialData, currentMonth }: ChartAnalyticsProps) {
     const chartData: DailyChartData[] = initialData.dailyData || []
     const mostSpendingCategory = (initialData.mostSpendingCategory)
     const totalSpending = initialData.totalSpending

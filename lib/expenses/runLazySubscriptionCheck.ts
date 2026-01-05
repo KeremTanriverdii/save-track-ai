@@ -1,10 +1,13 @@
-import { collection, getDocs, updateDoc, doc, Timestamp } from "firebase/firestore";
-import { db } from "../firebase/firebase";
+import { FieldValue } from "firebase-admin/firestore";
+import admin from "../firebase/admin";
 import { addExpense } from "./addExpense";
 
 export const runLazySubscriptionCheck = async (userId: string) => {
-    const subsRef = collection(db, 'users', userId, 'subscriptionsDetails');
-    const snap = await getDocs(subsRef);
+    const db = admin.firestore();
+    const subRef = db.collection('users').doc(userId).collection('subscriptionsDetails')
+    // const subsRef = collection(db, 'users', userId, 'subscriptionsDetails');
+
+    const snap = await subRef.get();
     const now = new Date();
 
     for (const sub of snap.docs) {
@@ -46,9 +49,9 @@ export const runLazySubscriptionCheck = async (userId: string) => {
             const newLastUpdated = new Date(nextBillingDate);
             newLastUpdated.setMonth(newLastUpdated.getMonth() - 1);
 
-            await updateDoc(doc(subsRef, sub.id), {
-                lastUpdated: Timestamp.fromDate(newLastUpdated)
-            });
+            await subRef.doc(sub.id).update({
+                lastUpdated: newLastUpdated
+            })
         }
     }
 }

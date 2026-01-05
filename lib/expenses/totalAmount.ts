@@ -3,18 +3,21 @@ import { getBudget } from "../budged/GetBudget"
 import admin from "../firebase/admin";
 import { FieldValue } from "firebase-admin/firestore";
 
-export default async function FetchAllAndMonthlyBudget(uid: string) {
+export default async function FetchAllAndMonthlyBudget(uid: string, dateParam?: string) {
     if (!uid) return null
     const db = admin.firestore();
+    const targetMonth = dateParam || dateCustom();
+
+
     const userRef = db.collection('users').doc(uid);
-    const currentMonth = dateCustom();
-    const budgetRef = db.collection('users').doc(uid).collection('budgets').doc(currentMonth);
+    const budgetRef = db.collection('users').doc(uid).collection('budgets').doc(targetMonth);
+
 
     try {
         const [userSnap, expensesSnap, budgetData] = await Promise.all([
             userRef.get(),
             db.collection('users').doc(uid).collection('expenses').get(),
-            getBudget(uid, currentMonth)
+            getBudget(uid, targetMonth)
         ])
 
 
@@ -25,7 +28,7 @@ export default async function FetchAllAndMonthlyBudget(uid: string) {
 
         const userData = userSnap.data()
 
-        const [year, month] = currentMonth.split('-');
+        const [year, month] = targetMonth.split('-');
         let currentMonthTotal = 0;
 
         let date: Date;
@@ -65,7 +68,7 @@ export default async function FetchAllAndMonthlyBudget(uid: string) {
                 projectedSubs: budgetData?.projectedSubs || 0,
                 monthlySpend: currentMonthTotal,
                 remaining: remaining,
-                id: currentMonth,
+                id: targetMonth,
                 createdAt: FieldValue.serverTimestamp(),
                 lastUpdated: FieldValue.serverTimestamp(),
                 isAutoCarried: budgetData?.isAutoCarried || false
@@ -78,7 +81,7 @@ export default async function FetchAllAndMonthlyBudget(uid: string) {
                 oneTimeTotal: userData?.totalOneTimeSpent || 0
             },
             currentMonth: {
-                monthId: currentMonth,
+                monthId: targetMonth,
                 budget: budgetData?.budget || 0,
                 currency: budgetData?.currency || '$',
                 totalMonth: currentMonthTotal,

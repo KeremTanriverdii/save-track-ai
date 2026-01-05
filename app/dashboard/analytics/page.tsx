@@ -3,13 +3,15 @@ import { transformToDailyChart } from './action';
 import { calTotal } from '@/lib/analytics/calcTotal';
 import { calcTopCategorySpending } from '@/lib/analytics/calcTopCategory';
 import { calcAverage } from '@/lib/analytics/calcAverage';
-import { Expense } from '@/lib/types/type';
+import { AllData, Expense } from '@/lib/types/type';
 import MonthSelectClientComponent from '@/components/Client/MonthSelectClientComponent';
 import { ChartAnalytics } from '@/components/Client/Charts/ChartAnalytics';
 import InsightPanelComponent from '@/components/InsightPanelComponent';
 import BudgetState from '@/components/Client/Budget/BudgetStateComponent';
 import { Card, CardAction, CardContent } from '@/components/ui/card';
 import ButtonAiComponent from '@/components/Client/ButtonAiComponent';
+import FetchAllAndMonthlyBudget from '@/lib/expenses/totalAmount';
+import { getUserData } from '@/lib/auth/user';
 
 
 async function getAnalyticsData(month: string) {
@@ -34,14 +36,26 @@ async function getAnalyticsData(month: string) {
         const monthlyBudget = await budgetRes.json();
 
         const dailyData = await transformToDailyChart(rawData, month);
+        const totalSpending = calTotal(dailyData);
+        const averageSpending = calcAverage(dailyData);
+        const categoryTotals = calcTopCategorySpending(rawData);
+
         return {
             rawData,
             dailyData,
+            daily: dailyData,
             monthlyBudget,
-            totalSpending: calTotal(dailyData),
-            averageSpending: calcAverage(dailyData),
-            mostSpendingCategory: calcTopCategorySpending(rawData),
+            totalSpending,
+            averageSpending,
+            mostSpendingCategory: categoryTotals,
+            categoryTotals: categoryTotals || {},
             overSpends: monthlyBudget.overSpends,
+            summary: {
+                totalExpenses: totalSpending,
+                averageExpenses: averageSpending,
+                totalBudget: monthlyBudget.budget?.amount || 0,
+            },
+            anomalies: [],
         };
 
     } catch (error) {
@@ -52,6 +66,7 @@ async function getAnalyticsData(month: string) {
 export default async function AnalyticsPage(props: {
     searchParams: Promise<{ yearMonth?: string }>;
 }) {
+    const user = await getUserData();
     const searchParams = await props.searchParams;
     const currentMonth = searchParams.yearMonth || new Date().toISOString().substring(0, 7);
     const analyticsData = await getAnalyticsData(currentMonth);
@@ -66,12 +81,14 @@ export default async function AnalyticsPage(props: {
             </div>
         )
     }
+    const allFromX = await FetchAllAndMonthlyBudget(user?.uid as string, currentMonth)
+
     return (
         <div className="p-6 space-y-6 animate-in fade-in duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start h-full">
 
                 <div className="lg:col-span-2 h-full">
-                    <BudgetState total={analyticsData?.totalSpending || 0} />
+                    <BudgetState total={analyticsData?.totalSpending || 0} monthly={allFromX?.currentMonth || null} />
                 </div>
 
                 <Card className="bg-white/5 backdrop-blur-lg border-white/10">
@@ -87,7 +104,7 @@ export default async function AnalyticsPage(props: {
             </div>
 
             <div className="space-y-6">
-                <ChartAnalytics initialData={analyticsData} />
+                <ChartAnalytics initialData={analyticsData} currentMonth={allFromX?.currentMonth || null} />
 
                 <InsightPanelComponent
                     currency={analyticsData.monthlyBudget.budget.currency}
@@ -96,7 +113,7 @@ export default async function AnalyticsPage(props: {
                     overSpendsReports={analyticsData.overSpends}
                 />
             </div>
-            {/* <ButtonAiComponent requestData={{...analyticsData, }} /> */}
+            {/* <ButtonAiComponent requestData={analyticsData || null} currentMonth={x?.currentMonth || null} /> */}
         </div>
     );
 }

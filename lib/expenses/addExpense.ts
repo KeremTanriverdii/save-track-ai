@@ -1,21 +1,27 @@
 import { differenceInMonths } from "date-fns";
-import { collection, doc, increment, serverTimestamp, Timestamp, writeBatch } from "firebase/firestore";
 import { ExpensePayload } from "../types/type";
-import { db } from "../firebase/firebase";
 import { dateCustom } from "@/utils/nowDate";
 import { getBudget } from "../budged/GetBudget";
+import admin from "../firebase/admin";
+import { Timestamp, FieldValue } from "firebase-admin/firestore";
 
 export const addExpense = async (userSend: ExpensePayload, userId: string) => {
-    const batch = writeBatch(db);
-    const userRef = doc(db, 'users', userId);
-    const expensesCollectionRef = collection(db, 'users', userId, 'expenses');
+    const db = admin.firestore();
+    const batch = db.batch();
+    const userRef = db.collection('users').doc(userId)
+    const expensesCollectionRef = db.collection('users').doc(userId).collection('expenses');
     const selectedDate = userSend.expenseDate ? new Date(userSend.expenseDate) : new Date();
     const date = dateCustom();
     const budget = await getBudget(userId, date) as { budget: number, currency: string };
 
-    const subscriptionId = userSend.type === 'subscription'
-        ? doc(collection(db, 'users', userId, 'subscriptionsDetails')).id
-        : null;
+    let subscriptionId: string | null = null;
+    let subRef: admin.firestore.DocumentReference | null = null;
+
+    if (userSend.type === 'subscription') {
+        const newSubDoc = userRef.collection('subscriptionDetails').doc();
+        subRef = newSubDoc;
+        subscriptionId = newSubDoc.id
+    }
 
     const finalData: any = {
         amount: userSend.amount,
@@ -23,13 +29,15 @@ export const addExpense = async (userSend: ExpensePayload, userId: string) => {
         title: userSend.title || "",
         description: userSend.description || "",
         date: Timestamp.fromDate(selectedDate),
-        createdAt: serverTimestamp(),
+        createdAt: Timestamp.now(),
         currency: budget?.currency,
         type: userSend.type || 'one-time'
     };
 
     let amountToAddToTotal = 0;
     let cyclesToIncrement = 0;
+
+
 
     if (userSend.type === 'subscription' && userSend.subscription) {
         if (!userSend.title) return 'title';
@@ -60,7 +68,7 @@ export const addExpense = async (userSend: ExpensePayload, userId: string) => {
                 const transactionDate = new Date(start);
                 transactionDate.setMonth(transactionDate.getMonth() + i);
 
-                const monthlyExpenseRef = doc(expensesCollectionRef);
+                const monthlyExpenseRef = expensesCollectionRef.doc();
                 batch.set(monthlyExpenseRef, {
                     ...finalData,
                     subscriptionId,
@@ -72,21 +80,21 @@ export const addExpense = async (userSend: ExpensePayload, userId: string) => {
         } else {
             amountToAddToTotal = 0;
             cyclesToIncrement = 0;
-            const expenseDocRef = doc(expensesCollectionRef);
-            batch.set(expenseDocRef, finalData);
+            const expenseDocRef = expensesCollectionRef.doc();
+            batch.set(expenseDocRef, { finalData, subscriptionId });
         }
 
-        const subRef = doc(userRef, 'subscriptionsDetails', subscriptionId!);
+        const subRef = db.collection('users').doc(userId).collection('subscriptionDetails').doc(subscriptionId!);
         batch.set(subRef, {
             id: subscriptionId,
             title: userSend.title,
-            totalPaidForThis: increment(amountToAddToTotal),
+            totalPaidForThis: FieldValue.increment(amountToAddToTotal),
             monthlyCost: userSend.amount,
-            accumulatedTotal: increment(amountToAddToTotal),
+            accumulatedTotal: FieldValue.increment(amountToAddToTotal),
             status: userSend.subscription?.status || 'active',
-            lastUpdated: serverTimestamp(),
+            lastUpdated: Timestamp.now(),
             category: userSend.category,
-            totalPeriodsProcessed: increment(cyclesToIncrement),
+            totalPeriodsProcessed: FieldValue.increment(cyclesToIncrement),
             currency: budget?.currency,
             frequency: userSend.subscription?.frequency || 'error'
         }, { merge: true });
@@ -94,7 +102,7 @@ export const addExpense = async (userSend: ExpensePayload, userId: string) => {
     } else {
         amountToAddToTotal = userSend.amount;
         cyclesToIncrement = 0;
-        const expenseDocRef = doc(expensesCollectionRef);
+        const expenseDocRef = expensesCollectionRef.doc();
         batch.set(expenseDocRef, finalData);
     }
 
@@ -103,11 +111,17 @@ export const addExpense = async (userSend: ExpensePayload, userId: string) => {
         : 'totalOneTimeSpent';
 
     batch.update(userRef, {
-        totalSpent: increment(amountToAddToTotal),
-        [updateField]: increment(amountToAddToTotal),
-        lastUpdated: serverTimestamp()
+        totalSpent: FieldValue.increment(amountToAddToTotal),
+        [updateField]: FieldValue.increment(amountToAddToTotal),
+        lastUpdated: Timestamp.now()
     });
 
-    await batch.commit();
-    return "Success";
+
+    try {
+        batch.commit();
+        return 'Success'
+    } catch (err) {
+        console.error('eeror adding expense', err)
+        return 'Error adding expense'
+    }
 }

@@ -88,12 +88,35 @@ export interface categoryTotalsType {
     [category: string]: number | null;
 }
 export interface AllData {
-    summary: AnalyticsData,
-    categoryTotals: categoryTotalsType
-    anomalies: DetectAnomalies[];
-    daily: DailyChartData[]
-    // detectOverspendAreas: IsSpike[];
-    trend: ChangeRate[];
+    requestData: {
+
+        requestData: {
+            summary: AnalyticsData,
+            categoryTotals: categoryTotalsType
+            anomalies: DetectAnomalies[];
+            daily: DailyChartData[]
+            detectOverspendAreas: IsSpike[];
+            trend: ChangeRate[];
+            dailyData: DailyChartData[];
+            monthlyBudget: any;
+            totalSpending: number;
+            averageSpending: number;
+
+            mostSpendingCategory: Record<string, number> | null;
+            overSpends: { date: string, amount: number; isExceeded: boolean, percentageExceeded: number; title: string; category: string; threshold: number }[];
+        } | null,
+    },
+
+    currentMonth: {
+        monthId: string;
+        budget: number;
+        currency: string;
+        totalMonth: number;
+        monthlySpend: number;
+        remaining: number;
+        projectedSubs: number;
+        source: "current" | "auto-carried" | "default" | undefined
+    } | null
 }
 
 export interface AiResultType {

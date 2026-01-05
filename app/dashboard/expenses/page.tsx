@@ -17,6 +17,5 @@ export default async function page() {
     if (!rawData) {
         throw new Error('No data found')
     }
-
     return <DataTableClientComponent data={rawData} />
 }

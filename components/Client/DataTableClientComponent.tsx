@@ -48,7 +48,6 @@ export default function DataTableClientComponent({ data }: Props) {
     const router = useRouter();
     const searchParams = useSearchParams();
     const datafilter = searchParams.get('date');
-
     React.useEffect(() => {
         if (datafilter) {
             setColumnFilters([{ id: 'date', value: datafilter }]);
@@ -125,11 +124,10 @@ export default function DataTableClientComponent({ data }: Props) {
                 ),
                 cell: ({ row }) => {
                     const dateValue = row.getValue("date") as Date;
-                    return dateValue.toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                    });
+                    if (!dateValue) return "N/A";
+
+                    const date = dateValue instanceof Date ? dateValue : (dateValue as any).toDate?.() || new Date(dateValue);
+                    return date.toLocaleDateString('en-US')
                 },
                 filterFn: (row, columnId, value) => {
                     const rowDate = row.getValue(columnId) as Date;
