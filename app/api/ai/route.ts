@@ -4,20 +4,21 @@ import { writeResults } from "@/lib/ai-respons/writeResults";
 import { deleteDataById } from "@/lib/ai-respons/deleteResults";
 import { getAuthenticatedUser } from "@/utils/getAuthenticatedUser";
 import { revalidateTag } from "next/cache";
-import { AllData } from "@/lib/types/type";
+import { ButtonAiComponentProps } from "@/lib/types/type";
 
 
 
 export async function POST(req: Request) {
-    // if (!req) return 'No req data';
     const verifyUid = await getAuthenticatedUser();
     if (!verifyUid) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     try {
-        const body: AllData = await req.json();
+        const body: ButtonAiComponentProps = await req.json();
         const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+        const { requestData, currentMonth } = body;
+        const { dailyData, summary } = requestData;
 
         const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 

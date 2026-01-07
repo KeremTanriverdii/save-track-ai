@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'; // Yanıt için NextResponse kullanılır
+import { NextResponse } from 'next/server';
 import { getExpenses } from "@/lib/expenses/getExpense";
 import { addExpense } from "@/lib/expenses/addExpense";
 import { deleteExpense } from "@/lib/expenses/deleteExpense";

@@ -3,7 +3,7 @@ import { transformToDailyChart } from './action';
 import { calTotal } from '@/lib/analytics/calcTotal';
 import { calcTopCategorySpending } from '@/lib/analytics/calcTopCategory';
 import { calcAverage } from '@/lib/analytics/calcAverage';
-import { AllData, Expense } from '@/lib/types/type';
+import { ReturnAPIResponseData } from '@/lib/types/type';
 import MonthSelectClientComponent from '@/components/Client/MonthSelectClientComponent';
 import { ChartAnalytics } from '@/components/Client/Charts/ChartAnalytics';
 import InsightPanelComponent from '@/components/InsightPanelComponent';
@@ -12,6 +12,11 @@ import { Card, CardAction, CardContent } from '@/components/ui/card';
 import ButtonAiComponent from '@/components/Client/ButtonAiComponent';
 import FetchAllAndMonthlyBudget from '@/lib/expenses/totalAmount';
 import { getUserData } from '@/lib/auth/user';
+import { detectOverspendAreas } from '@/lib/insights/detectOverspendAreas';
+import { redirect } from 'next/navigation';
+import { detectAnomalies } from '@/lib/insights/detectAnomalies';
+
+const user = await getUserData()
 
 
 async function getAnalyticsData(month: string) {
@@ -25,37 +30,37 @@ async function getAnalyticsData(month: string) {
     };
 
     try {
-        const [expensesRes, budgetRes] = await Promise.all([
-            fetch(`${baseUrl}/api/expenses?yearMonth=${month}`, { headers, next: { revalidate: 60, tags: [`expenses-${month}`] } }),
-            fetch(`${baseUrl}/api/budget?yearMonth=${month}`, { headers, next: { revalidate: 300, tags: [`budget-${month}`] } })
-        ]);
+        const expensesRes = await fetch(
+            `${baseUrl}/api/expenses?yearMonth=${month}`, { headers, next: { revalidate: 60, tags: [`expenses-${month}`] } },
+        );
 
-        if (!expensesRes.ok || !budgetRes.ok) throw new Error('Fetch error');
+        if (!expensesRes.ok) throw new Error('Fetch error');
 
-        const rawData: Expense[] = await expensesRes.json();
-        const monthlyBudget = await budgetRes.json();
+        const rawData: ReturnAPIResponseData[] = await expensesRes.json();
 
         const dailyData = await transformToDailyChart(rawData, month);
         const totalSpending = calTotal(dailyData);
         const averageSpending = calcAverage(dailyData);
         const categoryTotals = calcTopCategorySpending(rawData);
-
+        const allFromX = await FetchAllAndMonthlyBudget(user?.uid as string, month)
+        const overSpends = detectOverspendAreas(rawData, allFromX?.currentMonth.budget)
+        const anomalie = detectAnomalies(dailyData);
         return {
             rawData,
             dailyData,
-            daily: dailyData,
-            monthlyBudget,
             totalSpending,
             averageSpending,
-            mostSpendingCategory: categoryTotals,
             categoryTotals: categoryTotals || {},
-            overSpends: monthlyBudget.overSpends,
+            overSpends: overSpends,
             summary: {
                 totalExpenses: totalSpending,
                 averageExpenses: averageSpending,
-                totalBudget: monthlyBudget.budget?.amount || 0,
+                totalBudget: allFromX?.currentMonth.budget,
             },
-            anomalies: [],
+            anomalies: anomalie.filter(anomalies => anomalies.isAnomaly === true),
+            subscription: rawData.filter(expense => expense.type === 'subscription'),
+            oneTimePaid: rawData.filter(expense => expense.type === 'one-time'),
+            budgetsMonth: allFromX?.currentMonth
         };
 
     } catch (error) {
@@ -63,10 +68,12 @@ async function getAnalyticsData(month: string) {
         return null;
     }
 }
+
+
 export default async function AnalyticsPage(props: {
     searchParams: Promise<{ yearMonth?: string }>;
 }) {
-    const user = await getUserData();
+    if (!user) redirect('/auth/login')
     const searchParams = await props.searchParams;
     const currentMonth = searchParams.yearMonth || new Date().toISOString().substring(0, 7);
     const analyticsData = await getAnalyticsData(currentMonth);
@@ -81,14 +88,25 @@ export default async function AnalyticsPage(props: {
             </div>
         )
     }
-    const allFromX = await FetchAllAndMonthlyBudget(user?.uid as string, currentMonth)
 
+    const aiRequestData = {
+        dailyData: analyticsData.dailyData,
+        oneTimePaid: analyticsData.oneTimePaid,
+        subscription: analyticsData.subscription,
+        summary: {
+            totalSpending: analyticsData.totalSpending,
+            averageSpending: analyticsData.averageSpending,
+            categoryTotals: analyticsData.categoryTotals ?? null,
+            overSpends: analyticsData.overSpends,
+            anomalies: analyticsData.anomalies,
+        },
+    };
     return (
         <div className="p-6 space-y-6 animate-in fade-in duration-500">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start h-full">
 
                 <div className="lg:col-span-2 h-full">
-                    <BudgetState total={analyticsData?.totalSpending || 0} monthly={allFromX?.currentMonth || null} />
+                    <BudgetState total={analyticsData?.totalSpending || 0} monthly={analyticsData?.budgetsMonth || null} />
                 </div>
 
                 <Card className="bg-white/5 backdrop-blur-lg border-white/10">
@@ -104,16 +122,15 @@ export default async function AnalyticsPage(props: {
             </div>
 
             <div className="space-y-6">
-                <ChartAnalytics initialData={analyticsData} currentMonth={allFromX?.currentMonth || null} />
+                <ChartAnalytics initialData={analyticsData} currentMonth={analyticsData?.budgetsMonth || null} />
 
                 <InsightPanelComponent
-                    currency={analyticsData.monthlyBudget.budget.currency}
+                    currency={analyticsData?.budgetsMonth?.currency as string}
                     initialData={analyticsData.rawData}
-                    chartsData={analyticsData}
                     overSpendsReports={analyticsData.overSpends}
                 />
             </div>
-            {/* <ButtonAiComponent requestData={analyticsData || null} currentMonth={x?.currentMonth || null} /> */}
+            <ButtonAiComponent requestData={aiRequestData} currentMonth={analyticsData?.budgetsMonth || undefined} />
         </div>
     );
 }

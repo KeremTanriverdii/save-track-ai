@@ -13,7 +13,7 @@ export const description = "An interactive line chart"
 
 interface ChartAnalyticsProps {
     initialData: AnalyticsData,
-    currentMonth: {
+    currentMonth?: {
         monthId: string;
         budget: number;
         currency: string;
@@ -26,7 +26,7 @@ interface ChartAnalyticsProps {
 
 export function ChartAnalytics({ initialData, currentMonth }: ChartAnalyticsProps) {
     const chartData: DailyChartData[] = initialData.dailyData || []
-    const mostSpendingCategory = (initialData.mostSpendingCategory)
+    const mostSpendingCategory = (initialData.categoryTotals || {})
     const totalSpending = initialData.totalSpending
     const chartConfig = {
         amount: {

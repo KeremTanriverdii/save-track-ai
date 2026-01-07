@@ -1,38 +1,25 @@
 "use client"
 
-import { AllData, DailyChartData } from "@/lib/types/type";
+import { ButtonAiComponentProps } from "@/lib/types/type";
 import { Button } from "../ui/button"
+import { Bot } from "lucide-react";
 
-interface ButtonAiComponentProps {
-    requestData: {
-        dailyData: DailyChartData[];
-        monthlyBudget: any;
-        totalSpending: number;
-        averageSpending: number;
 
-        mostSpendingCategory: Record<string, number> | null;
-        overSpends: { date: string, amount: number; isExceeded: boolean, percentageExceeded: number; title: string; category: string; threshold: number }[];
-    } | null,
-
-    currentMonth: {
-        monthId: string;
-        budget: number,
-        currency: string;
-        totalMonth: number;
-        monthlySpend: number;
-        remaining: number;
-    }
-}
-
-export default function ButtonAiComponent({ requestData, currentMonth }: AllData) {
+export default function ButtonAiComponent({ requestData, currentMonth }: ButtonAiComponentProps) {
     const analytics = requestData;
+    const curMonth = currentMonth
+
+    const updateAnalytics = {
+        ...analytics,
+        dailyData: analytics?.dailyData.filter(isHaveAmount => isHaveAmount.amount > 0),
+    }
     const handleSubmitAi = async () => {
         const response = await fetch('/api/ai/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ analytics }),
+            body: JSON.stringify({ requestData: updateAnalytics, currentMonth: curMonth }),
         })
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -41,6 +28,6 @@ export default function ButtonAiComponent({ requestData, currentMonth }: AllData
         return data
     }
     return (
-        <Button onClick={handleSubmitAi}> Ai with insights</Button>
+        <Button onClick={handleSubmitAi} className="absolute bottom-5 right-5 hover:scale-110 hover:ease-in-out duration-300"><Bot />  Ai with insights</Button>
     )
 }

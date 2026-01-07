@@ -1,7 +1,7 @@
 
 
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, TriangleAlert, Wallet2 } from "lucide-react";
+import { TriangleAlert, Wallet2 } from "lucide-react";
 
 interface BudgetStateProps {
   total?: number,
@@ -16,33 +16,7 @@ interface BudgetStateProps {
 }
 
 export default function BudgetState({ total, monthly }: BudgetStateProps) {
-  // const [remaining, setRemaining] = useState<Budget | null>(null);
-  // const [isLoading, setIsLoading] = useState(false);
 
-  // useEffect(() => {
-  //   if (!total) return;
-
-  //   const getRemaining = async () => {
-  //     setIsLoading(true);
-  //     try {
-  //       const res = await fetch(`/api/budget?totalSpending=${total}`, {
-  //         method: 'GET',
-  //         cache: 'no-store',
-  //       });
-
-  //       if (!res.ok) throw new Error('Error budget fetch');
-
-  //       const data = await res.json();
-  //       setRemaining(data.remaining as Budget);
-  //     } catch (error) {
-  //       console.error("Fetch error:", error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   getRemaining();
-  // }, [total]);
 
   if (total === 0) return (
     <Card className="relative overflow-hidden w-full min-h-full col-span-2">
@@ -65,7 +39,8 @@ export default function BudgetState({ total, monthly }: BudgetStateProps) {
           <div className="flex flex-col">
             <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Monthly Budget</h2>
             <span className="text-white font-bold text-2xl">
-              {monthly ? `${monthly.budget.toFixed(2)}${monthly.currency}` : '---'} ID: {monthly ? monthly.monthId : '---'}
+              {monthly ? `${monthly.budget.toFixed(2)}${monthly.currency} ` : '---'}
+              {monthly ? new Date(monthly.monthId).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Undefined'}
             </span>
           </div>
         </div>

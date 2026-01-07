@@ -1,7 +1,7 @@
 import { detectAnomalies } from '@/lib/insights/detectAnomalies'
 import { OverSpendArea } from '@/lib/insights/detectOverspendAreas'
 import { detectWeeklyTrend } from '@/lib/insights/detectWeeklyTrend'
-import { AnalyticsData, DailyChartData, Expense } from '@/lib/types/type'
+import { DailyChartData, ReturnAPIResponseData } from '@/lib/types/type'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { TriangleAlert } from 'lucide-react'
 import { CriticalCard } from './CriticalCard'
@@ -9,20 +9,19 @@ import TrendComponent from './Client/TrendComponent'
 
 export default async function InsightPanelComponent({
     initialData,
-    chartsData,
     overSpendsReports,
     currency
 }:
     {
-        initialData: Expense[],
-        chartsData: AnalyticsData,
+        initialData: ReturnAPIResponseData[],
         overSpendsReports: OverSpendArea[],
         currency: string
     }) {
-    const trendData = detectWeeklyTrend(initialData);
+    const rawData = initialData.map(x => x)
+    const trendData = detectWeeklyTrend(rawData);
     const latestData = trendData[trendData.length - 1];
     const displayData = trendData.slice(-2)
-    const dailyCharts = initialData.map((x: Expense) => {
+    const dailyCharts = initialData.map((x: ReturnAPIResponseData) => {
         const date = typeof x.date === 'object' && 'seconds' in x.date
             ? new Date((x.date as { seconds: number }).seconds * 1000)
             : new Date(x.date);

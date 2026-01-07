@@ -1,5 +1,6 @@
 import { Delete, LucideProps } from "lucide-react";
 import admin from "../firebase/admin";
+import { redirect } from "next/navigation";
 
 /**
  * Fetches documents from users/{userId}/aiResults and returns an array with
@@ -10,7 +11,7 @@ import admin from "../firebase/admin";
  * numeric epoch, or ISO string) into an ISO string.
  */
 export async function getDateResultsAndDate(userId: string) {
-    if (!userId) throw new Error("Missing required identifier: userId");
+    if (!userId) redirect("auth/login");
 
     const db = admin.firestore();
     const aiResultsRef = db.collection('users').doc(userId).collection('aiResults')

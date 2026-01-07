@@ -48,8 +48,8 @@ export interface AnalyticsData {
     dailyData?: DailyChartData[];
     totalSpending: number;
     averageSpending: number;
-    mostSpendingCategory: Record<string, number> | null;
-    rawData?: Expense[];
+    categoryTotals: Record<string, number>;
+    // rawData?: Expense[];
 }
 
 export interface Budged {
@@ -247,3 +247,27 @@ export type ExpenseRow = {
     original: ReturnAPIResponseData;
 
 };
+
+export interface ButtonAiComponentProps {
+    requestData: {
+        dailyData: DailyChartData[];
+        summary: {
+            totalSpending: number;
+            averageSpending: number;
+            categoryTotals: Record<string, number> | null;
+            overSpends: { date: string | unknown, amount: number; isExceeded: boolean, percentageExceeded: number; title: string; category: string; threshold: number }[];
+            anomalies: DetectAnomalies[],
+
+        } | null,
+    }
+    currentMonth: {
+        monthId: string;
+        budget: number,
+        currency: string;
+        totalMonth: number;
+        monthlySpend: number;
+        remaining: number;
+        projectedSubs: number;
+        source: "current" | "auto-carried" | "default" | undefined
+    } | undefined
+}

@@ -1,7 +1,7 @@
 'use server';
-import { DailyChartData, Expense } from '@/lib/types/type';
+import { DailyChartData, ReturnAPIResponseData } from '@/lib/types/type';
 
-export async function transformToDailyChart(data: Expense[], yearMonth: string): Promise<DailyChartData[]> {
+export async function transformToDailyChart(data: ReturnAPIResponseData[], yearMonth: string): Promise<DailyChartData[]> {
     const [year, month] = yearMonth.split('-').map(Number);
 
     const daysInMonth = new Date(year, month, 0).getDate();
