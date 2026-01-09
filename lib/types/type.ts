@@ -257,8 +257,10 @@ export interface ButtonAiComponentProps {
             categoryTotals: Record<string, number> | null;
             overSpends: { date: string | unknown, amount: number; isExceeded: boolean, percentageExceeded: number; title: string; category: string; threshold: number }[];
             anomalies: DetectAnomalies[],
+        },
+        oneTimePaid: ReturnAPIResponseData[],
+        subscription: ReturnAPIResponseData[];
 
-        } | null,
     }
     currentMonth: {
         monthId: string;

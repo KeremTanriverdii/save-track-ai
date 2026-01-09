@@ -9,9 +9,9 @@ export interface WeeklyTrendResult {
     isBaseline?: boolean;
 }
 
-import { Expense } from "../types/type";
+import { Expense, ReturnAPIResponseData } from "../types/type";
 
-export function detectWeeklyTrend(expenses: Expense[]): WeeklyTrendResult[] {
+export function detectWeeklyTrend(expenses: ReturnAPIResponseData[]): WeeklyTrendResult[] {
     if (!expenses || expenses.length === 0) return [];
 
 

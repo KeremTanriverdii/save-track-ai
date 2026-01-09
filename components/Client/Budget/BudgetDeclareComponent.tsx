@@ -5,9 +5,9 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Info, Pencil } from "lucide-react"
 import { useRouter } from "next/navigation"
 import React, { useState, ChangeEvent } from "react"
-import { BudgetProps } from "./BudgetShowComponent"
+import { Budget } from "@/lib/types/type";
 
-export const BudgetDeclareComponent = ({ budget, currency }: BudgetProps) => {
+export const BudgetDeclareComponent = ({ budget, currency }: Budget) => {
     const [newBudget, setNewBudget] = useState<number>(budget);
     const [message, setMessage] = useState<string | null>()
     const router = useRouter();

@@ -1,27 +1,18 @@
 import { BudgetDeclareComponent } from '@/components/Client/Budget/BudgetDeclareComponent'
 import BudgetShowComponent from '@/components/Client/Budget/BudgetShowComponent'
-import { Budget } from '@/lib/types/type'
-import { cookies } from 'next/headers'
+import { getUserData } from '@/lib/auth/user'
+import { getBudget } from '@/lib/budged/GetBudget'
+import { Budget, User } from '@/lib/types/type'
 
-export default async function page() {
-    const baseUrl = 'http://localhost:3000'
-    const url = `${baseUrl}/api/budget`
-    const sessionCookie = (await cookies()).get('session')
-    const res = await fetch(url, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(sessionCookie && { 'Cookie': `${sessionCookie.name}=${sessionCookie.value}` }),
+export default async function page({
+    searchParams
+}: {
+    searchParams: Promise<{ yearMonth?: string }>
+}) {
+    const searchParamsData = (await searchParams).yearMonth;
+    const user: User | undefined = await getUserData();
+    const budgetData = await getBudget(user!.uid, searchParamsData!)
 
-        },
-        cache: 'no-store',
-    })
-    if (!res.ok) {
-        throw new Error('Error budget fetch')
-    }
-
-    const response = await res.json();
-    const budgetData: Budget = response.budget;
     return (
         <div
             className='grid gap-2  max-w-4xl mx-auto sm:mt-25 mt-7'
@@ -32,10 +23,12 @@ export default async function page() {
             </div>
 
             <BudgetShowComponent
-                {...budgetData}
+                budget={budgetData.budget}
+                currency={budgetData.currency}
             />
             <BudgetDeclareComponent
-                {...budgetData}
+                budget={budgetData.budget}
+                currency={budgetData.currency}
             />
 
         </div>

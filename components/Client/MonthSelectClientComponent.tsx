@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 import { format } from "date-fns";
+import { useTransition } from "react";
 
 export default function MonthSelectClientComponent() {
     const router = useRouter()
@@ -10,11 +11,15 @@ export default function MonthSelectClientComponent() {
 
     const currentParam = searchParams.get("yearMonth") || format(new Date(), "yyyy-MM");
     const [year, month] = currentParam.split("-");
+    const [isPending, startTransition] = useTransition()
 
     const updateUrl = (newYear: string, newMonth: string) => {
-        const params = new URLSearchParams(searchParams.toString());
-        params.set("yearMonth", `${newYear}-${newMonth}`);
-        router.push(`?${params.toString()}`);
+        startTransition(() => {
+
+            const params = new URLSearchParams(searchParams.toString());
+            params.set("yearMonth", `${newYear}-${newMonth}`);
+            router.push(`?${params.toString()}`);
+        })
     };
 
     const years = Array.from({ length: 5 }, (_, i) => (new Date().getFullYear() - 2 + i).toString());

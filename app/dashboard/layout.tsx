@@ -1,11 +1,8 @@
 import { UserProviderCC } from "@/components/Client/Providers/UserProvider";
 import { AppSidebar } from "@/components/ui/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { getDataAiResultById } from "@/lib/ai-respons/getDataAiResultById";
 import { getUserData } from "@/lib/auth/user";
-import { getBudget } from "@/lib/budged/GetBudget";
 import { User } from "@/lib/types/type";
-import { dateCustom } from "@/utils/nowDate";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
@@ -31,8 +28,6 @@ export default async function Dashboard({
     children: React.ReactNode;
 }>) {
     const userData = await getUserData();
-    const date = dateCustom();
-
     return (
 
         <div

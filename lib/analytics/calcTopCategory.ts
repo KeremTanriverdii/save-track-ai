@@ -1,10 +1,10 @@
-import { Expense } from "../types/type";
+import { Expense, ReturnAPIResponseData } from "../types/type";
 
-export const calcTopCategorySpending = (data: Expense[]): Record<string, number> | null => {
+export const calcTopCategorySpending = (data: ReturnAPIResponseData[]): Record<string, number> | null => {
     if (data.length === 0) return null;
     const nameCategoryofMostSpend = data.reduce((acc, curr) => {
         if (curr.category) {
-            acc[curr.category] = (acc[curr.category] || 0) + curr.amount;
+            acc[curr.category as unknown as string] = (acc[curr.category as unknown as string] || 0) + curr.amount;
         }
         return acc;
     }, {} as Record<string, number>);
@@ -17,6 +17,8 @@ export const calcTopCategorySpending = (data: Expense[]): Record<string, number>
     return { [topEntry[0]]: topEntry[1] };
 }
 type CategoryTotals = Record<string, number>;
+
+
 export const getCategoryAndTotalAmount = (data: Expense[]) => {
     if (data.length === 0) return null;
     const categoryTotals = data.reduce<CategoryTotals>((acc, curr) => {

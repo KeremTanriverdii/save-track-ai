@@ -1,17 +1,10 @@
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
+import { Budget } from "@/lib/types/type";
 import { Landmark } from "lucide-react";
 
-export interface BudgetProps {
-    budget: number;
-    currency: string;
-}
 
-
-
-export default function BudgetShowComponent({ budget, currency }: BudgetProps) {
+export default function BudgetShowComponent({ budget, currency }: Budget) {
     if (!budget) return 0
-
-
     return (
         <Card>
             <CardHeader>

@@ -7,6 +7,21 @@ export const writeResults = async (verifyUid: string, data: {
     risks: string[];
     patterns: string[];
     suggestions: string[];
+    dataTable: {
+        columns: {
+            accessorKey: string;
+            header: string;
+        }[];
+        rows: {
+            day: number;
+            amount: number;
+            title: string;
+            category: string;
+            exceeded: boolean;
+            percentage: string;
+            threshold: number;
+        }[];
+    }
 }) => {
 
     if (!verifyUid) throw new Error("Missing required identifier: uid");
@@ -17,6 +32,7 @@ export const writeResults = async (verifyUid: string, data: {
         const aiCoachingRef = db.collection('users').doc(verifyUid).collection('aiResults');
 
         const addDocRef = await aiCoachingRef.add({
+            id: aiCoachingRef.id,
             insight: data,
             createdAt: FieldValue.serverTimestamp()
         });

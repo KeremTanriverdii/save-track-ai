@@ -6,6 +6,7 @@ import { updateExpense } from "@/lib/expenses/uptadeExpense";
 import { getAuthenticatedUser } from '@/utils/getAuthenticatedUser';
 import { revalidateTag } from 'next/cache';
 import { ExpensePayload } from '@/lib/types/type';
+import { cookies } from 'next/headers';
 
 
 export async function POST(request: Request) {
@@ -56,20 +57,17 @@ export async function POST(request: Request) {
 }
 
 export async function GET(req: Request) {
-    const verifyUid = await getAuthenticatedUser();
-    if (!verifyUid) {
-        return NextResponse.json({ error: 'Unauthorized' })
-    }
+    const verifyUid: { uid: string } | null = await getAuthenticatedUser();
     try {
         const { searchParams } = new URL(req.url)
         const month = searchParams.get('yearMonth')
         let usersCollectionData
 
         if (month) {
-            usersCollectionData = await getExpenses(verifyUid.uid, month);
+            usersCollectionData = await getExpenses(verifyUid!.uid, month);
             return NextResponse.json(usersCollectionData, { status: 200 })
         } else {
-            usersCollectionData = await getExpenses(verifyUid.uid, undefined);
+            usersCollectionData = await getExpenses(verifyUid!.uid, undefined);
             return NextResponse.json(usersCollectionData, { status: 200 })
         }
 

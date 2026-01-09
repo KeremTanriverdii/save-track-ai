@@ -18,45 +18,52 @@ export async function POST(req: Request) {
         const body: ButtonAiComponentProps = await req.json();
         const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
         const { requestData, currentMonth } = body;
-        const { dailyData, summary } = requestData;
+        const { dailyData, oneTimePaid, subscription, summary } = requestData;
 
         const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 
         const prompt = `
-        You are a personal finance coach.
+        You are a personal finance coach and you are arrange the user's. 
+        
+        You are a financial coach, and with the data I send, you can see the days the user spent money during the month, any anomalies ${summary?.anomalies}, and the summary includes: total spending ${summary?.totalSpending}, average spending ${summary?.averageSpending}, the most spent category for that month ${summary?.categoryTotals}, and the JSON object for the day of excessive spending, including the day and amount ${dailyData}, title, category, whether it was exceeded, percentage of exceedance, and threshold values in ${summary.overSpends.map(overSpend => overSpend)}.
 
-Your task is to analyze the user's monthly spending behavior using the JSON data provided. 
-This data includes totals, averages, category distributions, daily spending, anomalies, and spending trends.
+        one time paid information = ${oneTimePaid}, monthly or yearly subscription paid information = ${subscription}
 
-Your responsibilities:
-1. Evaluate the user’s overall budget performance for the month.
-2. Identify the riskiest spending category and explain why.
-3. Comment on daily spending patterns (consistency, spikes, unusual days).
-4. Interpret the trend data (is spending rising or falling? why might this be happening?).
-5. Provide exactly 3 actionable and realistic suggestions the user can apply immediately.
-6. Keep the tone calm, concise, and informative.
-7. Avoid generic advice; use the provided numbers meaningfully.
-8. Do not include any text outside the JSON structure.
+        The currentMonth object contains the following information for that month:
 
-Input data will be provided as a JSON object here:
-{{analyticsInput}}
+        ID in YYYY-MM, budget, currency, total monthly expenditure, remaining budget, and subscription project information ${currentMonth}.
 
-You must respond **strictly in the following JSON format**:
-
-{
-  "summary": "A brief 2–3 sentence overview of the user’s financial performance.",
-  "risks": [
-    "A short sentence describing the most problematic category or pattern."
-  ],
-  "patterns": [
-    "A concise observation about daily spending or anomalies."
-  ],
-  "suggestions": [
-    "Actionable suggestion 1",
-    "Actionable suggestion 2",
-    "Actionable suggestion 3"
-  ]
-} ` .replace('{{analyticsInput}}', JSON.stringify(body));
+        Your task is to analyze the user's monthly spending behavior using the JSON data provided. 
+        
+        Your responsibilities:
+        1. Evaluate the user’s overall budget performance for the month.
+        2. Identify the riskiest spending category and explain why.
+        3. Comment on daily spending patterns (consistency, spikes, unusual days).
+        4. Interpret the trend data (is spending rising or falling? why might this be happening?).
+        5. Provide exactly 3 actionable and realistic suggestions the user can apply immediately.
+        6. Keep the tone calm, concise, and informative.
+        7. Avoid generic advice; use the provided numbers meaningfully.
+        8. Do not include any text outside the JSON structure.
+        
+        Input data will be provided as a JSON object here:
+        {{analyticsInput}}
+        
+        You must respond **strictly in the following JSON format**:
+        
+        {
+          "summary": "A brief 2–3 sentence overview of the user’s financial performance.",
+          "risks": [
+            "A short sentence describing the most problematic category or pattern."
+          ],
+          "patterns": [
+            "A concise observation about daily spending or anomalies."
+          ],
+          "suggestions": [
+            "Actionable suggestion 1",
+            "Actionable suggestion 2",
+            "Actionable suggestion 3"
+          ]
+        } ` .replace('{{analyticsInput}}', JSON.stringify(body));
 
         const response = await ai.models.generateContent({
             model: 'gemini-2.0-flash',
@@ -81,19 +88,66 @@ You must respond **strictly in the following JSON format**:
                             type: 'array',
                             items: { type: 'string' },
                             description: 'Exactly 3 actionable suggestions'
+                        },
+                        dataTable: {
+                            type: 'object',
+                            properties: {
+                                columns: {
+                                    type: 'array',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            accessorKey: { type: 'string' },
+                                            header: { type: 'string' }
+                                        }
+                                    },
+                                    description: 'Table column titles: day, amount, title, category, exceeded, percentage, threshold'
+                                },
+                                rows: {
+                                    type: 'array',
+                                    items: {
+                                        type: 'object',
+                                        properties: {
+                                            day: { type: 'number' },
+                                            amount: { type: 'number' },
+                                            title: { type: 'string' },
+                                            category: { type: 'string' },
+                                            exceeded: { type: 'boolean' },
+                                            percentage: { type: 'string' },
+                                            threshold: { type: 'number' }
+                                        }
+                                    },
+                                    description: 'Only send the expense list for the data you are considering.'
+                                }
+                            },
+                            required: ['columns', 'rows']
                         }
                     },
-                    required: ['summary', 'risks', 'patterns', 'suggestions']
+                    required: ['summary', 'risks', 'patterns', 'suggestions', 'dataTable']
                 }
             }
         });
         const geminiResponseText = response.text;
-
         let insightData: {
             summary: string;
             risks: string[];
             patterns: string[];
             suggestions: string[];
+            dataTable: {
+                columns: {
+                    accessorKey: string;
+                    header: string;
+                }[];
+                rows: {
+                    day: number;
+                    amount: number;
+                    title: string;
+                    category: string;
+                    exceeded: boolean;
+                    percentage: string;
+                    threshold: number;
+                }[];
+            }
         } | null = null;
         try {
             insightData = JSON.parse(geminiResponseText as string);

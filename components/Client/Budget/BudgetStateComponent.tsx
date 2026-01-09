@@ -40,7 +40,6 @@ export default function BudgetState({ total, monthly }: BudgetStateProps) {
             <h2 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Monthly Budget</h2>
             <span className="text-white font-bold text-2xl">
               {monthly ? `${monthly.budget.toFixed(2)}${monthly.currency} ` : '---'}
-              {monthly ? new Date(monthly.monthId).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : 'Undefined'}
             </span>
           </div>
         </div>

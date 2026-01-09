@@ -24,7 +24,7 @@ interface ChartAnalyticsProps {
 
 }
 
-export function ChartAnalytics({ initialData, currentMonth }: ChartAnalyticsProps) {
+export function ChartAnalytics({ initialData }: ChartAnalyticsProps) {
     const chartData: DailyChartData[] = initialData.dailyData || []
     const mostSpendingCategory = (initialData.categoryTotals || {})
     const totalSpending = initialData.totalSpending

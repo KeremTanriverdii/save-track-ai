@@ -11,17 +11,16 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarMenuSub,
-    SidebarMenuSubItem,
 } from "@/components/ui/sidebar"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./collapsible"
 import getDateResultsAndDate from "@/lib/ai-respons/getDateResultsAndDate"
 import Link from "next/link"
-import DeleteReportButtonComponent from "../Client/DeleteReportButtonComponent"
 import { DropdownMenu, DropdownMenuTrigger } from "@radix-ui/react-dropdown-menu"
 import { DropdownMenuContent, DropdownMenuItem } from "./dropdown-menu"
 import LogoutClientComponent from "../Client/Auth/LogoutClientComponent"
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar"
 import { getUserData } from "@/lib/auth/user"
+import ExpandableList from "../Client/ShowMoreAndLess"
 
 // Menu items.
 const items = [
@@ -51,14 +50,15 @@ const items = [
 export async function AppSidebar() {
     const user = await getUserData();
     const menuItem = await getDateResultsAndDate(user?.uid as string);
+    const data = JSON.parse(JSON.stringify(menuItem));
     return (
         <Sidebar>
             <SidebarContent>
                 <SidebarGroup>
-                    <SidebarGroupLabel>Application</SidebarGroupLabel>
+                    <SidebarGroupLabel>SaveTrack</SidebarGroupLabel>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {/* 1. Normal Menü Öğeleri */}
+                            {/* 1. normal items */}
                             {items.map((item) => (
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
@@ -84,27 +84,7 @@ export async function AppSidebar() {
 
                                     <CollapsibleContent>
                                         <SidebarMenuSub>
-                                            {menuItem.map((item) => (
-                                                <SidebarMenuSubItem key={item.id} className="flex justify-between items-center">
-                                                    <Link href={`/dashboard/ai-coach/details/${item.id}`}>
-                                                        {item.createdAt
-                                                            ? `${new Date(item.createdAt).toLocaleDateString()} Report`
-                                                            : "Tarih Yok"}
-                                                    </Link>
-                                                    <DeleteReportButtonComponent id={item.id} />
-                                                </SidebarMenuSubItem>
-                                            ))}
-                                            <SidebarMenuSubItem className="pl-0">
-                                                <Collapsible>
-                                                    <CollapsibleTrigger asChild>
-                                                        <div className="flex items-center justify-between w-full pl-8 py-2 text-sm text-gray-500 hover:text-gray-900 cursor-pointer">
-                                                            <span>Diğer Analizler</span>
-                                                        </div>
-
-                                                    </CollapsibleTrigger>
-
-                                                </Collapsible>
-                                            </SidebarMenuSubItem>
+                                            <ExpandableList items={data} />
 
                                         </SidebarMenuSub>
                                     </CollapsibleContent>
@@ -180,7 +160,6 @@ export async function AppSidebar() {
                                     <LogoutClientComponent />
                                 </DropdownMenuContent>
                             }
-
                         </DropdownMenu>
                     </SidebarMenuItem>
                 </SidebarMenu>
