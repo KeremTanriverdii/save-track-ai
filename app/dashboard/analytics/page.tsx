@@ -15,8 +15,13 @@ import { detectOverspendAreas } from '@/lib/insights/detectOverspendAreas';
 import { detectAnomalies } from '@/lib/insights/detectAnomalies';
 import { getExpenses } from '@/lib/expenses/getExpense';
 import { Suspense } from 'react';
+import { Metadata } from 'next';
 
 
+export const metadata: Metadata = {
+    title: "Analytics",
+    description: "Analytics page",
+};
 
 async function getAnalyticsData(month: string, uid: string) {
     try {

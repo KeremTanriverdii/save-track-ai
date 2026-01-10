@@ -32,6 +32,7 @@ export const BudgetDeclareComponent = ({ budget, currency }: Budget) => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setNewBudget(newBudget);
         try {
             const res = await fetch(`/api/budget?yearMonth=${yearMonth}`, {
                 method: 'POST',
@@ -40,13 +41,8 @@ export const BudgetDeclareComponent = ({ budget, currency }: Budget) => {
             })
 
             if (!res.ok) throw new Error('Network response was not ok');
-
-            const budgetResponse = await res.json();
-
             setMessage('Form submitted successfully!');
-            setNewBudget(budgetResponse.budget);
             router.refresh();
-
         } catch (err) {
             console.error(err);
             setMessage('Error updating budget');

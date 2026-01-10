@@ -3,6 +3,12 @@ import { getUserData } from '@/lib/auth/user';
 import { getExpenses } from '@/lib/expenses/getExpense'
 import { runLazySubscriptionCheck } from '@/lib/expenses/runLazySubscriptionCheck';
 import { ReturnAPIResponseData } from '@/lib/types/type';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+    title: "Expenses",
+    description: "Expenses page",
+};
 
 export default async function page() {
     const user = await getUserData()
